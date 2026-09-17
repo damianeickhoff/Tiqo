@@ -147,17 +147,34 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
         />
       ) : null}
 
+      {/* Two different empty pages. Somebody who has never asked us for
+          anything is told what this page will hold; somebody whose filter or
+          search simply matched nothing is told that, and offered the way back
+          to the whole list. Saying "you have not asked us for anything yet" to
+          a person with six open requests is the page calling them a liar. */}
       {tickets.length === 0 ? (
         <div className="mt-8">
-          <EmptyState
-            title={t.portal.noneYet}
-            body={t.portal.noneYetBody}
-            action={
-              <Link href="/portal" className={MAKE_REQUEST}>
-                {t.portal.raiseOne}
-              </Link>
-            }
-          />
+          {allCount === 0 ? (
+            <EmptyState
+              title={t.portal.noneYet}
+              body={t.portal.noneYetBody}
+              action={
+                <Link href="/portal" className={MAKE_REQUEST}>
+                  {t.portal.raiseOne}
+                </Link>
+              }
+            />
+          ) : (
+            <EmptyState
+              title={t.portal.noMatches}
+              body={t.portal.noMatchesBody}
+              action={
+                <Link href="/portal/requests" className={MAKE_REQUEST}>
+                  {t.portal.showEverything}
+                </Link>
+              }
+            />
+          )}
         </div>
       ) : (
         groups.map((group) => (

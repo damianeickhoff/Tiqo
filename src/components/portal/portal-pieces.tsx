@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -221,6 +222,16 @@ export function Announcement({
   );
 }
 
+/**
+ * How many there are, beside a heading.
+ *
+ * Mono, because it is a number the eye compares down a page of headings, and
+ * the proportional face makes 7 and 11 the same width.
+ */
+export function Count({ n }: { n: number }) {
+  return <span className="tnum font-mono text-[12.5px] font-medium">{n}</span>;
+}
+
 /** A section's heading: the title, what it is in a few words, and a way through to everything in it. */
 export function BandHeader({
   title,
@@ -229,7 +240,9 @@ export function BandHeader({
   linkLabel,
 }: {
   title: string;
-  subtitle?: string | null;
+  /// A few words, or a count — the pages that put a number here draw it in
+  /// mono, which a string could not carry.
+  subtitle?: ReactNode;
   href?: string;
   linkLabel?: string;
 }) {

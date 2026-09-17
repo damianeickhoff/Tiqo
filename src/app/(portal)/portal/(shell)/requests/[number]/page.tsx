@@ -251,12 +251,19 @@ export default async function PortalRequest({
 
       <div className="mt-4 grid grid-cols-1 items-start gap-x-11 gap-y-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex min-w-0 flex-col gap-5">
-          <ApprovalPrompt approvals={approvals} viewerId={user.id} />
+          <ApprovalPrompt
+            approvals={approvals}
+            viewerId={user.id}
+            className="rounded-[18px] px-[22px] py-4"
+          />
 
           {/* The requester hears it here rather than working it out from a
               status pill: their change is not going to happen. */}
           {ticket.status?.isCancelling ? (
-            <CancelledNote reason={refusal?.comment ?? undefined} />
+            <CancelledNote
+              reason={refusal?.comment ?? undefined}
+              className="rounded-[18px] px-[22px] py-4"
+            />
           ) : null}
 
           {justRaised ? (

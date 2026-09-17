@@ -136,14 +136,20 @@ export function PortalForm({
                         field.halfWidth ? "sm:col-span-1" : "sm:col-span-2",
                       )}
                     >
-                      <label htmlFor={field.id} className="flex items-baseline gap-0.5">
-                        <span className="text-[13.5px] font-semibold">{field.label}</span>
-                        {field.required ? (
-                          <span className="text-negative text-[13.5px]" title={t.portal.required}>
-                            *
-                          </span>
-                        ) : null}
-                      </label>
+                      {/* A question with nothing written in it draws no label
+                          rather than a lone asterisk over an empty line. The
+                          designer refuses a blank one now, but forms built
+                          before it did are still out there. */}
+                      {field.label.trim() ? (
+                        <label htmlFor={field.id} className="flex items-baseline gap-0.5">
+                          <span className="text-[13.5px] font-semibold">{field.label}</span>
+                          {field.required ? (
+                            <span className="text-negative text-[13.5px]" title={t.portal.required}>
+                              *
+                            </span>
+                          ) : null}
+                        </label>
+                      ) : null}
 
                       {/* Pasting a screenshot into any answer attaches it, rather
                       than dropping nothing into the box. */}

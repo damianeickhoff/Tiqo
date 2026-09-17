@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { getMessages } from "@/lib/settings";
 import { portalSearch, type SearchHit } from "@/lib/portal";
 import { PortalSearch } from "@/components/portal/portal-search";
-import { ArticleCard, BandHeader, ServiceCard } from "@/components/portal/portal-pieces";
+import { ArticleCard, BandHeader, Count, ServiceCard } from "@/components/portal/portal-pieces";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getMessages()).portal.searchTitle };
@@ -82,7 +82,7 @@ export default async function PortalSearchPage({ searchParams }: { searchParams:
       <div className="space-y-12">
         {forms.length > 0 ? (
           <section className="animate-rise">
-            <BandHeader title={t.portal.requests} subtitle={String(forms.length)} />
+            <BandHeader title={t.portal.requests} subtitle={<Count n={forms.length} />} />
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {forms.map((hit) => (
                 <li key={`form-${hit.id}`}>
@@ -102,7 +102,7 @@ export default async function PortalSearchPage({ searchParams }: { searchParams:
 
         {answers.length > 0 ? (
           <section className="animate-rise">
-            <BandHeader title={t.portal.answers} subtitle={String(answers.length)} />
+            <BandHeader title={t.portal.answers} subtitle={<Count n={answers.length} />} />
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {answers.map((hit) => (
                 <li key={`article-${hit.id}`}>
@@ -120,7 +120,7 @@ export default async function PortalSearchPage({ searchParams }: { searchParams:
 
         {everything.length > 0 ? (
           <section className="animate-rise">
-            <BandHeader title={t.portal.requests} subtitle={String(everything.length)} />
+            <BandHeader title={t.portal.requests} subtitle={<Count n={everything.length} />} />
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {everything.map((form) => (
                 <li key={form.id}>

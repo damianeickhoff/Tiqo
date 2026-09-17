@@ -333,7 +333,9 @@ export function AttachChips({ className }: { className?: string }) {
                   filename takes the whole row; without the truncation a narrow
                   screen squeezes every chip down to nothing at all. */}
               <span className="max-w-[14rem] truncate">{file.name}</span>
-              <span className="text-text-3 shrink-0">{formatSize(file.size)}</span>
+              <span className="text-text-3 shrink-0 font-mono text-xs">
+                {formatSize(file.size)}
+              </span>
               <button
                 type="button"
                 onClick={() => attachments.remove(file)}

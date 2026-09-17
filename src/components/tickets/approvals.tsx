@@ -421,9 +421,14 @@ function AskDialog({
 export function ApprovalPrompt({
   approvals,
   viewerId,
+  className,
 }: {
   approvals: ApprovalView[];
   viewerId: string;
+  /// The shape of the page it is standing on. The desk's callouts are card
+  /// sized; the portal's are a step larger, and a prompt that keeps the desk's
+  /// radius in a column of portal cards reads as something pasted in.
+  className?: string;
 }) {
   const t = useMessages();
   const dateFormat = useDateFormat({ day: "numeric", month: "short" });
@@ -446,7 +451,7 @@ export function ApprovalPrompt({
   return (
     <div className="space-y-3">
       {mine.map((approval) => (
-        <div key={approval.id} className="callout-brand p-4">
+        <div key={approval.id} className={cn("callout-brand p-4", className)}>
           <p className="text-brand-deep flex items-center gap-2 text-sm font-semibold">
             <Stamp size={14} />
             {t.approvals.yourTurn}

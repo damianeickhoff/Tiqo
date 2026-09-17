@@ -833,6 +833,10 @@ export const nl: Messages = {
     sending: "Versturen…",
     noneYet: "Je hebt ons nog niets gevraagd",
     noneYetBody: "Zodra je dat doet, staat het hier met de status erbij.",
+    noMatches: "Hier past niets bij",
+    noMatchesBody:
+      "Geen van je meldingen komt hiermee overeen. Probeer een ander woord, of bekijk alles.",
+    showEverything: "Alles tonen",
     raiseOne: "Een melding maken",
     stillOpen: "Nog open",
     settled: "Afgerond",

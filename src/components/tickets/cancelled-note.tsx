@@ -1,5 +1,6 @@
 import { Ban } from "lucide-react";
 import { getMessages } from "@/lib/settings";
+import { cn } from "@/lib/utils";
 
 /**
  * A cancelled change says so, loudly, wherever it is read.
@@ -12,14 +13,22 @@ import { getMessages } from "@/lib/settings";
 export async function CancelledNote({
   refusedBy,
   reason,
+  className,
 }: {
   refusedBy?: string;
   reason?: string;
+  /// The shape of the page it is standing on — see `ApprovalPrompt`.
+  className?: string;
 }) {
   const t = await getMessages();
 
   return (
-    <div className="border-negative/35 bg-negative/[0.07] rounded-card flex items-start gap-3 border px-4 py-3.5">
+    <div
+      className={cn(
+        "border-negative/35 bg-negative/[0.07] rounded-card flex items-start gap-3 border px-4 py-3.5",
+        className,
+      )}
+    >
       <Ban size={18} className="text-negative mt-0.5 shrink-0" />
       <div className="min-w-0">
         <p className="text-md font-semibold">

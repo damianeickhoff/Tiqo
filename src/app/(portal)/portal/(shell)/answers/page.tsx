@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { getMessages } from "@/lib/settings";
 import { PortalSearch } from "@/components/portal/portal-search";
-import { ArticleCard, BandHeader } from "@/components/portal/portal-pieces";
+import { ArticleCard, BandHeader, Count } from "@/components/portal/portal-pieces";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getMessages()).portal.answers };
@@ -101,7 +101,7 @@ export default async function PortalAnswers() {
         <div className="space-y-12">
           {ordered.map((group) => (
             <section key={group.name}>
-              <BandHeader title={group.name} subtitle={String(group.rows.length)} />
+              <BandHeader title={group.name} subtitle={<Count n={group.rows.length} />} />
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {group.rows.map((article) => (
                   <li key={article.id}>
