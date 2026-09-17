@@ -21,7 +21,7 @@ import {
   ServiceCard,
   Tile,
 } from "@/components/portal/portal-pieces";
-import { WaitingBanner } from "@/components/portal/waiting-banner";
+import { ApprovalNudge, WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,7 +78,7 @@ export default async function PortalHome() {
             kind: "MY_REQUESTS" as const,
             title: null,
             subtitle: null,
-            limit: 5,
+            limit: 3,
             categoryId: null,
             span: 3,
           },
@@ -111,6 +111,14 @@ export default async function PortalHome() {
   // has asked them something and is waiting. It goes at the top of the grid,
   // so it is met before the catalogue rather than under it.
   const waiting = await longestWait(user.id);
+
+  // The other thing that is stopped on them. The shell puts this over the bar
+  // on every other page; here it belongs under the search with its sibling.
+  const approval = await prisma.approval.findFirst({
+    where: { approverId: user.id, state: "PENDING" },
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true, ticket: { select: { reference: true, title: true } } },
+  });
 
   /* ------------------------------------------------------------ the top */
 
@@ -182,6 +190,14 @@ export default async function PortalHome() {
     <>
       {top}
       <div className="portal-wrap flex flex-col gap-12 pt-12 pb-16">
+        {approval ? (
+          <ApprovalNudge
+            reference={approval.ticket.reference}
+            title={approval.ticket.title}
+            since={approval.createdAt}
+          />
+        ) : null}
+
         {waiting ? (
           <WaitingBanner
             href={`/portal/requests/${waiting.number}`}
@@ -474,11 +490,11 @@ async function renderBand(
 
   if (band.kind === "FEATURED_FORMS") {
     const forms = await prisma.portalForm.findMany({
-      where: {
-        isActive: true,
-        ...(band.categoryId ? { categoryId: band.categoryId } : { isFeatured: true }),
-      },
-      orderBy: { position: "asc" },
+      // Featured first, and everything else behind them. A desk that has not
+      // picked its favourites still has a catalogue, and a band that showed
+      // nothing at all left a hole in the front page nobody could explain.
+      where: { isActive: true, ...(band.categoryId ? { categoryId: band.categoryId } : {}) },
+      orderBy: [{ isFeatured: "desc" }, { position: "asc" }],
       take: band.limit ?? 6,
       select: {
         id: true,
@@ -601,13 +617,13 @@ async function renderBand(
 
     return (
       <section className="pcard">
-        {/* Two different bands wearing one name would be a lie: with statuses
-            chosen for the portal these really are the ones waiting on the
-            person reading them, and without that choice it is simply
-            everything they have open. */}
+        {/* One name, always: this is the person's own list, and the rows that
+            are waiting on them say so themselves with a pill. A card that
+            renamed itself to "Waiting for your reply" made the other rows in
+            it look like a mistake. */}
         <div className="flex items-center justify-between gap-3 px-[22px] pt-[18px] pb-3">
           <h2 className="text-[16px] font-semibold tracking-[-0.01em]">
-            {heading.title || (flagged > 0 ? t.portal.waitingOnYou : t.portal.yourRequests)}
+            {heading.title || t.portal.yourRequests}
           </h2>
           <Link
             href="/portal/requests"

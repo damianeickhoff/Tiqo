@@ -22,7 +22,17 @@ export async function PortalDeskCard() {
   ]);
   const hours = describeHours(clock.hours);
 
-  const rows: { icon: typeof Clock; label: string; value: string; open?: boolean }[] = [
+  // `lead` says which of the two lines carries the weight. On every row it is
+  // the value — the hours, the usual wait. On the phone row it is the
+  // condition: a number set in the strong line under a small grey caption is
+  // read as the service desk's number, and rung at ten in the morning.
+  const rows: {
+    icon: typeof Clock;
+    label: string;
+    value: string;
+    open?: boolean;
+    lead?: "label";
+  }[] = [
     {
       icon: Clock,
       label: t.portal.openingHours,
@@ -41,7 +51,14 @@ export async function PortalDeskCard() {
         reply === null ? t.portal.noTypicalReply : t.portal.aboutSpan(shortSpan(reply * 60_000, t)),
     },
     ...(settings.deskPhone
-      ? [{ icon: Phone, label: t.portal.deskPhoneRow, value: settings.deskPhone }]
+      ? [
+          {
+            icon: Phone,
+            label: t.portal.deskPhoneRow,
+            value: settings.deskPhone,
+            lead: "label" as const,
+          },
+        ]
       : []),
   ];
 
@@ -51,7 +68,7 @@ export async function PortalDeskCard() {
         {t.portal.deskCard}
       </h2>
       <ul>
-        {rows.map(({ icon: Icon, label, value, open }) => (
+        {rows.map(({ icon: Icon, label, value, open, lead }) => (
           <li
             key={label}
             className="border-line flex items-center gap-3.5 border-t px-5 py-3 text-base last:pb-[18px]"
@@ -71,8 +88,17 @@ export async function PortalDeskCard() {
               <Icon size={16} />
             </span>
             <span className="min-w-0">
-              <span className="text-text-3 block text-xs">{label}</span>
-              <span className="block truncate font-medium">{value}</span>
+              {lead === "label" ? (
+                <>
+                  <span className="block font-medium">{label}</span>
+                  <span className="text-text-2 mt-0.5 block truncate">{value}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-text-3 block text-xs">{label}</span>
+                  <span className="block truncate font-medium">{value}</span>
+                </>
+              )}
             </span>
           </li>
         ))}

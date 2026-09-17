@@ -808,10 +808,13 @@ export const nl: Messages = {
     replyNow: "Reageren",
     waitingFor: (who: string) => `${who} wacht op je antwoord bij`,
     askedYouSomething: (who: string, age: string) => `${who} vroeg je iets ${age} geleden`,
-    raisedAsLine: (priority: string, kind: string, group: string) =>
-      `Gemeld als ${priority.toLowerCase()} ${kind.toLowerCase()} · beantwoord door ${group}`,
-    withinAbout: (hours: number) => ` binnen ongeveer ${hours} uur`,
-    updatesGoTo: (email: string) => `Updates gaan naar ${email} en naar Mijn meldingen`,
+    /* De voet van een nieuwe melding, in delen — zie en.ts. */
+    raisedAs: "Wordt gemeld als",
+    answeredBy: "beantwoord door",
+    withinAbout: "binnen ongeveer",
+    hoursShort: (hours: number) => `${hours} uur`,
+    updatesTo: "Updates gaan naar",
+    andMyRequests: "en naar Mijn meldingen",
     noneOfThese: "Geen van deze",
     theDesk: "de servicedesk",
     lastReplyBy: (who: string, age: string) => `${who} reageerde ${age} geleden`,
@@ -886,7 +889,7 @@ export const nl: Messages = {
     exampleResolved: "Toegang tot de HR SharePoint-site",
     exampleWho: "Mila Kuipers",
     exampleQuote: "“Kun je het één keer op de accu proberen en zeggen of hij wakker wordt?”",
-    deskPhoneRow: "Dringend en de desk is dicht",
+    deskPhoneRow: "Alleen als de desk dicht is en het niet kan wachten",
     aboutSpan: (span: string) => `Ongeveer ${span}`,
 
     /* De binnenpagina's van ronde 12. */

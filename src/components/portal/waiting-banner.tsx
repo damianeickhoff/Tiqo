@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, MessageSquare } from "lucide-react";
+import { ArrowRight, MessageSquare, Stamp } from "lucide-react";
 import { getMessages } from "@/lib/settings";
 import { shortAge } from "@/lib/tickets";
 
@@ -58,6 +58,50 @@ export async function WaitingBanner({
       </span>
       <span className="bg-brand text-brand-fg inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-base font-semibold">
         {t.portal.replyNow}
+        <ArrowRight size={13} />
+      </span>
+    </Link>
+  );
+}
+
+/**
+ * A decision the desk is waiting on, in the same shape as the nudge above.
+ *
+ * The two say the same kind of thing — something of yours has stopped and it
+ * is stopped on you — so they are one object with two icons rather than a card
+ * and a coloured strip that happen to sit on the same page.
+ */
+export async function ApprovalNudge({
+  reference,
+  title,
+  since,
+}: {
+  reference: string;
+  title: string;
+  /// When they were asked.
+  since: Date;
+}) {
+  const t = await getMessages();
+
+  return (
+    <Link
+      href="/portal/approvals"
+      className="pcard relative flex flex-wrap items-center gap-x-4 gap-y-2 overflow-hidden py-4 pr-[22px] pl-[28px] text-[14.5px] transition-shadow hover:shadow-[var(--shadow-md)]"
+    >
+      <span aria-hidden className="bg-brand absolute inset-y-0 left-0 w-1.5" />
+      <span
+        aria-hidden
+        className="bg-brand text-brand-fg flex size-10 shrink-0 items-center justify-center rounded-full"
+      >
+        <Stamp size={17} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="font-semibold">{t.portal.approvalBanner(shortAge(since))}</span>{" "}
+        <span className="font-mono text-[13px] underline underline-offset-[3px]">{reference}</span>
+        <span className="text-text-2"> · {title}</span>
+      </span>
+      <span className="bg-brand text-brand-fg inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-base font-semibold">
+        {t.portal.approvalBannerAction}
         <ArrowRight size={13} />
       </span>
     </Link>

@@ -809,10 +809,14 @@ export const en = {
     replyNow: "Reply",
     waitingFor: (who: string) => `${who} is waiting for your answer on`,
     askedYouSomething: (who: string, age: string) => `${who} asked you something ${age} ago`,
-    raisedAsLine: (priority: string, kind: string, group: string) =>
-      `Raised as a ${priority.toLowerCase()} ${kind.toLowerCase()} · answered by ${group}`,
-    withinAbout: (hours: number) => ` within about ${hours}h`,
-    updatesGoTo: (email: string) => `Updates go to ${email} and to My requests`,
+    /* The footer of a new request, in parts: what sending it does is the
+       sentence, and the three things somebody checks are the words in it. */
+    raisedAs: "Raised as a",
+    answeredBy: "answered by",
+    withinAbout: "within about",
+    hoursShort: (hours: number) => `${hours}h`,
+    updatesTo: "Updates go to",
+    andMyRequests: "and to My requests",
     noneOfThese: "None of these",
     theDesk: "the service desk",
     lastReplyBy: (who: string, age: string) => `${who} replied ${age} ago`,
@@ -886,7 +890,9 @@ export const en = {
     exampleResolved: "Access to the HR SharePoint site",
     exampleWho: "Mila Kuipers",
     exampleQuote: "“Could you try it on battery once and tell me whether it wakes?”",
-    deskPhoneRow: "Urgent and the desk is closed",
+    /* The condition comes first and carries the weight: read as a heading
+       with a number under it, this row is mistaken for the main desk line. */
+    deskPhoneRow: "Only when the desk is closed, and it will not wait",
     aboutSpan: (span: string) => `About ${span}`,
 
     /* The round-12 inner pages. */

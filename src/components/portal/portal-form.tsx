@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useActionState, useEffect, useState } from "react";
+import { Fragment, useActionState, useEffect, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { BookOpen, Send } from "lucide-react";
 import type { PortalFieldKind, PortalFieldTarget } from "@/generated/prisma/enums";
@@ -68,7 +68,10 @@ export function PortalForm({
   fields: PortalField[];
   /// What happens when this is sent, written by the server: it knows the
   /// desk"s clock, the group behind the form and who is signed in.
-  footer: string[];
+  /// Written by the page, in parts, so the three things somebody checks
+  /// before sending — what it becomes, who answers it, where the answer goes —
+  /// can carry the weight in a sentence that is otherwise quiet.
+  footer: ReactNode[];
 }) {
   const t = useMessages();
   const submit = submitForm.bind(null, formId);
@@ -207,8 +210,8 @@ export function PortalForm({
             {/* What sending this actually does, said before it is done rather than
             on the confirmation screen afterwards. */}
             <div className="text-text-2 min-w-0 text-[13.5px] leading-[1.55]">
-              {footer.map((line) => (
-                <p key={line}>{line}</p>
+              {footer.map((line, index) => (
+                <p key={index}>{line}</p>
               ))}
             </div>
             <Submit />

@@ -31,6 +31,10 @@ export function ApprovalBanner({
   const t = useMessages();
   const pathname = usePathname();
   if (pathname.startsWith("/portal/approvals")) return null;
+  // The front page says it in its own words, under the search rather than over
+  // it: there it is one of the things addressed to this person, beside the
+  // request the desk is waiting on, and the two belong together.
+  if (pathname === "/portal") return null;
 
   return (
     <div className="portal-wrap mt-2">

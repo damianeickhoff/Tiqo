@@ -131,12 +131,28 @@ export default async function PortalFormPage({ params }: { params: Params }) {
   // and who answers it, and where the answer will turn up.
   const timed = hasResponseTarget(form.type);
   const footer = [
-    t.portal.raisedAsLine(
-      t.vocab.priority[form.priority],
-      t.vocab.type[form.type],
-      form.team?.name ?? t.portal.theDesk,
-    ) + (timed ? t.portal.withinAbout(clock.targets[form.priority]) : ""),
-    t.portal.updatesGoTo(user.email),
+    <>
+      {t.portal.raisedAs}{" "}
+      <b className="text-text font-semibold">
+        {t.vocab.priority[form.priority].toLowerCase()} {t.vocab.type[form.type].toLowerCase()}
+      </b>
+      {" · "}
+      {t.portal.answeredBy}{" "}
+      <b className="text-text font-semibold">{form.team?.name ?? t.portal.theDesk}</b>
+      {timed ? (
+        <>
+          {" "}
+          {t.portal.withinAbout}{" "}
+          <b className="text-text font-semibold">
+            {t.portal.hoursShort(clock.targets[form.priority])}
+          </b>
+        </>
+      ) : null}
+    </>,
+    <>
+      {t.portal.updatesTo} <b className="text-text font-semibold">{user.email}</b>{" "}
+      {t.portal.andMyRequests}
+    </>,
   ];
 
   return (
