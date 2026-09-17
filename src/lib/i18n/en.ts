@@ -723,6 +723,11 @@ export const en = {
     portalBlurb: "Where people who are not on the desk come to ask for something.",
     openHint: "Closed, everyone goes straight to the desk instead.",
     welcomeHint: "One sentence under the greeting on the front page.",
+    deskPhoneLabel: "Phone line",
+    deskPhoneHint: "Shown on the portal for when the desk is closed. Leave empty to show nothing.",
+    leadsPortal: "On the front page's shelf",
+    leadsPortalOff: "Take off the shelf",
+    leadsPortalOn: "Put on the shelf",
     formsBlurb: "What someone can ask for, and what each request becomes.",
     formBlurb: "What this form is for",
     raisesBlurb: "Every request through this form becomes a ticket with these settings.",
@@ -857,6 +862,27 @@ export const en = {
     typicalReply: "Usually answered in",
     noTypicalReply: "Not enough answered yet to say",
     until: (date: string) => `Until ${date}`,
+
+    /* The round-12 front page. */
+    searchButton: "Search",
+    browseEverything: "Browse everything",
+    shelfCount: (items: number, sections: number) =>
+      `${items} ${items === 1 ? "item" : "items"} · ${sections} ${sections === 1 ? "section" : "sections"}`,
+    yourRequests: "Your requests",
+    popularBlurb: "The things people ask for most",
+    allAnswers: "All answers",
+    onIt: (who: string) => `${who} is on it`,
+    notPickedUp: "Not picked up yet",
+    repliedAgo: (age: string) => `replied ${age} ago`,
+    resolved: "Resolved",
+    exampleCard: "Example",
+    exampleOpen: "Laptop will not wake from sleep",
+    exampleOpenSub: "Mila is on it · replied 3h ago",
+    exampleResolved: "Access to the HR SharePoint site",
+    exampleWho: "Mila Kuipers",
+    exampleQuote: "“Could you try it on battery once and tell me whether it wakes?”",
+    deskPhoneRow: "Urgent and the desk is closed",
+    aboutSpan: (span: string) => `About ${span}`,
   },
 
   plan: {
@@ -1963,7 +1989,7 @@ export const en = {
     },
     brandTitle: "Primary colour",
     brandBlurb:
-      "Every accent in the app is derived from this one colour — buttons, the rail, chips, the tint behind a card's header.",
+      "Every accent in the app is derived from this one colour — the portal's front page, buttons, chips, and anything waiting on somebody.",
     brandApply: "Apply colour",
     brandApplying: "Applying…",
     brandApplied: "Applied",
@@ -2065,7 +2091,9 @@ export const en = {
     usePreset: (name: string) => `Use ${name}`,
     previewButton: "Button",
     previewTint: "Tint",
-    previewRail: "Rail",
+    previewHero: "The portal's front page",
+    previewHeroGreeting: "Hello, Sam",
+    previewHeroLine: "What do you need?",
     closeSendsHere: "The Close button sends tickets here",
     cancelSendsHere: "A refused change is cancelled into this status",
     unroutedWarning: (count: number) =>
@@ -2202,7 +2230,7 @@ export const en = {
        quotes — a template that drops it makes threading depend on mail clients
        alone. */
 
-/* ------------------------------------------------ the health strip -- */
+    /* ------------------------------------------------ the health strip -- */
 
     healthSending: "Sending",
     healthCollecting: "Collecting",
@@ -2446,6 +2474,7 @@ export const en = {
     nameStep: "Give the step a name.",
     namePhase: "Give the phase a name.",
     oneLevelOnly: "Sections only nest one level deep.",
+    shelfFull: "The shelf holds five sections. Take one off first.",
     fieldOrderOnly: "A question can only depend on one asked before it.",
     nameArticle: "Give the article a title.",
     nameAnnouncement: "Give the notice a title.",

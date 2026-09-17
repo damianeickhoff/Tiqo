@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { LayoutGrid, LifeBuoy } from "lucide-react";
 import { useMessages } from "@/components/shell/instance-context";
+import { cn } from "@/lib/utils";
 
 /**
  * A window name per side, not one shared between them.
@@ -23,7 +24,15 @@ const TAB = { desk: "tiqo-desk", portal: "tiqo-portal" } as const;
  * what brings it forward — reusing a tab without raising it looks exactly like
  * a button that did nothing.
  */
-export function EnvironmentSwitch({ here }: { here: "desk" | "portal" }) {
+export function EnvironmentSwitch({
+  here,
+  className,
+}: {
+  here: "desk" | "portal";
+  /// The portal's bar draws its controls as pills; the desk's as its usual
+  /// controls. The shape is the caller's, the behaviour is not.
+  className?: string;
+}) {
   const t = useMessages();
   const other = useRef<Window | null>(null);
 
@@ -48,7 +57,10 @@ export function EnvironmentSwitch({ here }: { here: "desk" | "portal" }) {
       type="button"
       onClick={open}
       title={t.nav.openInTab(label)}
-      className="border-border bg-surface hover:border-text-3/40 text-text-2 hover:text-text rounded-control text-md inline-flex h-9 shrink-0 items-center gap-1.5 border px-2.5 font-medium shadow-[var(--shadow-sm)] transition-[background-color,color,border-color,box-shadow] duration-150 hover:shadow-[var(--shadow-md)]"
+      className={cn(
+        "bg-surface text-text-2 hover:text-text rounded-control text-md inline-flex h-9 shrink-0 items-center gap-1.5 border border-transparent px-2.5 font-medium shadow-[var(--shadow-sm)] transition-[background-color,color,border-color,box-shadow] duration-150 hover:shadow-[var(--shadow-md)]",
+        className,
+      )}
     >
       <Icon size={15} />
       <span className="hidden sm:inline">{label}</span>

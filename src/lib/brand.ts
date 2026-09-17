@@ -67,6 +67,9 @@ export type BrandTokens = { light: Record<string, string>; dark: Record<string, 
  * The same colour reads differently on the two surfaces, so each theme gets its
  * own set: on white the brand is darkened for text and lightened for washes; on
  * near-black it is lightened for text and the washes are barely there.
+ *
+ * The chrome is not among them: the rail and the bar sit on the neutral ground
+ * in every instance, so a tenant's colour has nothing to say about them.
  */
 export function brandTokens(hex: string): BrandTokens | null {
   const brand = parseHex(hex);
@@ -75,34 +78,36 @@ export function brandTokens(hex: string): BrandTokens | null {
   // Text sitting on a brand fill: black unless the fill is dark enough to need
   // white. The threshold is where the two contrast ratios cross.
   const ink = luminance(brand) > 0.45 ? mix(brand, BLACK, 0.86) : WHITE;
+  // The far end of the hero's gradient: the same hue, a step darker. Mixed in
+  // sRGB like everything else here; the step is small enough that the drift
+  // from a true lightness step is invisible.
+  const deeper = mix(brand, BLACK, 0.1);
 
   return {
     light: {
       "--brand": toHex(brand),
+      "--brand-2": toHex(deeper),
       "--brand-hover": toHex(mix(brand, BLACK, 0.12)),
       "--brand-ink": toHex(ink),
+      // What is written on the hero and the amber bands. The same decision as
+      // the ink, named for where it is used so the portal reads as one rule.
+      "--brand-fg": toHex(ink),
       // Brand used as text on a light surface has to be dark enough to read.
       "--brand-deep": toHex(mix(brand, BLACK, 0.42)),
       "--brand-tint": rgba(brand, 0.16),
       "--brand-glow": rgba(brand, 0.32),
       "--brand-wash": toHex(mix(brand, WHITE, 0.95)),
-      // The chrome is the ground now — a tinted rail was the old design — but
-      // the keys stay so the settings preview keeps its swatch. The values are
-      // the stylesheet's own, repeated: an override that said var(--bg) would
-      // read back as that string in the preview.
-      "--chrome": "#f1f1f4",
-      "--chrome-border": "rgba(9, 9, 11, 0.06)",
     },
     dark: {
       "--brand": toHex(brand),
+      "--brand-2": toHex(deeper),
       "--brand-hover": toHex(mix(brand, WHITE, 0.18)),
       "--brand-ink": toHex(ink),
+      "--brand-fg": toHex(ink),
       "--brand-deep": toHex(mix(brand, WHITE, 0.12)),
       "--brand-tint": rgba(brand, 0.14),
       "--brand-glow": rgba(brand, 0.26),
       "--brand-wash": toHex(mix(brand, BLACK, 0.92)),
-      "--chrome": "#0a0a0c",
-      "--chrome-border": "rgba(255, 255, 255, 0.06)",
     },
   };
 }

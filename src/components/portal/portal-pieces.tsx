@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   ArrowRight,
   BookOpen,
-  ChevronRight,
   Info,
   MessageSquare,
   OctagonAlert,
@@ -16,11 +15,37 @@ import { shortAge } from "@/lib/tickets";
 import { cn } from "@/lib/utils";
 
 /**
- * The portal's vocabulary of cards and banners, in one place so every band of
+ * The portal's vocabulary of cards and rows, in one place so every band of
  * the front page, every catalogue page and every search result is made of the
  * same pieces. A portal assembled from one kit reads as a product; one where
  * each page invents its own cards reads as a series of screens.
+ *
+ * Round 12: contrast by fill. Cards are white on the grey ground with a low
+ * shadow and no border; category colour is used solid on round tiles.
  */
+
+/** A round tile in a section's colour, the icon white on it. */
+export function Tile({
+  icon,
+  color,
+  size = 42,
+  className,
+}: {
+  icon?: string | null;
+  color: string;
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={cn("flex shrink-0 items-center justify-center rounded-full text-white", className)}
+      style={{ width: size, height: size, background: color }}
+    >
+      <PortalIcon name={icon ?? null} size={Math.round(size * 0.45)} />
+    </span>
+  );
+}
 
 export function ServiceCard({
   href,
@@ -41,36 +66,31 @@ export function ServiceCard({
   /// offered as a way out, the way out should be visible.
   alwaysArrow?: boolean;
 }) {
-  const tone = color ?? "var(--brand)";
-
   return (
-    <Link href={href} className="card card-interactive group flex h-full items-start gap-3.5 p-4">
-      <span
-        aria-hidden
-        className="rounded-control flex size-10 shrink-0 items-center justify-center"
-        style={{ background: `color-mix(in oklab, ${tone} 15%, transparent)`, color: tone }}
-      >
-        <PortalIcon name={icon ?? null} size={19} />
+    <Link
+      href={href}
+      className="pcard pcard-interactive group flex h-full min-h-[164px] flex-col gap-3.5 px-[22px] pt-[22px] pb-[18px]"
+    >
+      <Tile icon={icon} color={color ?? "var(--brand)"} />
+      <span className="block text-[15.5px] leading-[1.25] font-semibold tracking-[-0.015em]">
+        {title}
       </span>
-
-      <span className="min-w-0 flex-1">
-        <span className="group-hover:text-brand-deep text-md block leading-snug font-semibold transition-colors">
-          {title}
+      {summary ? (
+        <span className="text-text-2 -mt-2 line-clamp-2 block text-[13.5px] leading-[1.45]">
+          {summary}
         </span>
-        {summary ? (
-          <span className="text-text-3 mt-1 block text-base leading-snug">{summary}</span>
-        ) : null}
-        {meta ? <span className="text-text-3 mt-1.5 block text-xs">{meta}</span> : null}
+      ) : null}
+      <span className="text-text-3 mt-auto flex items-center text-[12.5px]">
+        {meta}
+        <ArrowRight
+          size={14}
+          aria-hidden
+          className={cn(
+            "group-hover:text-text ml-auto transition-opacity",
+            alwaysArrow ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+          )}
+        />
       </span>
-
-      <ArrowRight
-        size={15}
-        aria-hidden
-        className={cn(
-          "text-text-3 mt-0.5 shrink-0 transition-all group-hover:translate-x-0.5",
-          alwaysArrow ? "opacity-100" : "opacity-0 group-hover:opacity-100",
-        )}
-      />
     </Link>
   );
 }
@@ -87,22 +107,21 @@ export function ArticleCard({
   meta?: string | null;
 }) {
   return (
-    <Link href={href} className="card card-interactive group flex h-full items-start gap-3.5 p-4">
+    <Link
+      href={href}
+      className="pcard pcard-interactive group flex h-full items-start gap-3.5 px-[22px] py-[18px]"
+    >
       <span
         aria-hidden
-        className="bg-surface-3 text-text-2 rounded-control flex size-10 shrink-0 items-center justify-center"
+        className="bg-surface-2 text-text-2 flex size-[34px] shrink-0 items-center justify-center rounded-full"
       >
-        <BookOpen size={18} />
+        <BookOpen size={15} />
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="group-hover:text-brand-deep text-md block leading-snug font-semibold transition-colors">
-          {title}
-        </span>
+        <span className="block text-[14.5px] leading-[1.3] font-semibold">{title}</span>
         {summary ? (
-          <span className="text-text-3 mt-1 line-clamp-2 block text-base leading-snug">
-            {summary}
-          </span>
+          <span className="text-text-2 mt-[3px] line-clamp-2 block text-[13px]">{summary}</span>
         ) : null}
         {meta ? <span className="text-text-3 mt-1.5 block text-xs">{meta}</span> : null}
       </span>
@@ -110,14 +129,55 @@ export function ArticleCard({
   );
 }
 
-/** A hairline card with a bar of the tone's colour down its left edge. */
+/**
+ * One answer inside the two-column answers card. The card holds the rows;
+ * a row is a link with a book tile, and the hover is a well rather than a lift
+ * because the rows share one surface.
+ */
+export function AnswerRow({
+  href,
+  title,
+  summary,
+  meta,
+}: {
+  href: string;
+  title: string;
+  summary?: string | null;
+  meta?: string | null;
+}) {
+  return (
+    <Link
+      href={href}
+      className="hover:bg-surface-2 flex gap-3.5 rounded-xl px-[18px] py-4 transition-colors"
+    >
+      <span
+        aria-hidden
+        className="bg-surface-2 text-text-2 flex size-[34px] shrink-0 items-center justify-center rounded-full"
+      >
+        <BookOpen size={15} />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[14.5px] leading-[1.3] font-semibold">{title}</span>
+        {summary ? (
+          <span className="text-text-2 mt-[3px] line-clamp-2 block text-[13px]">{summary}</span>
+        ) : null}
+        {meta ? <span className="text-text-3 mt-1.5 block text-xs">{meta}</span> : null}
+      </span>
+    </Link>
+  );
+}
+
 const TONES: Record<AnnouncementTone, { icon: typeof Info; bar: string; text: string }> = {
-  INFO: { icon: Info, bar: "var(--text-3)", text: "text-text-2" },
+  INFO: { icon: Info, bar: "var(--info)", text: "text-info" },
   WARNING: { icon: AlertTriangle, bar: "var(--brand)", text: "text-brand-deep" },
   OUTAGE: { icon: OctagonAlert, bar: "var(--negative)", text: "text-negative" },
 };
 
-/** A notice everyone should read before raising a ticket about it. */
+/**
+ * A notice everyone should read before raising a ticket about it: a card with
+ * the tone's colour down its left edge. The band under the bar is the same
+ * notice on every page; this is the one in the front page's flow.
+ */
 export function Announcement({
   title,
   body,
@@ -145,8 +205,8 @@ export function Announcement({
     : null;
 
   return (
-    <div className="card relative flex items-start gap-3 overflow-hidden py-3.5 pr-4 pl-5">
-      <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: bar }} />
+    <div className="pcard relative flex items-start gap-3 overflow-hidden py-4 pr-[22px] pl-[26px]">
+      <span aria-hidden className="absolute inset-y-0 left-0 w-1.5" style={{ background: bar }} />
       <Icon size={16} className={cn("mt-0.5 shrink-0", text)} />
       <div className="min-w-0 flex-1">
         <p className="text-md font-semibold">{title}</p>
@@ -161,7 +221,7 @@ export function Announcement({
   );
 }
 
-/** A band's heading, with a way through to everything in it. */
+/** A section's heading: the title, what it is in a few words, and a way through to everything in it. */
 export function BandHeader({
   title,
   subtitle,
@@ -174,15 +234,13 @@ export function BandHeader({
   linkLabel?: string;
 }) {
   return (
-    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-      <div>
-        <h2 className="text-lg font-semibold tracking-[-0.01em]">{title}</h2>
-        {subtitle ? <p className="text-text-3 mt-0.5 text-sm">{subtitle}</p> : null}
-      </div>
+    <div className="mb-[18px] flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+      <h2 className="text-[24px] leading-tight font-semibold tracking-[-0.025em]">{title}</h2>
+      {subtitle ? <p className="text-text-3 text-base">{subtitle}</p> : null}
       {href ? (
         <Link
           href={href}
-          className="text-text-2 hover:text-brand-deep group flex items-center gap-1 text-base font-medium transition-colors"
+          className="bg-surface text-text-2 hover:text-text group ml-auto inline-flex h-8 items-center gap-1.5 self-center rounded-full px-3 text-[13.5px] font-semibold shadow-[var(--highlight)] transition-colors"
         >
           {linkLabel}
           <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -195,9 +253,11 @@ export function BandHeader({
 /**
  * The desk has asked this person something and is waiting on the answer.
  *
- * The same banner on the front page and on their list of requests: it is the
+ * The same nudge on the front page and on their list of requests: it is the
  * one thing on the portal that is addressed to them personally, and a person
- * who meets it in two places should meet the same object twice.
+ * who meets it in two places should meet the same object twice. A card with
+ * the brand colour down its edge and a button in it, because it asks for
+ * something the other cards do not.
  */
 export async function WaitingBanner({
   href,
@@ -218,25 +278,29 @@ export async function WaitingBanner({
   return (
     <Link
       href={href}
-      className="border-brand/35 flex items-center gap-3 rounded-[var(--radius-card)] border px-4 py-3 transition-colors hover:border-[var(--brand)]"
-      style={{ background: "var(--brand-wash)" }}
+      className="pcard relative flex flex-wrap items-center gap-x-4 gap-y-2 overflow-hidden py-4 pr-[22px] pl-[28px] text-[14.5px] transition-shadow hover:shadow-[var(--shadow-md)]"
     >
-      <MessageSquare size={16} className="text-brand-deep shrink-0" aria-hidden />
-      <span className="text-md min-w-0 flex-1">
+      <span aria-hidden className="bg-brand absolute inset-y-0 left-0 w-1.5" />
+      <span
+        aria-hidden
+        className="bg-brand text-brand-fg flex size-10 shrink-0 items-center justify-center rounded-full"
+      >
+        <MessageSquare size={17} />
+      </span>
+      <span className="min-w-0 flex-1">
         <span className="font-semibold">{t.portal.waitingFor(who.split(" ")[0] ?? who)}</span>{" "}
-        <span className="font-semibold underline underline-offset-2">{reference}</span>
+        <span className="font-mono text-[13px] underline underline-offset-[3px]">{reference}</span>
         <span className="text-text-2"> · {title}</span>
       </span>
       {/* How long they have been kept waiting, in the same mono the rest of
           the portal counts in. "Two days" is the part of this that makes
           somebody answer today. */}
-      <span className="text-text-2 hidden shrink-0 font-mono text-xs whitespace-nowrap sm:block">
+      <span className="text-text-3 hidden shrink-0 font-mono text-xs whitespace-nowrap sm:block">
         {t.portal.longestWait(shortAge(since))}
       </span>
-
-      <span className="text-brand-deep inline-flex shrink-0 items-center gap-1 text-base font-semibold">
+      <span className="bg-brand text-brand-fg inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-base font-semibold">
         {t.portal.replyNow}
-        <ChevronRight size={14} />
+        <ArrowRight size={13} />
       </span>
     </Link>
   );

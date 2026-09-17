@@ -723,6 +723,12 @@ export const nl: Messages = {
     portalBlurb: "Waar mensen die niet op de servicedesk werken iets komen vragen.",
     openHint: "Gesloten gaat iedereen meteen naar de servicedesk.",
     welcomeHint: "Eén zin onder de begroeting op de voorpagina.",
+    deskPhoneLabel: "Telefoonnummer",
+    deskPhoneHint:
+      "Staat op het portaal voor als de desk gesloten is. Leeg laten om niets te tonen.",
+    leadsPortal: "Op de plank van de voorpagina",
+    leadsPortalOff: "Van de plank halen",
+    leadsPortalOn: "Op de plank zetten",
     formsBlurb: "Wat iemand kan aanvragen, en wat elke aanvraag wordt.",
     formBlurb: "Waar dit formulier voor is",
     raisesBlurb: "Elke aanvraag via dit formulier wordt een ticket met deze instellingen.",
@@ -857,6 +863,27 @@ export const nl: Messages = {
     typicalReply: "Meestal antwoord binnen",
     noTypicalReply: "Nog te weinig beantwoord om iets te zeggen",
     until: (date: string) => `Tot ${date}`,
+
+    /* De voorpagina van ronde 12. */
+    searchButton: "Zoeken",
+    browseEverything: "Alles bekijken",
+    shelfCount: (items: number, sections: number) =>
+      `${items} ${items === 1 ? "item" : "items"} · ${sections} ${sections === 1 ? "onderdeel" : "onderdelen"}`,
+    yourRequests: "Je aanvragen",
+    popularBlurb: "Waar mensen het vaakst om vragen",
+    allAnswers: "Alle antwoorden",
+    onIt: (who: string) => `${who} pakt het op`,
+    notPickedUp: "Nog niet opgepakt",
+    repliedAgo: (age: string) => `${age} geleden geantwoord`,
+    resolved: "Opgelost",
+    exampleCard: "Voorbeeld",
+    exampleOpen: "Laptop wordt niet wakker uit slaapstand",
+    exampleOpenSub: "Mila pakt het op · 3u geleden geantwoord",
+    exampleResolved: "Toegang tot de HR SharePoint-site",
+    exampleWho: "Mila Kuipers",
+    exampleQuote: "“Kun je het één keer op de accu proberen en zeggen of hij wakker wordt?”",
+    deskPhoneRow: "Dringend en de desk is dicht",
+    aboutSpan: (span: string) => `Ongeveer ${span}`,
   },
 
   plan: {
@@ -1924,7 +1951,7 @@ export const nl: Messages = {
     },
     brandTitle: "Hoofdkleur",
     brandBlurb:
-      "Elk accent in de app komt uit deze ene kleur — knoppen, het menu, labels, de tint achter een kaartkop.",
+      "Elk accent in de app komt uit deze ene kleur — de voorpagina van het portaal, knoppen, labels en alles wat op iemand wacht.",
     brandApply: "Kleur toepassen",
     brandApplying: "Toepassen…",
     brandApplied: "Toegepast",
@@ -2027,7 +2054,9 @@ export const nl: Messages = {
     usePreset: (name: string) => `${name} gebruiken`,
     previewButton: "Knop",
     previewTint: "Tint",
-    previewRail: "Menu",
+    previewHero: "De voorpagina van het portaal",
+    previewHeroGreeting: "Hallo, Sam",
+    previewHeroLine: "Wat heb je nodig?",
     closeSendsHere: "De knop Sluiten zet tickets hierheen",
     cancelSendsHere: "Een afgewezen wijziging wordt in deze status geannuleerd",
     unroutedWarning: (count: number) =>
@@ -2154,7 +2183,7 @@ export const nl: Messages = {
 
     /* De berichten zelf. */
 
-/* ------------------------------------------------ the health strip -- */
+    /* ------------------------------------------------ the health strip -- */
 
     healthSending: "Verzenden",
     healthCollecting: "Ophalen",
@@ -2392,6 +2421,7 @@ export const nl: Messages = {
     nameStep: "Geef de stap een naam.",
     namePhase: "Geef de fase een naam.",
     oneLevelOnly: "Onderdelen gaan maar één niveau diep.",
+    shelfFull: "Op de plank passen vijf onderdelen. Haal er eerst één af.",
     fieldOrderOnly: "Een vraag kan alleen afhangen van een vraag die eerder komt.",
     nameArticle: "Geef het artikel een titel.",
     nameAnnouncement: "Geef de melding een titel.",

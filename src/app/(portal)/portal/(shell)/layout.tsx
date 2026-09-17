@@ -11,7 +11,7 @@ import { InstanceProvider } from "@/components/shell/instance-context";
 import { getClock } from "@/lib/settings";
 import { PortalHeader } from "@/components/portal/portal-header";
 import { PortalClosed } from "@/components/portal/portal-closed";
-import { Announcement } from "@/components/portal/portal-pieces";
+import { NoticeBand } from "@/components/portal/portal-notice";
 import { ApprovalBanner } from "@/components/portal/portal-approval-banner";
 import { liveAnnouncements } from "@/lib/portal";
 
@@ -51,7 +51,7 @@ export default async function PortalLayout({ children }: { children: React.React
     );
   }
 
-  // The banner rides above everything, on every page of the portal — which is
+  // The banner rides under the bar, on every page of the portal — which is
   // the whole difference between it and a notice on the front page.
   const banners = await liveAnnouncements(true);
 
@@ -83,62 +83,51 @@ export default async function PortalLayout({ children }: { children: React.React
     <InstanceProvider clock={clock} locale={settings.locale} dateLocale={dateLocaleOf(settings)}>
       <style dangerouslySetInnerHTML={{ __html: brandStyleSheet(settings.brandColor) }} />
       <div className="bg-bg flex min-h-dvh flex-col">
-        {banners.length > 0 ? (
-          <div className="border-line bg-bg border-b">
-            <div className="portal-width mx-auto w-full space-y-2 px-5 py-3 lg:px-6">
-              {banners.map((banner) => (
-                <Announcement
-                  key={banner.id}
-                  title={banner.title}
-                  body={banner.body}
-                  tone={banner.tone}
-                  endsAt={banner.endsAt}
-                  locale={dateLocaleOf(settings)}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {/* Above the header, where the notices live: a change nobody can
-            start because somebody has not answered is not something to find
-            by wandering into a tab. */}
-        {oldest ? (
-          <div className="border-line bg-bg border-b">
-            <div className="portal-width mx-auto w-full px-5 py-3 lg:px-6">
-              <ApprovalBanner
-                waitingSince={oldest.createdAt}
-                title={oldest.ticket.title}
-                reference={oldest.ticket.reference}
-              />
-            </div>
-          </div>
-        ) : null}
-
         <PortalHeader
           title={settings.portalTitle}
-          user={{ name: user.name, avatarVariant: user.avatarVariant }}
+          user={{ name: user.name, email: user.email, avatarVariant: user.avatarVariant }}
           canSeeDesk={canUseDesk(user)}
           theme={readThemeChoice((await cookies()).get(THEME_COOKIE)?.value)}
           openRequests={openRequests}
           approvals={everAsked > 0 ? waitingApprovals : null}
         />
 
-        <main className="portal-width mx-auto w-full flex-1 px-5 py-8 lg:px-6">{children}</main>
+        {/* Under the bar, where a notice is read before anything else on the
+            page and is still the portal's, not the browser's. The notices
+            first, then the one thing waiting on this person: a change nobody
+            can start because somebody has not answered is not something to
+            find by wandering into a tab. */}
+        {banners.map((banner) => (
+          <NoticeBand
+            key={banner.id}
+            title={banner.title}
+            body={banner.body}
+            tone={banner.tone}
+            endsAt={banner.endsAt}
+            locale={dateLocaleOf(settings)}
+          />
+        ))}
+        {oldest ? (
+          <ApprovalBanner
+            waitingSince={oldest.createdAt}
+            title={oldest.ticket.title}
+            reference={oldest.ticket.reference}
+          />
+        ) : null}
 
-        <footer className="border-line portal-width mx-auto w-full border-t px-5 py-6 lg:px-6">
+        <main className="flex-1">{children}</main>
+
+        <footer className="portal-wrap flex h-[72px] items-center gap-4 text-sm">
+          <span className="text-text-3">{settings.portalTitle}</span>
           {/* The way back to the desk is only shown to someone who has one. */}
-          <p className="text-text-3 text-sm">
-            {settings.portalTitle}
-            {canUseDesk(user) ? (
-              <>
-                {" · "}
-                <Link href="/" className="hover:text-text underline-offset-4 hover:underline">
-                  {t.portal.toTheDesk}
-                </Link>
-              </>
-            ) : null}
-          </p>
+          {canUseDesk(user) ? (
+            <>
+              <span className="text-text-3">·</span>
+              <Link href="/" className="text-text-2 hover:text-text transition-colors">
+                {t.portal.toTheDesk}
+              </Link>
+            </>
+          ) : null}
         </footer>
       </div>
     </InstanceProvider>

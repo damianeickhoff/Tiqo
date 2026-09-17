@@ -59,7 +59,7 @@ export function BrandColorForm({ current }: { current: string }) {
               value={/^#[0-9a-fA-F]{6}$/.test(value) ? value : "#febe2e"}
               onChange={(event) => draft.set({ brandColor: event.target.value })}
               aria-label={t.settings.pickColour}
-              className="border-border bg-surface rounded-control h-11 w-12 cursor-pointer border p-1"
+              className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
             />
             <Input
               value={value}
@@ -84,15 +84,43 @@ export function BrandColorForm({ current }: { current: string }) {
             >
               {t.settings.previewTint}
             </span>
-            <span
-              className="rounded-control text-md inline-flex h-11 items-center border px-4"
-              style={{ background: preview["--chrome"], borderColor: preview["--chrome-border"] }}
-            >
-              {t.settings.previewRail}
-            </span>
           </span>
         ) : null}
       </div>
+
+      {/* The hero is where the colour is now used at full size, so it is what a
+          preview has to show: the gradient, and whether the writing on it comes
+          out ink or white. The small swatches above still answer the other two
+          questions — the button, and the colour as text on a tint. */}
+      {preview ? (
+        <div>
+          <span className="label mb-1.5 block">{t.settings.previewHero}</span>
+          <div
+            className="rounded-card flex flex-col justify-center gap-3 px-6 py-5"
+            style={{
+              background: `linear-gradient(115deg, ${preview["--brand"]} 0%, ${preview["--brand-2"]} 100%)`,
+              color: preview["--brand-fg"],
+            }}
+          >
+            <span className="text-xl leading-none font-semibold tracking-[-0.03em]">
+              {t.settings.previewHeroGreeting}
+            </span>
+            <span className="flex items-center gap-2.5">
+              <span className="text-md flex h-9 flex-1 items-center rounded-full bg-white px-4 text-[#8e8e99]">
+                {t.settings.previewHeroLine}
+              </span>
+              <span
+                className="inline-flex h-8 items-center rounded-full px-3 text-sm font-medium"
+                style={{
+                  background: `color-mix(in oklab, ${preview["--brand-fg"]} 12%, transparent)`,
+                }}
+              >
+                {t.settings.previewButton}
+              </span>
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       <SaveBar
         draft={draft}

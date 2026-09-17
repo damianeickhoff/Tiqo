@@ -15,15 +15,23 @@ export function PortalGeneralForm({
   enabled,
   portalTitle,
   welcome,
+  deskPhone,
 }: {
   /// Carried through unchanged so saving the copy cannot reopen a closed
   /// portal as a side effect.
   enabled: boolean;
   portalTitle: string;
   welcome: string;
+  /// The line on the desk card for when the desk is closed. Empty hides it.
+  deskPhone: string;
 }) {
   const t = useMessages();
-  const draft = useDraft({ portalEnabled: enabled, portalTitle, portalWelcome: welcome });
+  const draft = useDraft({
+    portalEnabled: enabled,
+    portalTitle,
+    portalWelcome: welcome,
+    deskPhone,
+  });
   const { draft: d, set } = draft;
 
   return (
@@ -45,6 +53,16 @@ export function PortalGeneralForm({
             value={d.portalWelcome}
             maxLength={300}
             onChange={(event) => set({ portalWelcome: event.target.value })}
+          />
+        </Field>
+
+        <Field label={t.forms.deskPhoneLabel} htmlFor="deskPhone" hint={t.forms.deskPhoneHint}>
+          <Input
+            id="deskPhone"
+            type="tel"
+            value={d.deskPhone}
+            maxLength={40}
+            onChange={(event) => set({ deskPhone: event.target.value })}
           />
         </Field>
       </div>

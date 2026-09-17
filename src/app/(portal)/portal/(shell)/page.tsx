@@ -1,47 +1,35 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { dateLocaleOf, getClock, getMessages, getSettings } from "@/lib/settings";
 import { describeHours } from "@/lib/clock";
+import { excerptOf } from "@/lib/docs";
 import { StatusRing } from "@/components/tickets/glyphs";
-import { HeatSpine } from "@/components/tickets/indicators";
 import { Reference } from "@/components/tickets/ticket-row";
 import { liveAnnouncements, longestWait, typicalReplyMinutes } from "@/lib/portal";
-import { Clock } from "lucide-react";
-import { shortAge, shortSpan } from "@/lib/tickets";
-import { PortalSearch } from "@/components/portal/portal-search";
+import { heatOf, shortAge, shortSpan } from "@/lib/tickets";
+import { PortalHero, type HeroCards } from "@/components/portal/portal-hero";
+import { PortalShelf, type ShelfItem } from "@/components/portal/portal-shelf";
+import { PortalDeskCard } from "@/components/portal/portal-desk-card";
 import {
   Announcement,
-  ArticleCard,
+  AnswerRow,
   BandHeader,
   ServiceCard,
+  Tile,
   WaitingBanner,
 } from "@/components/portal/portal-pieces";
-import { PortalIcon } from "@/components/portal/portal-icon";
-import { ArrowRight } from "lucide-react";
-import { SignalField } from "@/components/shell/signal-field";
-import { Card } from "@/components/ui";
 import { cn } from "@/lib/utils";
-/**
- * The page is six columns wide and a band takes between two and all six, as the
- * designer left it. Below md everything is one column: a third of a phone is
- * not a column, it is a margin.
- */
-const SPAN: Record<number, string> = {
-  2: "md:col-span-2",
-  3: "md:col-span-3",
-  4: "md:col-span-4",
-  5: "md:col-span-5",
-  6: "md:col-span-6",
-};
-
-const span = (columns: number) => SPAN[columns] ?? SPAN[6]!;
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getSettings()).portalTitle };
 }
+
+/** The shelf on the front page: five sections and "Browse everything". */
+const SHELF_PLACES = 5;
 
 /**
  * The front page is a list of bands, in the order an admin put them, rather
@@ -49,7 +37,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * leads with its catalogue and a desk that leads with search are all normal —
  * and none of them should need a developer.
  *
- * Every band is rendered from one kit of cards, so the page reads as one thing.
+ * The bands render into the round-12 layout: the hero and the shelf across the
+ * top, then a 2:1 grid. A band that takes the whole row in the page builder
+ * takes both columns here; the person's own requests and the desk card sit in
+ * the right column; everything else runs down the left.
  */
 export default async function PortalHome() {
   const user = await requireUser();
@@ -89,7 +80,7 @@ export default async function PortalHome() {
             subtitle: null,
             limit: 5,
             categoryId: null,
-            span: 6,
+            span: 3,
           },
         ]
       : blocks;
@@ -108,423 +99,576 @@ export default async function PortalHome() {
           { id: "d6", kind: "MY_REQUESTS", limit: 3, categoryId: null, span: 3 },
         ].map((band) => ({ ...band, title: null, subtitle: null })) as typeof blocks);
 
+  // The catalogue band directly under the hero is the shelf; anywhere else it
+  // is the list it always was.
+  const heroAt = bands.findIndex((band) => band.kind === "HERO");
+  const shelfAt =
+    heroAt >= 0 && bands[heroAt + 1]?.kind === "CATEGORIES" && !bands[heroAt + 1]?.categoryId
+      ? heroAt + 1
+      : -1;
+
   // The one thing on the front page addressed to this person by name: the desk
-  // has asked them something and is waiting. It goes where the page turns from
-  // greeting to browsing, so it is met before the catalogue rather than under it.
+  // has asked them something and is waiting. It goes at the top of the grid,
+  // so it is met before the catalogue rather than under it.
   const waiting = await longestWait(user.id);
 
-  const bannerAt = (() => {
-    const catalogue = bands.findIndex((band) => band.kind === "CATEGORIES");
-    if (catalogue >= 0) return catalogue;
-    const hero = bands.findIndex((band) => band.kind === "HERO");
-    return hero >= 0 ? hero + 1 : 0;
-  })();
+  /* ------------------------------------------------------------ the top */
 
-  const rendered: ReactNode[] = bands.map(async (band) => {
-    const heading = { title: band.title, subtitle: band.subtitle };
+  let top: ReactNode = null;
 
-    if (band.kind === "HERO") {
-      // Four quick starts under the search: the top-level sections of the
-      // catalogue, so the common asks are one click before anyone types.
-      const starts = await prisma.portalCategory.findMany({
-        where: { isActive: true, parentId: null },
-        orderBy: { position: "asc" },
-        take: 4,
-        select: { id: true, slug: true, name: true, icon: true },
-      });
-      const hours = describeHours(clock.hours);
-      const reply = await typicalReplyMinutes();
-      return (
-        <div key={band.id} className={cn("space-y-4", span(band.span))}>
-          {/* The hero is a band on the brand wash: greeting, welcome and
-                  the search on the left, the desk own graphic — a queue rising
-                  toward its target — fading in from the right. */}
-          <section
-            className="rounded-panel relative border px-6 py-8 sm:px-8 sm:py-10"
-            style={{
-              background: "var(--brand-wash)",
-              borderColor: "color-mix(in oklab, var(--brand) 22%, transparent)",
-            }}
-          >
-            {/* The clipping belongs to the graphic, not to the band. It is
-                here so the bars stop at the rounded corners; on the section it
-                also swallowed the search results, which hang below the band by
-                design. */}
-            <div aria-hidden className="rounded-panel absolute inset-0 overflow-hidden">
-              <div
-                className="text-text pointer-events-none absolute inset-y-0 right-0 hidden w-[52%] opacity-90 md:block"
-                style={{
-                  maskImage: "linear-gradient(90deg, transparent, #000 40%)",
-                  WebkitMaskImage: "linear-gradient(90deg, transparent, #000 40%)",
-                }}
-              >
-                <SignalField bars={44} height="100%" target={0.66} />
-              </div>
-            </div>
-            <div className="relative max-w-xl">
-              <h1 className="text-2xl leading-[1.1] font-semibold tracking-[-0.03em] sm:text-3xl">
-                {t.portal.greeting(user.name.split(" ")[0]!)}
-              </h1>
-              <p className="text-text-2 text-md mt-2 max-w-[48ch]">{settings.portalWelcome}</p>
-              <div className="mt-5">
-                <PortalSearch />
-              </div>
-              {starts.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {starts.map((start) => (
-                    <Link
-                      key={start.id}
-                      href={`/portal/c/${start.slug}`}
-                      className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-base font-medium shadow-[var(--highlight)] transition-colors"
-                    >
-                      <PortalIcon name={start.icon} size={15} />
-                      {start.name}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </section>
-          {/* What the desk itself is doing: whether it is open, until when,
-              and how long an answer usually takes. The one thing a requester
-              wants to know before deciding between a form and the phone.
+  if (heroAt >= 0) {
+    // Four quick starts under the search: the sections that lead the shelf.
+    const leading = await leadingSections();
+    const hours = describeHours(clock.hours);
+    const reply = await typicalReplyMinutes();
+    const line = [
+      hours.open === null ? null : `${hours.days} ${hours.range}`,
+      reply === null
+        ? null
+        : `${t.portal.typicalReply.toLowerCase()} ${shortSpan(reply * 60_000, t)}`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
-              One line, not two cards: "usually answered in four hours" is the
-              subtitle the opening hours were missing, and once it sits there
-              the second card has nothing left to say. */}
-          <div className="card flex items-center gap-3.5 px-5 py-4">
-            <span
-              aria-hidden
-              className="rounded-control flex size-9 shrink-0 items-center justify-center"
-              style={{
-                background:
-                  hours.open === false
-                    ? "var(--surface-3)"
-                    : "color-mix(in oklab, var(--positive) 14%, transparent)",
-                color: hours.open === false ? "var(--text-3)" : "var(--positive)",
-              }}
-            >
-              <Clock size={17} />
-            </span>
+    const [cards, totals] = await Promise.all([heroCards(user.id, clock), shelfTotals()]);
 
-            <span className="min-w-0">
-              <span className="label block">{t.portal.openingHours}</span>
-              <span className="text-md mt-0.5 block truncate font-semibold">
-                {hours.open === null
-                  ? t.portal.alwaysOpen
-                  : hours.open
-                    ? t.portal.openUntil(hours.range.split("–")[1] ?? hours.range)
-                    : `${hours.days} ${hours.range}`}
-              </span>
-              <span className="text-text-3 block text-sm">
-                {reply === null
-                  ? t.portal.noTypicalReply
-                  : `${t.portal.typicalReply} ${shortSpan(reply * 60_000, t)}`}
-              </span>
-            </span>
-          </div>
-        </div>
-      );
-    }
-
-    if (band.kind === "ANNOUNCEMENTS") {
-      const notices = await liveAnnouncements(false);
-      if (notices.length === 0) return null;
-      return (
-        <section key={band.id} className={cn("space-y-2.5", span(band.span))}>
-          {notices.map((notice) => (
-            <Announcement
-              key={notice.id}
-              title={notice.title}
-              body={notice.body}
-              tone={notice.tone}
-              endsAt={notice.endsAt}
-              locale={dateLocaleOf(settings)}
-            />
-          ))}
-        </section>
-      );
-    }
-
-    if (band.kind === "CATEGORIES") {
-      const categories = await prisma.portalCategory.findMany({
-        where: { isActive: true, parentId: band.categoryId },
-        orderBy: { position: "asc" },
-        take: band.limit ?? 8,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          description: true,
-          icon: true,
-          color: true,
-          _count: { select: { forms: true, articles: true } },
-        },
-      });
-      if (categories.length === 0) return null;
-
-      return (
-        <section key={band.id} className={span(band.span)}>
-          <BandHeader
-            title={heading.title || t.portal.browse}
-            subtitle={heading.subtitle || t.portal.browseBlurb}
-          />
-          {/* A list, not tiles: each subject gets a full line for what it
-                  covers, and the eye runs down one column. */}
-          <ul className="divide-line divide-y">
-            {categories.map((category) => (
-              <li key={category.id}>
-                <Link
-                  href={`/portal/c/${category.slug}`}
-                  className="group hover:bg-surface-2 rounded-control -mx-2 flex items-center gap-4 px-2 py-3.5 transition-[background-color]"
-                >
-                  <span
-                    aria-hidden
-                    className="rounded-control flex size-10 shrink-0 items-center justify-center"
-                    style={{
-                      background: `color-mix(in oklab, ${category.color} 15%, transparent)`,
-                      color: category.color,
-                    }}
-                  >
-                    <PortalIcon name={category.icon} size={19} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="group-hover:text-brand-deep text-md block font-semibold transition-colors">
-                      {category.name}
-                    </span>
-                    {category.description ? (
-                      <span className="text-text-2 mt-0.5 block truncate text-base">
-                        {category.description}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="text-text-3 shrink-0 font-mono text-xs">
-                    {t.portal.itemCount(category._count.forms + category._count.articles)}
-                  </span>
-                  <ArrowRight size={14} className="text-text-3 shrink-0" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      );
-    }
-
-    if (band.kind === "FEATURED_FORMS") {
-      const forms = await prisma.portalForm.findMany({
-        where: {
-          isActive: true,
-          ...(band.categoryId ? { categoryId: band.categoryId } : { isFeatured: true }),
-        },
-        orderBy: { position: "asc" },
-        take: band.limit ?? 6,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          summary: true,
-          icon: true,
-          color: true,
-          category: { select: { name: true } },
-        },
-      });
-      if (forms.length === 0) return null;
-
-      return (
-        <section key={band.id} className={span(band.span)}>
-          <BandHeader
-            title={heading.title || t.portal.popular}
-            subtitle={heading.subtitle}
-            href="/portal/search"
-            linkLabel={t.portal.allServices}
-          />
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {forms.map((form) => (
-              <li key={form.id}>
-                <ServiceCard
-                  href={`/portal/f/${form.slug}`}
-                  title={form.name}
-                  summary={form.summary}
-                  icon={form.icon}
-                  color={form.color}
-                  meta={form.category?.name}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      );
-    }
-
-    if (band.kind === "ARTICLES") {
-      const articles = await prisma.portalArticle.findMany({
-        where: {
-          isPublished: true,
-          ...(band.categoryId ? { categoryId: band.categoryId } : {}),
-        },
-        orderBy: [{ isFeatured: "desc" }, { views: "desc" }],
-        take: band.limit ?? 4,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          summary: true,
-          views: true,
-          category: { select: { name: true } },
-        },
-      });
-      if (articles.length === 0) return null;
-
-      return (
-        <section key={band.id} className={cn("animate-rise", span(band.span))}>
-          <BandHeader
-            title={heading.title || t.portal.answers}
-            subtitle={heading.subtitle || t.portal.answersBlurb}
-          />
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {articles.map((article) => (
-              <li key={article.id}>
-                <ArticleCard
-                  href={`/portal/kb/${article.slug}`}
-                  title={article.title}
-                  summary={article.summary}
-                  meta={article.category?.name}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      );
-    }
-
-    if (band.kind === "MY_REQUESTS") {
-      // Which states are worth telling the requester about is the desk's
-      // call, taken per status in Settings. Until a desk has taken it —
-      // no status carries the flag — everything still open is shown, so
-      // the band works on day one rather than sitting empty.
-      const mine = await prisma.ticket.findMany({
-        where: {
-          reporterId: user.id,
-          status: { is: flagged > 0 ? { showOnPortal: true } : { settles: false } },
-        },
-        orderBy: { createdAt: "desc" },
-        take: band.limit ?? 3,
-        select: {
-          id: true,
-          number: true,
-          reference: true,
-          type: true,
-          title: true,
-          createdAt: true,
-          // What the spine needs to know how far along the run this is: the
-          // priority's target for tickets that have one, the due date for the
-          // rest, and the settled stamps so a finished ticket stops burning.
-          priority: true,
-          dueDate: true,
-          resolvedAt: true,
-          closedAt: true,
-          pausedMinutes: true,
-          pausedSince: true,
-          status: {
-            select: { id: true, name: true, color: true, settles: true, pausesClock: true },
-          },
-        },
-      });
-      if (mine.length === 0) return null;
-
-      return (
-        <section key={band.id} className={cn("animate-rise", span(band.span))}>
-          {/* Two different bands wearing one name would be a lie: with statuses
-                  chosen for the portal these really are the ones waiting on the
-                  person reading them, and without that choice it is simply
-                  everything they have open. */}
-          <BandHeader
-            title={heading.title || (flagged > 0 ? t.portal.waitingOnYou : t.portal.yourOpen)}
-            subtitle={heading.subtitle || (flagged > 0 ? t.portal.waitingOnYouBlurb : undefined)}
-            href="/portal/requests"
-            linkLabel={t.portal.myRequests}
-          />
-          <Card className="overflow-hidden">
-            <ul className="divide-line divide-y">
-              {mine.map((ticket) => (
-                <li key={ticket.id}>
-                  <Link
-                    href={`/portal/requests/${ticket.number}`}
-                    className="hover:bg-surface-2 flex items-center gap-3 px-4 py-3 transition-[background-color]"
-                  >
-                    {/* The same burn-down bar the rest of the app shows, for
-                        the same reason it is on My requests: these are the same
-                        rows, and one of them should not be reading differently. */}
-                    <HeatSpine ticket={ticket} />
-
-                    <Reference reference={ticket.reference} className="shrink-0" />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="text-md truncate font-medium">{ticket.title}</span>
-                        {/* The same tag as on My requests: the two lists show
-                            the same rows, and somebody who has learnt what this
-                            pill means on one page should not have to learn it
-                            again on the other. */}
-                        {!ticket.status?.settles && ticket.status?.pausesClock ? (
-                          <span className="tag text-brand-deep shrink-0 bg-[var(--brand-tint)]">
-                            {t.portal.waitingOnYou}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="text-text-3 text-sm">
-                        {t.common.ago(shortAge(ticket.createdAt, undefined, t))}
-                      </span>
-                    </span>
-                    {ticket.status ? (
-                      <span className="text-text-2 flex shrink-0 items-center gap-1.5 text-sm">
-                        <StatusRing status={ticket.status} />
-                        {ticket.status.name}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </section>
-      );
-    }
-
-    if (band.kind === "RICH_TEXT" && (band.title || band.subtitle)) {
-      return (
-        <section key={band.id} className={cn("animate-rise", span(band.span))}>
-          <Card className="p-6">
-            {band.title ? (
-              <h2 className="text-lg font-bold tracking-[-0.02em]">{band.title}</h2>
-            ) : null}
-            {band.subtitle ? (
-              <p className="text-text-2 text-md mt-2 leading-relaxed whitespace-pre-wrap">
-                {band.subtitle}
-              </p>
-            ) : null}
-          </Card>
-        </section>
-      );
-    }
-
-    return null;
-  });
-
-  if (waiting) {
-    rendered.splice(
-      bannerAt,
-      0,
-      <div key="waiting" className="md:col-span-6">
-        <WaitingBanner
-          href={`/portal/requests/${waiting.number}`}
-          who={waiting.assignee.name}
-          reference={waiting.reference}
-          title={waiting.title}
-          since={waiting.since}
+    top = (
+      <>
+        <PortalHero
+          firstName={user.name.split(" ")[0]!}
+          welcome={settings.portalWelcome}
+          starts={leading.slice(0, 4)}
+          desk={{ open: hours.open, line }}
+          cards={cards}
         />
-      </div>,
+        {shelfAt >= 0 ? (
+          <PortalShelf items={leading} totalItems={totals.items} totalSections={totals.sections} />
+        ) : null}
+      </>
     );
   }
 
-  return <div className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-6">{rendered}</div>;
+  /* ----------------------------------------------------------- the grid */
+
+  // What is theirs goes in the right column whatever position it was given —
+  // "Your requests" beside the page is what the band means. Everything else
+  // keeps the order the admin put it in, and a band given the whole row in the
+  // page builder takes both columns.
+  const column: { node: ReactNode; full: boolean }[] = [];
+  const mine: ReactNode[] = [];
+
+  for (const [index, band] of bands.entries()) {
+    if (band.kind === "HERO" || index === shelfAt) continue;
+    const node = await renderBand(band, { user, flagged, locale: dateLocaleOf(settings), t });
+    if (!node) continue;
+    if (band.kind === "MY_REQUESTS") mine.push(node);
+    else column.push({ node, full: band.span >= 6 });
+  }
+
+  // A full-width band interrupts the two-column stretch rather than jumping to
+  // the end of the page: the stream is cut into runs at each of them, and the
+  // right column rides alongside the first narrow run. There is always at least
+  // one, empty or not, because the desk card has to land somewhere.
+  const runs: { full: boolean; items: ReactNode[] }[] = [];
+  for (const item of column) {
+    const last = runs.at(-1);
+    if (item.full || !last || last.full) runs.push({ full: item.full, items: [item.node] });
+    else last.items.push(item.node);
+  }
+  if (!runs.some((run) => !run.full)) runs.unshift({ full: false, items: [] });
+  const asideAt = runs.findIndex((run) => !run.full);
+
+  return (
+    <>
+      {top}
+      <div className="portal-wrap flex flex-col gap-12 pt-12 pb-16">
+        {waiting ? (
+          <WaitingBanner
+            href={`/portal/requests/${waiting.number}`}
+            who={waiting.assignee.name}
+            reference={waiting.reference}
+            title={waiting.title}
+            since={waiting.since}
+          />
+        ) : null}
+
+        {runs.map((run, index) =>
+          index === asideAt ? (
+            <div
+              key={index}
+              className="grid grid-cols-1 gap-x-11 gap-y-12 lg:grid-cols-[minmax(0,1fr)_400px]"
+            >
+              <div className="flex min-w-0 flex-col gap-12">
+                {run.items.map((node, at) => (
+                  <div key={at} className="min-w-0">
+                    {node}
+                  </div>
+                ))}
+              </div>
+
+              {/* Below lg the two columns become one and this simply comes
+                  last: a requester on a phone wants the catalogue first and
+                  the opening hours after it. */}
+              <aside className="flex flex-col gap-[22px]">
+                {mine.map((node, at) => (
+                  <div key={at}>{node}</div>
+                ))}
+                <PortalDeskCard />
+              </aside>
+            </div>
+          ) : (
+            <div key={index} className="flex min-w-0 flex-col gap-12">
+              {run.items.map((node, at) => (
+                <div key={at} className="min-w-0">
+                  {node}
+                </div>
+              ))}
+            </div>
+          ),
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ data */
+
+/**
+ * The sections that lead the front page, in the order an admin put them on
+ * the shelf. A catalogue where nobody has chosen yet leads with the first
+ * five by position, so a fresh instance has a shelf on day one.
+ */
+async function leadingSections(): Promise<ShelfItem[]> {
+  const select = {
+    slug: true,
+    name: true,
+    icon: true,
+    color: true,
+    _count: {
+      select: { forms: { where: { isActive: true } }, articles: { where: { isPublished: true } } },
+    },
+    children: {
+      where: { isActive: true },
+      select: {
+        _count: {
+          select: {
+            forms: { where: { isActive: true } },
+            articles: { where: { isPublished: true } },
+          },
+        },
+      },
+    },
+  } as const;
+
+  let rows = await prisma.portalCategory.findMany({
+    where: { isActive: true, parentId: null, leadsPortal: { not: null } },
+    orderBy: { leadsPortal: "asc" },
+    take: SHELF_PLACES,
+    select,
+  });
+  if (rows.length === 0) {
+    rows = await prisma.portalCategory.findMany({
+      where: { isActive: true, parentId: null },
+      orderBy: { position: "asc" },
+      take: SHELF_PLACES,
+      select,
+    });
+  }
+
+  return rows.map((row) => ({
+    slug: row.slug,
+    name: row.name,
+    icon: row.icon,
+    color: row.color,
+    count:
+      row._count.forms +
+      row._count.articles +
+      row.children.reduce((sum, child) => sum + child._count.forms + child._count.articles, 0),
+  }));
+}
+
+/** What "Browse everything" leads to, counted. */
+async function shelfTotals() {
+  const [forms, articles, sections] = await Promise.all([
+    prisma.portalForm.count({ where: { isActive: true } }),
+    prisma.portalArticle.count({ where: { isPublished: true } }),
+    prisma.portalCategory.count({ where: { isActive: true, parentId: null } }),
+  ]);
+  return { items: forms + articles, sections };
+}
+
+/**
+ * The three cards floating on the hero: this person's newest open request,
+ * their newest settled one, and the last thing the desk said to them. Each is
+ * null when there is nothing, and the hero shows an example in its place.
+ */
+async function heroCards(userId: string, clock: Awaited<ReturnType<typeof getClock>>) {
+  const [open, resolved, reply] = await Promise.all([
+    prisma.ticket.findFirst({
+      where: { reporterId: userId, status: { is: { settles: false } } },
+      orderBy: { createdAt: "desc" },
+      select: {
+        title: true,
+        type: true,
+        priority: true,
+        createdAt: true,
+        resolvedAt: true,
+        closedAt: true,
+        pausedMinutes: true,
+        pausedSince: true,
+        status: { select: { id: true, name: true, color: true, settles: true, pausesClock: true } },
+        assignee: { select: { name: true } },
+        comments: {
+          where: { isInternal: false, stepId: null, authorId: { not: userId } },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { createdAt: true },
+        },
+      },
+    }),
+    prisma.ticket.findFirst({
+      where: { reporterId: userId, status: { is: { settles: true } } },
+      orderBy: [{ resolvedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
+      select: { title: true },
+    }),
+    prisma.comment.findFirst({
+      where: {
+        ticket: { reporterId: userId },
+        isInternal: false,
+        stepId: null,
+        authorId: { not: userId },
+      },
+      orderBy: { createdAt: "desc" },
+      select: { body: true, author: { select: { name: true, avatarVariant: true } } },
+    }),
+  ]);
+
+  const cards: HeroCards = {
+    open: open
+      ? {
+          title: open.title,
+          status: open.status,
+          who: open.assignee?.name ?? null,
+          repliedAge: open.comments[0] ? shortAge(open.comments[0].createdAt) : null,
+          heat: heatOf(open, clock),
+        }
+      : null,
+    resolved,
+    reply: reply
+      ? {
+          who: reply.author.name,
+          avatarVariant: reply.author.avatarVariant,
+          quote: `“${excerptOf(reply.body, 110)}”`,
+        }
+      : null,
+  };
+  return cards;
+}
+
+/* ----------------------------------------------------------------- bands */
+
+type Band = {
+  id: string;
+  kind:
+    | "HERO"
+    | "ANNOUNCEMENTS"
+    | "CATEGORIES"
+    | "FEATURED_FORMS"
+    | "ARTICLES"
+    | "MY_REQUESTS"
+    | "RICH_TEXT";
+  title: string | null;
+  subtitle: string | null;
+  limit: number | null;
+  categoryId: string | null;
+  span: number;
+};
+
+async function renderBand(
+  band: Band,
+  {
+    user,
+    flagged,
+    locale,
+    t,
+  }: {
+    user: { id: string };
+    flagged: number;
+    locale: string;
+    t: Awaited<ReturnType<typeof getMessages>>;
+  },
+): Promise<ReactNode> {
+  const heading = { title: band.title, subtitle: band.subtitle };
+
+  if (band.kind === "ANNOUNCEMENTS") {
+    const notices = await liveAnnouncements(false);
+    if (notices.length === 0) return null;
+    return (
+      <section className="space-y-3">
+        {notices.map((notice) => (
+          <Announcement
+            key={notice.id}
+            title={notice.title}
+            body={notice.body}
+            tone={notice.tone}
+            endsAt={notice.endsAt}
+            locale={locale}
+          />
+        ))}
+      </section>
+    );
+  }
+
+  if (band.kind === "CATEGORIES") {
+    const categories = await prisma.portalCategory.findMany({
+      where: { isActive: true, parentId: band.categoryId },
+      orderBy: { position: "asc" },
+      take: band.limit ?? 8,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        icon: true,
+        color: true,
+        _count: { select: { forms: true, articles: true } },
+      },
+    });
+    if (categories.length === 0) return null;
+
+    return (
+      <section>
+        <BandHeader
+          title={heading.title || t.portal.browse}
+          subtitle={heading.subtitle || t.portal.browseBlurb}
+        />
+        {/* A list, not tiles: each subject gets a full line for what it
+            covers, and the eye runs down one column. */}
+        <ul className="pcard p-1.5">
+          {categories.map((category) => (
+            <li key={category.id}>
+              <Link
+                href={`/portal/c/${category.slug}`}
+                className="group hover:bg-surface-2 flex items-center gap-4 rounded-xl px-3 py-3 transition-colors"
+              >
+                <Tile icon={category.icon} color={category.color} />
+                <span className="min-w-0 flex-1">
+                  <span className="text-md block font-semibold">{category.name}</span>
+                  {category.description ? (
+                    <span className="text-text-2 mt-0.5 block truncate text-base">
+                      {category.description}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="text-text-3 shrink-0 font-mono text-xs">
+                  {t.portal.itemCount(category._count.forms + category._count.articles)}
+                </span>
+                <ArrowRight size={14} className="text-text-3 shrink-0" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+
+  if (band.kind === "FEATURED_FORMS") {
+    const forms = await prisma.portalForm.findMany({
+      where: {
+        isActive: true,
+        ...(band.categoryId ? { categoryId: band.categoryId } : { isFeatured: true }),
+      },
+      orderBy: { position: "asc" },
+      take: band.limit ?? 6,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        summary: true,
+        icon: true,
+        color: true,
+        category: { select: { name: true } },
+      },
+    });
+    if (forms.length === 0) return null;
+
+    return (
+      <section>
+        <BandHeader
+          title={heading.title || t.portal.popular}
+          subtitle={heading.subtitle || t.portal.popularBlurb}
+          href="/portal/search"
+          linkLabel={t.portal.allServices}
+        />
+        <ul
+          className={cn(
+            "grid gap-4 sm:grid-cols-2",
+            band.span >= 6 ? "lg:grid-cols-4" : "lg:grid-cols-3",
+          )}
+        >
+          {forms.map((form) => (
+            <li key={form.id}>
+              <ServiceCard
+                href={`/portal/f/${form.slug}`}
+                title={form.name}
+                summary={form.summary}
+                icon={form.icon}
+                color={form.color}
+                meta={form.category?.name}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+
+  if (band.kind === "ARTICLES") {
+    const articles = await prisma.portalArticle.findMany({
+      where: {
+        isPublished: true,
+        ...(band.categoryId ? { categoryId: band.categoryId } : {}),
+      },
+      orderBy: [{ isFeatured: "desc" }, { views: "desc" }],
+      take: band.limit ?? 4,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        summary: true,
+        body: true,
+        category: { select: { name: true } },
+      },
+    });
+    if (articles.length === 0) return null;
+
+    return (
+      <section>
+        <BandHeader
+          title={heading.title || t.portal.answers}
+          subtitle={heading.subtitle || t.portal.answersBlurb}
+          href="/portal/answers"
+          linkLabel={t.portal.allAnswers}
+        />
+        <div className="pcard grid gap-0 p-1.5 sm:grid-cols-2">
+          {articles.map((article) => (
+            <AnswerRow
+              key={article.id}
+              href={`/portal/kb/${article.slug}`}
+              title={article.title}
+              summary={article.summary}
+              meta={[
+                article.category?.name,
+                t.portal.minRead(
+                  Math.max(1, Math.round(article.body.trim().split(/\s+/).length / 200)),
+                ),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (band.kind === "MY_REQUESTS") {
+    // Which states are worth telling the requester about is the desk's
+    // call, taken per status in Settings. Until a desk has taken it —
+    // no status carries the flag — everything still open is shown, so
+    // the band works on day one rather than sitting empty.
+    const mine = await prisma.ticket.findMany({
+      where: {
+        reporterId: user.id,
+        status: { is: flagged > 0 ? { showOnPortal: true } : { settles: false } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: band.limit ?? 3,
+      select: {
+        id: true,
+        number: true,
+        reference: true,
+        title: true,
+        createdAt: true,
+        status: { select: { id: true, name: true, color: true, settles: true, pausesClock: true } },
+      },
+    });
+    if (mine.length === 0) return null;
+
+    const open = await prisma.ticket.count({
+      where: { reporterId: user.id, status: { is: { settles: false } } },
+    });
+
+    return (
+      <section className="pcard">
+        {/* Two different bands wearing one name would be a lie: with statuses
+            chosen for the portal these really are the ones waiting on the
+            person reading them, and without that choice it is simply
+            everything they have open. */}
+        <div className="flex items-center justify-between gap-3 px-[22px] pt-[18px] pb-3">
+          <h2 className="text-[16px] font-semibold tracking-[-0.01em]">
+            {heading.title || (flagged > 0 ? t.portal.waitingOnYou : t.portal.yourRequests)}
+          </h2>
+          <Link
+            href="/portal/requests"
+            className="text-brand-deep text-sm font-semibold hover:underline"
+          >
+            {t.portal.openCount(open)}
+          </Link>
+        </div>
+        <ul>
+          {mine.map((ticket) => (
+            <li key={ticket.id} className="border-line border-t">
+              <Link
+                href={`/portal/requests/${ticket.number}`}
+                className="hover:bg-surface-2 flex items-center gap-3 px-[22px] py-[13px] transition-colors"
+              >
+                {ticket.status ? <StatusRing status={ticket.status} /> : null}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-base font-medium">{ticket.title}</span>
+                  <span className="text-text-3 mt-px flex items-center gap-2 text-[12.5px]">
+                    <Reference reference={ticket.reference} className="text-[11.5px]" />
+                    <span>· {t.common.ago(shortAge(ticket.createdAt, undefined, t))}</span>
+                    {/* The same tag as on My requests: the two lists show
+                        the same rows, and somebody who has learnt what this
+                        pill means on one page should not have to learn it
+                        again on the other. */}
+                    {!ticket.status?.settles && ticket.status?.pausesClock ? (
+                      <span className="bg-brand text-brand-fg inline-flex h-[21px] items-center rounded-full px-2 text-[11.5px] font-semibold whitespace-nowrap">
+                        {t.portal.waitingOnYou}
+                      </span>
+                    ) : null}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/portal/requests"
+          className="border-line text-text-2 hover:text-text flex items-center gap-1.5 border-t px-[22px] py-3.5 text-[13.5px] font-semibold transition-colors"
+        >
+          {t.portal.myRequests}
+          <ArrowRight size={13} />
+        </Link>
+      </section>
+    );
+  }
+
+  if (band.kind === "RICH_TEXT" && (band.title || band.subtitle)) {
+    return (
+      <section className="pcard p-6">
+        {band.title ? (
+          <h2 className="text-[24px] font-semibold tracking-[-0.025em]">{band.title}</h2>
+        ) : null}
+        {band.subtitle ? (
+          <p className="text-text-2 text-md mt-2 leading-relaxed whitespace-pre-wrap">
+            {band.subtitle}
+          </p>
+        ) : null}
+      </section>
+    );
+  }
+
+  return null;
 }

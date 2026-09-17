@@ -109,6 +109,7 @@ export async function updatePortal(values: {
   portalEnabled: boolean;
   portalTitle: string;
   portalWelcome: string;
+  deskPhone: string;
 }): Promise<Written> {
   const t = await getMessages();
   if (!(await allowed("settings.general"))) return { ok: false, error: t.errors.noSettings };
@@ -117,6 +118,8 @@ export async function updatePortal(values: {
     portalEnabled: values.portalEnabled,
     portalTitle: values.portalTitle.trim().slice(0, 60) || "Service portal",
     portalWelcome: values.portalWelcome.trim().slice(0, 300),
+    // Empty means no phone line, and the desk card drops the row.
+    deskPhone: values.deskPhone.trim().slice(0, 40) || null,
   });
 
   revalidatePath("/portal", "layout");

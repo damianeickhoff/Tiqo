@@ -19,6 +19,7 @@ export default async function CataloguePage() {
       color: true,
       isActive: true,
       parentId: true,
+      leadsPortal: true,
       _count: { select: { forms: true, articles: true, children: true } },
     },
   });

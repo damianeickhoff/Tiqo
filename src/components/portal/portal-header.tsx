@@ -1,20 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
 import { Avatar } from "@/components/avatar";
 import { Logo } from "@/components/shell/logo";
 import { EnvironmentSwitch } from "@/components/shell/environment-switch";
 import { ThemePicker } from "@/components/shell/theme-picker";
+import { PortalSearch } from "@/components/portal/portal-search";
 import type { ThemeChoice } from "@/lib/ui-preferences";
 import { useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
 
-/** Three places to be, and the way out. A portal with a navigation bar as deep
- *  as the desk's would be the desk with different paint. */
+/**
+ * The bar: on the ground, no line under it, the section you are in as a white
+ * pill. Three or four places to be, a search, the way to the desk for the
+ * people who have one, and everything about you behind your own face.
+ *
+ * A portal with a navigation bar as deep as the desk's would be the desk with
+ * different paint.
+ */
 export function PortalHeader({
   title,
   user,
@@ -24,7 +31,7 @@ export function PortalHeader({
   approvals,
 }: {
   title: string;
-  user: { name: string; avatarVariant: number };
+  user: { name: string; email: string; avatarVariant: number };
   /// Whether this account works the desk. A requester has nothing to switch to.
   canSeeDesk: boolean;
   theme: ThemeChoice;
@@ -41,6 +48,20 @@ export function PortalHeader({
   const t = useMessages();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // The same shortcut as the desk's palette, for the same box.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchOpen((was) => !was);
+      }
+      if (event.key === "Escape") setSearchOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const links = [
     { href: "/portal", label: t.portal.home, count: 0 },
@@ -51,20 +72,20 @@ export function PortalHeader({
       : [{ href: "/portal/approvals", label: t.portal.approvals, count: approvals }]),
   ];
 
+  const round =
+    "bg-surface text-text-2 hover:text-text flex h-9 items-center justify-center rounded-full shadow-[var(--highlight)] transition-colors";
+
   return (
-    <header className="border-line bg-bg/90 sticky top-0 z-30 border-b backdrop-blur-md">
-      <div className="portal-width mx-auto flex h-14 w-full items-center gap-3 px-5 lg:px-6">
-        <Link href="/portal" className="flex items-center gap-2.5">
-          <Logo size={26} />
+    <header className="relative z-30">
+      <div className="portal-wrap flex h-[68px] items-center gap-3 sm:gap-7">
+        <Link href="/portal" className="flex shrink-0 items-center gap-2.5">
+          <Logo size={26} wordmark={false} />
+          <span className="hidden text-[15px] font-semibold tracking-[-0.01em] sm:block">
+            {title}
+          </span>
         </Link>
 
-        <span className="text-text-3 border-line hidden border-l pl-3 text-base sm:block">
-          {title}
-        </span>
-
-        <nav className="ml-auto flex items-center gap-1">
-          {/* Words, not pictures. Three destinations do not need icons to be
-              told apart, and the icons were saying the same thing twice. */}
+        <nav className="flex items-center gap-0.5">
           {links.map(({ href, label, count }) => {
             const active = href === "/portal" ? pathname === href : pathname.startsWith(href);
             return (
@@ -73,33 +94,43 @@ export function PortalHeader({
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-9 items-center gap-1.5 rounded-full px-3 text-base font-medium transition-colors",
+                  "flex h-9 items-center gap-[7px] rounded-full px-3 text-base font-medium transition-colors sm:px-[13px]",
                   active
-                    ? "bg-surface-3 text-text"
+                    ? "bg-surface text-text shadow-[var(--highlight)]"
                     : "text-text-2 hover:bg-surface-2 hover:text-text",
                 )}
               >
                 {label}
                 {count > 0 ? (
-                  <span className="tnum bg-brand rounded-full px-1.5 font-mono text-xs font-semibold text-[var(--brand-ink)]">
+                  <span className="tnum bg-brand text-brand-ink inline-flex h-[19px] min-w-[19px] items-center justify-center rounded-full px-1.5 font-mono text-[11px] font-bold">
                     {count}
                   </span>
                 ) : null}
               </Link>
             );
           })}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label={t.portal.searchButton}
+            title={`${t.portal.searchButton} · ⌘K`}
+            className={cn(round, "w-9")}
+          >
+            <Search size={17} />
+          </button>
 
           {canSeeDesk ? (
             <>
-              <span aria-hidden className="bg-line mx-1 h-5 w-px" />
-              <EnvironmentSwitch here="portal" />
+              <span aria-hidden className="bg-line-strong mx-1 hidden h-[22px] w-px sm:block" />
+              <EnvironmentSwitch here="portal" className="rounded-full px-3.5" />
             </>
           ) : null}
 
-          <span aria-hidden className="bg-line mx-1 h-5 w-px" />
+          <span aria-hidden className="bg-line-strong mx-1 hidden h-[22px] w-px sm:block" />
 
-          {/* Everything about you, behind your own face: the theme and the way
-              out are both things you do to your session, not to the portal. */}
           <div className="relative">
             <button
               type="button"
@@ -110,7 +141,7 @@ export function PortalHeader({
               title={user.name}
               className="hover:ring-line-strong flex items-center rounded-full transition-shadow hover:ring-2"
             >
-              <Avatar name={user.name} variant={user.avatarVariant} size={28} />
+              <Avatar name={user.name} variant={user.avatarVariant} size={32} />
             </button>
 
             {menuOpen ? (
@@ -124,15 +155,18 @@ export function PortalHeader({
                 />
                 <div
                   role="menu"
-                  className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-2 w-56 overflow-hidden border shadow-[var(--shadow-float)]"
+                  className="animate-rise bg-surface absolute right-0 z-50 mt-2 w-[270px] rounded-[18px] p-2 shadow-[var(--shadow-md)]"
                 >
-                  <div className="border-line flex items-center gap-2.5 border-b px-4 py-3">
+                  <div className="border-line mb-1.5 flex items-center gap-2.5 border-b px-3 pt-2.5 pb-3">
                     <Avatar name={user.name} variant={user.avatarVariant} size={32} />
-                    <p className="min-w-0 truncate text-base font-semibold">{user.name}</p>
+                    <div className="min-w-0">
+                      <p className="truncate text-base font-semibold">{user.name}</p>
+                      <p className="text-text-3 truncate text-xs">{user.email}</p>
+                    </div>
                   </div>
 
-                  <div className="border-line space-y-1.5 border-b px-4 py-3">
-                    <p className="label">{t.settings.themeLabel}</p>
+                  <p className="label px-3 pt-2 pb-1.5">{t.settings.themeLabel}</p>
+                  <div className="px-3 pb-2">
                     <ThemePicker choice={theme} compact />
                   </div>
 
@@ -140,7 +174,7 @@ export function PortalHeader({
                     <button
                       type="submit"
                       role="menuitem"
-                      className="hover:bg-surface-2 flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-base font-medium transition-colors"
+                      className="hover:bg-surface-2 flex h-9 w-full items-center gap-2.5 rounded-[10px] px-3 text-left text-base font-medium transition-colors"
                     >
                       <LogOut size={15} className="text-text-3" />
                       {t.nav.signOut}
@@ -150,8 +184,26 @@ export function PortalHeader({
               </>
             ) : null}
           </div>
-        </nav>
+        </div>
       </div>
+
+      {/* The same combobox the hero holds, as a dialog: the header's search
+          button is for the pages that have no hero. */}
+      {searchOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.portal.searchButton}
+          className="animate-fade fixed inset-0 z-50 flex items-start justify-center bg-[rgba(9,9,11,0.45)] px-4 pt-[12vh] backdrop-blur-sm"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) setSearchOpen(false);
+          }}
+        >
+          <div className="animate-rise w-full max-w-[620px]">
+            <PortalSearch size="hero" autoFocus onNavigate={() => setSearchOpen(false)} />
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

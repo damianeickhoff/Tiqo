@@ -227,6 +227,9 @@ export async function updateCategory(
     color?: string;
     parentId?: string | null;
     isActive?: boolean;
+    /// True puts the section on the front page's shelf, after whatever is
+    /// there; false takes it off. The shelf holds five.
+    leadsPortal?: boolean;
   },
 ) {
   const { t, ok } = await guard();
@@ -235,6 +238,18 @@ export async function updateCategory(
   const name = patch.name?.trim().slice(0, 60);
   if (patch.name !== undefined && !name) {
     return { ok: false as const, error: t.errors.nameCategory };
+  }
+
+  let leadsPortal: number | null | undefined;
+  if (patch.leadsPortal === false) leadsPortal = null;
+  if (patch.leadsPortal === true) {
+    const leading = await prisma.portalCategory.findMany({
+      where: { leadsPortal: { not: null }, NOT: { id: categoryId } },
+      orderBy: { leadsPortal: "desc" },
+      select: { leadsPortal: true },
+    });
+    if (leading.length >= SHELF_PLACES) return { ok: false as const, error: t.errors.shelfFull };
+    leadsPortal = (leading[0]?.leadsPortal ?? -1) + 1;
   }
 
   // A section cannot be filed under itself, and the tree is one level deep, so
@@ -259,12 +274,16 @@ export async function updateCategory(
       ...(patch.color === undefined ? {} : { color: patch.color }),
       ...(patch.parentId === undefined ? {} : { parentId: patch.parentId }),
       ...(patch.isActive === undefined ? {} : { isActive: patch.isActive }),
+      ...(leadsPortal === undefined ? {} : { leadsPortal }),
     },
   });
 
   refresh();
   return { ok: true as const };
 }
+
+/** The shelf on the portal's front page: five sections and "Browse everything". */
+const SHELF_PLACES = 5;
 
 export async function deleteCategory(categoryId: string) {
   const { t, ok } = await guard();

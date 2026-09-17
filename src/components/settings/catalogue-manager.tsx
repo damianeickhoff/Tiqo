@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
-import { ChevronDown, ChevronUp, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff, Pin, PinOff, Plus, Trash2 } from "lucide-react";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import {
   createCategory,
@@ -24,6 +24,8 @@ type Category = {
   color: string;
   isActive: boolean;
   parentId: string | null;
+  /// Its place on the front page's shelf, or null when it is not on it.
+  leadsPortal: number | null;
   _count: { forms: number; articles: number; children: number };
 };
 
@@ -118,7 +120,7 @@ export function CatalogueManager({ categories }: { categories: Category[] }) {
                 name="color"
                 defaultValue="#febe2e"
                 aria-label={t.settings.colour}
-                className="border-border bg-surface rounded-control h-11 w-12 cursor-pointer border p-1"
+                className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
               />
             </label>
 
@@ -217,10 +219,36 @@ function CategoryRow({
           value={form.color}
           aria-label={t.settings.colour}
           onChange={(event) => set({ color: event.target.value })}
-          className="border-border bg-surface rounded-control h-8 w-9 shrink-0 cursor-pointer border p-1 opacity-0 transition-opacity group-hover:opacity-100"
+          className="bg-surface rounded-control h-8 w-9 shrink-0 cursor-pointer border border-transparent p-1 opacity-0 shadow-[var(--highlight)] transition-opacity group-hover:opacity-100"
         />
 
         <span className="flex shrink-0 items-center gap-0.5">
+          {/* Only a top-level section can lead the front page: the shelf is the
+              way into the catalogue, and a sub-section is already inside it. */}
+          {category.parentId === null ? (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() =>
+                run(() =>
+                  updateCategory(category.id, { leadsPortal: category.leadsPortal === null }),
+                )
+              }
+              title={category.leadsPortal === null ? t.forms.leadsPortalOn : t.forms.leadsPortalOff}
+              aria-label={
+                category.leadsPortal === null ? t.forms.leadsPortalOn : t.forms.leadsPortalOff
+              }
+              aria-pressed={category.leadsPortal !== null}
+              className={cn(
+                "rounded-control flex size-8 items-center justify-center",
+                category.leadsPortal === null
+                  ? "text-text-3 hover:bg-surface-3 hover:text-text"
+                  : "text-brand-deep bg-[var(--brand-tint)]",
+              )}
+            >
+              {category.leadsPortal === null ? <PinOff size={14} /> : <Pin size={14} />}
+            </button>
+          ) : null}
           <button
             type="button"
             disabled={pending}
@@ -269,7 +297,7 @@ function CategoryRow({
       </div>
 
       {draft.dirty ? (
-        <div className="border-border-soft animate-fade border-t px-4 py-2.5">
+        <div className="animate-fade px-4 py-2.5">
           <SaveBar
             draft={draft}
             save={(values) =>

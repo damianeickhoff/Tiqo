@@ -235,6 +235,9 @@ model Instance {
   /// Why the portal is shut, shown on it. Required to close it: a door with no
   /// notice on it sends people to the phone.
   portalClosedReason String?
+  /// The number to ring when the desk is closed, shown on the portal's desk
+  /// card. Optional: a desk without a phone line simply has no row for it.
+  deskPhone          String?
 
   /// Opening hours. With these on, the response clock only runs while the desk
   /// is open — a ticket raised on Friday evening is not late by Monday.
@@ -1110,6 +1113,12 @@ model PortalCategory {
   color    String           @default("#febe2e")
   position Int              @default(0)
   isActive Boolean          @default(true)
+  /// Where this section stands on the front page's shelf, or null when it is
+  /// not on it. The shelf has five places and the sixth is always "Browse
+  /// everything", so with more than five sections somebody has to choose;
+  /// a flag would have left the order to `position`, which is the order of
+  /// the whole catalogue and not the order of the shelf.
+  leadsPortal Int?
 
   forms     PortalForm[]
   articles  PortalArticle[]

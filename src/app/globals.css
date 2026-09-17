@@ -46,6 +46,9 @@
   --brand-2: #f2a71b;
   --brand-hover: #f5b21c;
   --brand-ink: #1c1300; /* text placed on a brand fill */
+  /* What the portal writes on the hero and the amber bands: the ink, or white
+     once a tenant's colour is dark enough to need it (decided in brand.ts). */
+  --brand-fg: var(--brand-ink);
   --brand-deep: #936e1b; /* brand used as text on light surfaces */
   --brand-tint: rgba(254, 190, 46, 0.18);
   --brand-glow: rgba(254, 190, 46, 0.4);
@@ -147,6 +150,7 @@
   --brand-2: #e9a017;
   --brand-hover: #ffcb54;
   --brand-ink: #1c1300;
+  --brand-fg: var(--brand-ink);
   --brand-deep: #fcc94a;
   --brand-tint: rgba(254, 190, 46, 0.14);
   --brand-glow: rgba(254, 190, 46, 0.35);
@@ -227,6 +231,7 @@
   --color-brand-2: var(--brand-2);
   --color-brand-hover: var(--brand-hover);
   --color-brand-ink: var(--brand-ink);
+  --color-brand-fg: var(--brand-fg);
   --color-brand-deep: var(--brand-deep);
 
   --color-p-low: var(--p-low);
@@ -420,38 +425,53 @@
   }
 
   /*
-   * A panel card own heading, ruled under.
+   * A panel card own heading.
    *
-   * The rule stops at 60% on purpose: a full-width line reads as the top edge
-   * of the next section, and the rail is already full of those. Drawn as an
-   * absolutely positioned pseudo-element so the class can be put on a flex row
-   * without becoming a flex item in it.
+   * It was ruled under once, a line stopping at 60%; with the card's fill
+   * doing the separating the line said nothing, so only the spacing is left.
+   * The class stays because a dozen headings carry it.
    */
   .card-heading {
-    position: relative;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
   }
 
-  .card-heading::after {
-    content: "";
-    position: absolute;
-    inset-inline-start: 0;
-    bottom: 0;
-    width: 60%;
-    height: 1px;
-    background: var(--line);
+  /*
+   * How wide the portal runs: a 1320px column on a 1440 screen, fluid below.
+   *
+   * Fixed rather than a percentage: the hero, the shelf and the 2:1 grid are
+   * drawn to this width, and a column that grew with the window would stretch
+   * the hero's copy past the length a line can be read at.
+   */
+  .portal-wrap {
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+    padding-inline: 24px;
   }
 
-  /*
-   * How wide the portal runs.
-   *
-   * A percentage rather than a fixed column: a service portal is a handful of
-   * cards and a search box, and on a wide screen a 64rem column left it
-   * stranded in the middle of the page.
-   */
-  .portal-width {
-    max-width: 60%;
+  @media (min-width: 1368px) {
+    .portal-wrap {
+      padding-inline: 0;
+    }
+  }
+
+  /* The portal's card: the desk's, with the round-12 radius. */
+  .pcard {
+    background: var(--surface);
+    border-radius: 18px;
+    box-shadow: var(--highlight);
+  }
+
+  .pcard-interactive {
+    transition:
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .pcard-interactive:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
   }
 
   .select-chevron {
