@@ -83,7 +83,7 @@ export function CiTableFrame({
 
   return (
     <div ref={container} className="w-fit min-w-full" style={style}>
-      <div className={cn(CI_ROW, "border-line bg-bg text-text-3 sticky top-0 z-10 border-b py-2")}>
+      <div className={cn(CI_ROW, "border-line bg-surface text-text-3 sticky top-0 z-10 border-b py-2")}>
         {selectAll}
         {all.map((head) => (
           // Never `overflow-hidden`: the grab strip hangs into the gap beside

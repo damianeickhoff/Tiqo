@@ -99,7 +99,7 @@ export function CommentCard({
             className={cn(
               "rounded-card relative border px-4 py-3",
               comment.isInternal ? "" : "border-line bg-surface",
-              comment.pinnedAt && "ring-brand/40 ring-2 ring-offset-2 ring-offset-[var(--bg)]",
+              comment.pinnedAt && "ring-brand/40 ring-2 ring-offset-2 ring-offset-[var(--surface)]",
             )}
             style={
               comment.isInternal

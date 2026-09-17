@@ -210,7 +210,7 @@ export function PeopleTable({
             aria-hidden
             className={cn(
               GRID,
-              "label border-line bg-bg sticky top-0 z-10 hidden h-9 border-b xl:grid",
+              "label border-line bg-surface sticky top-0 z-10 hidden h-9 border-b xl:grid",
             )}
           >
             <span className="truncate">{t.people.person}</span>

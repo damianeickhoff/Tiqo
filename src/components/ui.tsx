@@ -7,7 +7,7 @@ const BUTTON_VARIANTS = {
   primary:
     "bg-brand text-[var(--brand-ink)] font-semibold shadow-[0_1px_2px_rgba(9,9,11,0.1)] hover:bg-brand-hover",
   outline:
-    "border border-line bg-surface text-text shadow-[var(--highlight)] hover:border-line-strong hover:bg-surface-2",
+    "border border-transparent bg-surface text-text shadow-[var(--highlight)] hover:bg-surface-2",
   ghost: "text-text-2 hover:bg-surface-2 hover:text-text",
   danger: "border border-negative/40 text-negative hover:bg-negative/10",
   /// Filled, for the one button in a dialog that is about to do the thing.
@@ -59,11 +59,12 @@ export const buttonClass = (
 
 /* --------------------------------------------------------------- Control -- */
 
+// The border is kept at 1px but painted transparent: the box stays the same
+// size as every control drawn beside it, and focus has an edge to colour.
 const CONTROL =
-  "w-full rounded-control border border-line bg-surface px-3 text-base text-text " +
+  "w-full rounded-control border border-transparent bg-surface px-3 text-base text-text " +
   "shadow-[var(--highlight)] placeholder:text-text-3 " +
   "transition-[border-color,box-shadow] duration-150 " +
-  "hover:border-line-strong " +
   "focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-tint)] " +
   "disabled:opacity-50";
 

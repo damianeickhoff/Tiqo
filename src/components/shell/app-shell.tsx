@@ -91,7 +91,8 @@ export function AppShell({
 
   return (
     // One ground. The rail runs the full height on the left and the bar sits
-    // over the content only; a hairline divides each from the page. --rail is
+    // over the content only; both are on the ground, and the page is a white
+    // panel resting on it — no hairlines, the fill does the dividing. --rail is
     // the single source of the rail's width: the grid column and everything
     // that lines up with it read the same value.
     <InstanceProvider clock={clock} locale={locale} dateLocale={dateLocale}>
@@ -157,8 +158,10 @@ export function AppShell({
 
         {/* From lg up this box is the scrollport: sticky descendants sit at its
             own edge (`lg:top-0`). Below lg the window scrolls and they clear the
-            bar with `top-[var(--bar)]`. */}
-        <div className="bg-bg border-line flex min-h-[calc(100dvh-var(--bar))] flex-col lg:min-h-0 lg:overflow-y-auto lg:border-l">
+            bar with `top-[var(--bar)]`. It is also the panel: a white surface
+            with a margin to the window's right and bottom edges, so the page
+            reads as a sheet on the ground rather than the ground itself. */}
+        <div className="bg-surface flex min-h-[calc(100dvh-var(--bar))] flex-col shadow-[var(--highlight)] lg:mr-3 lg:mb-3 lg:min-h-0 lg:overflow-y-auto lg:rounded-[var(--radius-panel)]">
           <main className="flex-1 pb-24 lg:pb-0">{children}</main>
         </div>
 
@@ -196,7 +199,7 @@ function TopBar({
   const onTicket = /^\/tickets\/[^/]+$/.test(pathname) && pathname !== "/tickets/new";
 
   return (
-    <header className="bg-chrome border-line sticky top-0 z-40 flex h-[var(--bar)] shrink-0 items-center gap-2 border-b px-4 lg:static">
+    <header className="bg-chrome sticky top-0 z-40 flex h-[var(--bar)] shrink-0 items-center gap-2 px-4 lg:static">
       {/* Below lg there is no rail, so the mark lives here. */}
       <Link href="/" aria-label={t.nav.home} className="mr-1 flex shrink-0 items-center lg:hidden">
         <Logo size={28} />

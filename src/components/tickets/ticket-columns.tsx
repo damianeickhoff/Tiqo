@@ -74,7 +74,7 @@ export async function TicketColumns({
   return (
     <div
       className={cn(
-        "label border-line bg-bg sticky top-0 z-10 hidden h-9 items-center gap-3 border-b pr-4 pl-[24px] @sm:flex",
+        "label border-line bg-surface sticky top-0 z-10 hidden h-9 items-center gap-3 border-b pr-4 pl-[24px] @sm:flex",
         className,
       )}
     >

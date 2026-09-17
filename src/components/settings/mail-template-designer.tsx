@@ -329,7 +329,7 @@ export function MailTemplateDesigner({
         <Preview kind={kind} subject={d.subject} body={d.body} layout={d.html} chrome={chrome} />
       </div>
 
-      <div className="border-line bg-bg sticky bottom-0 border-t px-5 py-2.5 lg:px-6">
+      <div className="border-line bg-surface sticky bottom-0 border-t px-5 py-2.5 lg:px-6">
         <SaveBar
           draft={draft}
           save={(values) =>

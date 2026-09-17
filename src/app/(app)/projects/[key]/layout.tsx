@@ -85,7 +85,7 @@ export default async function ProjectLayout({
        * height until you have scrolled that far. With the head pinned, the
        * rail's box starts exactly where it pins and never overhangs.
        */}
-      <div className="bg-bg z-30 xl:sticky xl:top-0 xl:h-[var(--project-head)]">
+      <div className="bg-surface z-30 xl:sticky xl:top-0 xl:h-[var(--project-head)]">
         {/* Its own stacking context, above the page. Without it the health menu
             opened behind the first card on the overview — later siblings paint
             on top, and the menu belongs to an earlier one. */}
@@ -185,7 +185,7 @@ export default async function ProjectLayout({
 
         {/* Below xl there is no rail, so the tabs stick on their own the way a
             ticket's toolbar does. From xl up the block above carries them. */}
-        <div className="border-line bg-bg/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end border-b px-5 backdrop-blur-md lg:top-0 lg:px-6 xl:static">
+        <div className="border-line bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end border-b px-5 backdrop-blur-md lg:top-0 lg:px-6 xl:static">
           <ProjectTabs
             projectKey={project.key}
             counts={{

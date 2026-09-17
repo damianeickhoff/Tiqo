@@ -79,7 +79,7 @@ export function CiFilterBar({
   const active = KEYS.filter((key) => key !== "page" && value(key));
 
   return (
-    <div className="border-line bg-bg/90 sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
+    <div className="border-line bg-surface/90 sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
       <Filter
         label={t.cmdb.lifecycle}
         value={value("life")}

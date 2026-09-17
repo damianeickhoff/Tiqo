@@ -121,7 +121,7 @@ export function FilterBar({
   });
 
   return (
-    <div className="border-line bg-bg/90 sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
+    <div className="border-line bg-surface/90 sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
       {/* Where you are, before what you are narrowing: a segmented control. */}
       <div
         role="group"

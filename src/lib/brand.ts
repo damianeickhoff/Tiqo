@@ -86,10 +86,12 @@ export function brandTokens(hex: string): BrandTokens | null {
       "--brand-tint": rgba(brand, 0.16),
       "--brand-glow": rgba(brand, 0.32),
       "--brand-wash": toHex(mix(brand, WHITE, 0.95)),
-      // The chrome is neutral now — a tinted rail was the old design — but the
-      // keys stay so the settings preview keeps its swatch.
-      "--chrome": "#fafafa",
-      "--chrome-border": "rgba(9, 9, 11, 0.08)",
+      // The chrome is the ground now — a tinted rail was the old design — but
+      // the keys stay so the settings preview keeps its swatch. The values are
+      // the stylesheet's own, repeated: an override that said var(--bg) would
+      // read back as that string in the preview.
+      "--chrome": "#f1f1f4",
+      "--chrome-border": "rgba(9, 9, 11, 0.06)",
     },
     dark: {
       "--brand": toHex(brand),
@@ -99,8 +101,8 @@ export function brandTokens(hex: string): BrandTokens | null {
       "--brand-tint": rgba(brand, 0.14),
       "--brand-glow": rgba(brand, 0.26),
       "--brand-wash": toHex(mix(brand, BLACK, 0.92)),
-      "--chrome": "#0c0c0e",
-      "--chrome-border": "rgba(255, 255, 255, 0.08)",
+      "--chrome": "#0a0a0c",
+      "--chrome-border": "rgba(255, 255, 255, 0.06)",
     },
   };
 }

@@ -286,7 +286,7 @@ export function TicketToolbar() {
   }
 
   return (
-    <div className="border-line bg-bg/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1 border-b px-4 backdrop-blur-md lg:top-0 lg:px-5">
+    <div className="border-line bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1 border-b px-4 backdrop-blur-md lg:top-0 lg:px-5">
       {refused ? (
         <p
           role="alert"

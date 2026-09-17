@@ -18,16 +18,21 @@
 :root {
   color-scheme: light;
 
-  /* The working ground is white; only the chrome (rail and bar) is tinted. */
-  --bg: #ffffff;
-  --chrome: #fafafa;
+  /* Contrast by fill, not by line (round 12). The ground is a soft grey and
+     everything that matters sits on it as a white surface: the rail and the
+     bar are on the ground, the working area is a white panel, cards are white
+     with a low shadow and no border. --chrome is the ground now; it stays a
+     token because the settings preview and a dozen rails read it. */
+  --bg: #f1f1f4;
+  --chrome: var(--bg);
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --surface-3: #e9e9ec;
+  --surface-2: #f4f4f6;
+  --surface-3: #e7e7ec;
 
-  /* Hairlines are alpha so they read the same on every surface. */
-  --line: rgba(9, 9, 11, 0.08);
-  --line-strong: rgba(9, 9, 11, 0.16);
+  /* Hairlines are alpha so they read the same on every surface. Softer than
+     they were: with fills doing the separating, a line only marks a row. */
+  --line: rgba(9, 9, 11, 0.06);
+  --line-strong: rgba(9, 9, 11, 0.14);
   --border: var(--line);
   --border-soft: rgba(9, 9, 11, 0.05);
   --chrome-border: var(--line);
@@ -37,6 +42,8 @@
   --text-3: #9d9da6;
 
   --brand: #febe2e;
+  /* The far end of the hero's gradient: the brand, a step darker. */
+  --brand-2: #f2a71b;
   --brand-hover: #f5b21c;
   --brand-ink: #1c1300; /* text placed on a brand fill */
   --brand-deep: #936e1b; /* brand used as text on light surfaces */
@@ -65,16 +72,19 @@
 
   --positive: #10b981;
   --negative: #e11d48;
+  /* A notice that is only news: the one blue in the app. */
+  --info: #2f5be8;
   /* What is legible *on* the negative, which is not the same colour in both
      themes: the light one is deep enough to carry white, the dark one is a
      washed red that white disappears into. */
   --negative-ink: #ffffff;
 
-  /* Elevation. Cards sit on a white ground, so the hairline does most of the
-     separating and the shadow is barely there. */
-  --highlight: 0 1px 2px rgba(9, 9, 11, 0.05), 0 0 0 1px rgba(9, 9, 11, 0.02);
+  /* Elevation. Cards sit on a grey ground with no hairline, so the shadow is
+     what separates them: a tight contact shadow and a long soft one. */
+  --highlight: 0 1px 2px rgba(9, 9, 11, 0.04), 0 10px 30px -14px rgba(9, 9, 11, 0.14);
   --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.05);
-  --shadow-md: 0 1px 2px rgba(9, 9, 11, 0.04), 0 8px 20px -12px rgba(9, 9, 11, 0.16);
+  /* A card that lifts on hover. */
+  --shadow-md: 0 2px 4px rgba(9, 9, 11, 0.06), 0 24px 48px -20px rgba(9, 9, 11, 0.22);
   --shadow-lg: 0 1px 3px rgba(9, 9, 11, 0.05), 0 18px 40px -20px rgba(9, 9, 11, 0.24);
 
   /* For elements that float *over* content rather than sitting on the page.
@@ -117,13 +127,13 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #09090b;
-  --chrome: #0c0c0e;
-  --surface: #121214;
-  --surface-2: #18181b;
-  --surface-3: #232326;
+  --bg: #0a0a0c;
+  --chrome: var(--bg);
+  --surface: #151519;
+  --surface-2: #1d1d23;
+  --surface-3: #26262d;
 
-  --line: rgba(255, 255, 255, 0.08);
+  --line: rgba(255, 255, 255, 0.06);
   --line-strong: rgba(255, 255, 255, 0.14);
   --border: var(--line);
   --border-soft: rgba(255, 255, 255, 0.05);
@@ -134,6 +144,7 @@
   --text-3: #6b6b74;
 
   --brand: #febe2e;
+  --brand-2: #e9a017;
   --brand-hover: #ffcb54;
   --brand-ink: #1c1300;
   --brand-deep: #fcc94a;
@@ -158,12 +169,14 @@
 
   --positive: #34d399;
   --negative: #f87171;
+  --info: #5b7cf0;
   --negative-ink: #2a0a11;
 
-  /* Dark surfaces swallow a soft shadow; a 1px inner top light does the lifting. */
-  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Dark surfaces swallow a soft shadow; a 1px inner top light does the
+     lifting, and a deep drop shadow keeps the card off the ground. */
+  --highlight: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 30px -16px rgba(0, 0, 0, 0.7);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 20px -12px rgba(0, 0, 0, 0.7);
+  --shadow-md: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 24px 48px -20px rgba(0, 0, 0, 0.9);
   --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4), 0 18px 40px -20px rgba(0, 0, 0, 0.85);
   --shadow-float:
     0 0 12px rgba(0, 0, 0, 0.45), 0 0 32px rgba(0, 0, 0, 0.35), 0 6px 22px -6px rgba(0, 0, 0, 0.65);
@@ -211,6 +224,7 @@
   --color-chrome-border: var(--chrome-border);
 
   --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
   --color-brand-hover: var(--brand-hover);
   --color-brand-ink: var(--brand-ink);
   --color-brand-deep: var(--brand-deep);
@@ -222,6 +236,7 @@
 
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  --color-info: var(--info);
   --color-negative-ink: var(--negative-ink);
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
@@ -343,22 +358,19 @@
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
+  /* No border: on the grey ground the white fill is the card's edge. */
   .card {
     background: var(--surface);
-    border: 1px solid var(--line);
     border-radius: var(--radius-card);
     box-shadow: var(--highlight);
   }
 
-  /* Cards that are links brighten their hairline; nothing lifts. */
+  /* Cards that are links lift. */
   .card-interactive {
-    transition:
-      box-shadow 180ms ease,
-      border-color 180ms ease;
+    transition: box-shadow 180ms ease;
   }
 
   .card-interactive:hover {
-    border-color: var(--line-strong);
     box-shadow: var(--shadow-md);
   }
 
