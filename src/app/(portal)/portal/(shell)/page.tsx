@@ -20,8 +20,8 @@ import {
   BandHeader,
   ServiceCard,
   Tile,
-  WaitingBanner,
 } from "@/components/portal/portal-pieces";
+import { WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {

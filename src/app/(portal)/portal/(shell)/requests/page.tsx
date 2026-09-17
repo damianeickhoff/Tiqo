@@ -12,7 +12,7 @@ import { StatusRing } from "@/components/tickets/glyphs";
 import { Reference } from "@/components/tickets/ticket-row";
 import { RequestFilters } from "@/components/portal/request-filters";
 import { longestWait } from "@/lib/portal";
-import { WaitingBanner } from "@/components/portal/portal-pieces";
+import { WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
