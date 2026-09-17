@@ -136,7 +136,7 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
               onClick={onClose}
               aria-label={t.ticket.profileAction}
               title={t.ticket.profileAction}
-              className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex size-9 shrink-0 items-center justify-center border transition-colors"
+              className="bg-surface text-text-2 hover:text-text rounded-control flex size-9 shrink-0 items-center justify-center border border-transparent shadow-[var(--highlight)] transition-colors"
             >
               <ArrowUpRight size={16} />
             </Link>
@@ -148,7 +148,7 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
             </p>
           )}
 
-          <dl className="border-line divide-line rounded-card grid grid-cols-[104px_minmax(0,1fr)] items-center gap-x-3 border px-3.5 py-2 text-base">
+          <dl className="divide-line bg-surface-2 rounded-card grid grid-cols-[104px_minmax(0,1fr)] items-center gap-x-3 px-3.5 py-2 text-base">
             {rows.map(([label, value]) => (
               <Row key={label} label={label} value={value} />
             ))}
@@ -160,10 +160,10 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
             <Tally label={t.people.openRaised} value={person.openRaised} />
           </div>
 
-          <div className="border-line flex gap-2 border-t pt-4">
+          <div className="flex gap-2 pt-4">
             <a
               href={`mailto:${person.email}`}
-              className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex h-9 flex-1 items-center justify-center gap-1.5 border text-base font-medium transition-colors"
+              className="bg-surface text-text-2 hover:text-text rounded-control flex h-9 flex-1 items-center justify-center gap-1.5 border border-transparent text-base font-medium shadow-[var(--highlight)] transition-colors"
             >
               <Mail size={14} />
               {t.ticket.emailAction}
@@ -171,7 +171,7 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
             {person.phone ? (
               <a
                 href={`tel:${person.phone.replace(/\s/g, "")}`}
-                className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex h-9 flex-1 items-center justify-center gap-1.5 border text-base font-medium transition-colors"
+                className="bg-surface text-text-2 hover:text-text rounded-control flex h-9 flex-1 items-center justify-center gap-1.5 border border-transparent text-base font-medium shadow-[var(--highlight)] transition-colors"
               >
                 <Phone size={14} />
                 {t.ticket.callAction}
@@ -195,7 +195,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 function Tally({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border-line rounded-card border px-3 py-2">
+    <div className="bg-surface-2 rounded-card px-3 py-2">
       <p className="text-text-3 text-sm">{label}</p>
       <p className="tnum mt-0.5 text-xl leading-none font-semibold">{value}</p>
     </div>

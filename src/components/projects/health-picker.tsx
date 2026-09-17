@@ -44,7 +44,7 @@ export function HealthPicker({ projectId, health }: { projectId: string; health:
         onClick={() => setOpen((current) => !current)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="border-line bg-surface hover:border-line-strong flex h-8 items-center gap-2 rounded-full border px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-[border-color,opacity] disabled:opacity-60"
+        className="bg-surface flex h-8 items-center gap-2 rounded-full border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-[border-color,opacity] disabled:opacity-60"
       >
         <span aria-hidden className="size-2 rounded-full" style={{ background: meta.color }} />
         {t.projects.healthNames[shown]}
@@ -62,7 +62,7 @@ export function HealthPicker({ projectId, health }: { projectId: string; health:
           />
           <div
             role="listbox"
-            className="animate-rise border-border bg-surface rounded-card absolute right-0 z-50 mt-2 w-56 overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-56 overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             {HEALTH_ORDER.map((value) => {
               const option = HEALTH_META[value];

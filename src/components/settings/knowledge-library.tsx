@@ -36,9 +36,9 @@ type Category = { id: string; name: string; parentId: string | null };
 
 /** The filters as chips, the way the form library draws its own. */
 const CHIP_SELECT =
-  "select-chevron h-8 cursor-pointer appearance-none rounded-full border border-line bg-surface " +
+  "select-chevron h-8 cursor-pointer appearance-none rounded-full border border-transparent bg-surface " +
   "pr-7 pl-2.5 text-sm font-medium text-text-2 shadow-[var(--highlight)] " +
-  "transition-[border-color,color] hover:border-line-strong hover:text-text " +
+  "transition-[border-color,color] hover:text-text " +
   "focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-tint)]";
 const CHIP_ON = "border-transparent bg-[var(--brand-tint)] text-brand-deep";
 
@@ -125,7 +125,7 @@ export function KnowledgeLibrary({
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t.forms.searchArticles}
             aria-label={t.forms.searchArticles}
-            className="border-line bg-surface placeholder:text-text-3 focus:border-brand hover:border-line-strong rounded-control h-8 w-full border pr-3 pl-8 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+            className="bg-surface placeholder:text-text-3 focus:border-brand rounded-control h-8 w-full border border-transparent pr-3 pl-8 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
           />
         </div>
 
@@ -356,7 +356,7 @@ function NewArticleDialog({
           />
         </div>
 
-        <div className="border-border-soft flex justify-end gap-2 border-t pt-4">
+        <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             {t.common.cancel}
           </Button>

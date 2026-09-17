@@ -59,7 +59,7 @@ export function NewProjectForm({ onCreated }: { onCreated?: () => void }) {
           name="color"
           type="color"
           defaultValue="#febe2e"
-          className="border-border bg-surface rounded-control h-10 w-full cursor-pointer border px-1"
+          className="bg-surface rounded-control h-10 w-full cursor-pointer border border-transparent px-1 shadow-[var(--highlight)]"
         />
       </Field>
 

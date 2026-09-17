@@ -74,7 +74,7 @@ export function RequesterPicker({
           <div className="space-y-4">
             <FormError>{error ?? undefined}</FormError>
 
-            <div className="border-border rounded-card max-h-64 space-y-1 overflow-y-auto border p-1">
+            <div className="bg-surface-2 rounded-card max-h-64 space-y-1 overflow-y-auto p-1">
               {people.map((person) => {
                 const on = selected === person.id;
                 return (

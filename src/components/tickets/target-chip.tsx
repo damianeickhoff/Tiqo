@@ -56,7 +56,7 @@ export async function TargetChip({ ticket }: { ticket: ChipTicket }) {
 
   return (
     <span
-      className={`${CHIP} border-border bg-surface-2 pl-1.5`}
+      className={`${CHIP} bg-surface-2 border-transparent pl-1.5`}
       title={`${clock.targets[ticket.priority]}h response target for ${meta.label.toLowerCase()} incidents`}
     >
       <span
@@ -80,7 +80,7 @@ async function DueChip({ dueDate, settled }: { dueDate: Date; settled: boolean }
 
   return (
     <span
-      className={`${CHIP} border-border bg-surface-2`}
+      className={`${CHIP} bg-surface-2 border-transparent`}
       style={overdue ? { color: "var(--negative)", borderColor: "var(--negative)" } : undefined}
       title={t.ticket.due}
     >

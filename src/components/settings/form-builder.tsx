@@ -202,7 +202,7 @@ export function FormBuilder({
       {/* Its own head rather than the settings one: this page has left that
           layout behind, and the things it needs up here — live, preview, the
           rest — are the form's, not the settings area's. */}
-      <div className="border-line flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 border-b px-5 py-2 lg:px-6">
+      <div className="flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 lg:px-6">
         <Link
           href="/settings/portal/forms"
           className="text-text-2 hover:text-text -ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-base font-medium transition-colors"
@@ -384,8 +384,6 @@ function Palette({
         })}
       </ul>
 
-      <div className="border-line my-2 border-t" />
-
       <button
         type="button"
         disabled={pending}
@@ -427,7 +425,7 @@ function Canvas({
     <Card className="animate-rise h-fit overflow-hidden">
       <div
         className={cn(
-          "border-line flex flex-wrap items-center gap-x-3.5 gap-y-2 border-b px-4 py-3.5 transition-colors",
+          "flex flex-wrap items-center gap-x-3.5 gap-y-2 px-4 py-3.5 transition-colors",
           selected.kind === "form" ? "bg-[var(--brand-wash)]" : null,
         )}
       >
@@ -560,7 +558,9 @@ function FieldCard({
     <div
       className={cn(
         "group rounded-card relative border px-3 py-2.5 transition-colors",
-        selected ? "border-brand/50 bg-[var(--brand-tint)]" : "border-line hover:bg-surface-2",
+        selected
+          ? "border-brand/50 bg-[var(--brand-tint)]"
+          : "bg-surface hover:bg-surface-2 border-transparent shadow-[var(--highlight)]",
       )}
     >
       <button type="button" onClick={onSelect} className="block w-full text-left">
@@ -606,7 +606,7 @@ function FieldCard({
           disabled={pending || first}
           onClick={() => run(() => moveField(field.id, "up"))}
           aria-label={t.common.moveUp(field.label)}
-          className="border-line bg-surface text-text-3 hover:text-text rounded-control flex size-[22px] items-center justify-center border disabled:opacity-30"
+          className="bg-surface text-text-3 hover:text-text rounded-control flex size-[22px] items-center justify-center border border-transparent shadow-[var(--highlight)] disabled:opacity-30"
         >
           <ChevronUp size={12} />
         </button>
@@ -615,7 +615,7 @@ function FieldCard({
           disabled={pending || last}
           onClick={() => run(() => moveField(field.id, "down"))}
           aria-label={t.common.moveDown(field.label)}
-          className="border-line bg-surface text-text-3 hover:text-text rounded-control flex size-[22px] items-center justify-center border disabled:opacity-30"
+          className="bg-surface text-text-3 hover:text-text rounded-control flex size-[22px] items-center justify-center border border-transparent shadow-[var(--highlight)] disabled:opacity-30"
         >
           <ChevronDown size={12} />
         </button>
@@ -635,7 +635,7 @@ function FieldCard({
           }
           aria-label={t.forms.deleteQuestion}
           title={t.forms.deleteQuestion}
-          className="border-line bg-surface text-text-3 hover:border-negative/40 hover:text-negative rounded-control flex size-[22px] items-center justify-center border disabled:opacity-30"
+          className="bg-surface text-text-3 hover:border-negative/40 hover:text-negative rounded-control flex size-[22px] items-center justify-center border border-transparent shadow-[var(--highlight)] disabled:opacity-30"
         >
           <Trash2 size={11} />
         </button>
@@ -689,7 +689,7 @@ function FormMenu({ form }: { form: BuilderForm }) {
           />
           <div
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-2 w-52 overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-52 overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             <button
               type="button"
@@ -738,7 +738,7 @@ function FormMenu({ form }: { form: BuilderForm }) {
             </p>
           ) : null}
 
-          <div className="border-border-soft flex justify-end gap-2 border-t pt-4">
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="ghost" onClick={() => setAsking(false)}>
               {t.common.cancel}
             </Button>
@@ -786,11 +786,7 @@ function PreviewDialog({ slug, name }: { slug: string; name: string }) {
           size="lg"
           onClose={() => setOpen(false)}
         >
-          <iframe
-            src={`/portal/f/${slug}`}
-            title={name}
-            className="border-line rounded-card h-[65vh] w-full border"
-          />
+          <iframe src={`/portal/f/${slug}`} title={name} className="rounded-card h-[65vh] w-full" />
         </Modal>
       ) : null}
     </>
@@ -1240,7 +1236,7 @@ function FormInspector({
               type="color"
               value={d.color}
               onChange={(event) => set({ color: event.target.value })}
-              className="border-line rounded-control h-9 w-full cursor-pointer border bg-transparent p-1"
+              className="bg-surface rounded-control h-9 w-full cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
             />
           </Labelled>
         </div>
@@ -1467,7 +1463,7 @@ function TranslationPane({
           const hasOptions = field.kind === "SELECT" || field.kind === "RADIO";
 
           return (
-            <div key={field.id} className="border-line rounded-card space-y-2.5 border p-3">
+            <div key={field.id} className="bg-surface-2 rounded-card space-y-2.5 p-3">
               <p className="text-text-3 text-sm">
                 {field.label || t.forms.untitledField}
                 {field.required ? <span className="text-negative"> *</span> : null}

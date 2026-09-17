@@ -57,7 +57,7 @@ export function ReadingModeButton({ reading }: { reading: boolean }) {
         "rounded-control flex h-8 items-center gap-1.5 border px-2.5 text-sm font-medium whitespace-nowrap transition-colors disabled:opacity-50",
         reading
           ? "text-brand-deep border-transparent bg-[var(--brand-tint)]"
-          : "border-line bg-surface text-text-2 hover:border-line-strong hover:text-text shadow-[var(--highlight)]",
+          : "bg-surface text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
       )}
     >
       {reading ? <Minimize2 size={13} /> : <Maximize2 size={13} />}

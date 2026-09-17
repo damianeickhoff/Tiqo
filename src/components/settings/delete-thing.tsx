@@ -70,7 +70,7 @@ export function DeleteThing({
             </p>
           ) : null}
 
-          <div className="border-border-soft flex justify-end gap-2 border-t pt-4">
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="ghost" onClick={() => setAsking(false)}>
               {t.common.cancel}
             </Button>

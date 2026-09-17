@@ -59,7 +59,7 @@ export function ReferencePicker({
 
   return createPortal(
     <div
-      className="animate-rise border-border bg-surface rounded-card fixed z-[200] overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+      className="animate-rise bg-surface rounded-card fixed z-[200] overflow-hidden p-1 shadow-[var(--shadow-float)]"
       style={{
         left,
         width: WIDTH,

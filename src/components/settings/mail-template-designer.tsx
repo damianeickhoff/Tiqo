@@ -141,7 +141,7 @@ export function MailTemplateDesigner({
       {/* Its own head rather than the settings one: this page has left that
           layout behind, and what belongs up here is the message's, not the
           settings area's. */}
-      <div className="border-line flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 border-b px-5 py-2 lg:px-6">
+      <div className="flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 lg:px-6">
         <Link
           href="/settings/mail/templates"
           className="text-text-2 hover:text-text -ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-base font-medium transition-colors"
@@ -310,7 +310,7 @@ export function MailTemplateDesigner({
           )}
 
           <section className="card overflow-hidden">
-            <div className="border-line flex h-[34px] items-center border-b px-3.5">
+            <div className="flex h-[34px] items-center px-3.5">
               <h2 className="label">{t.mail.whenTitle}</h2>
             </div>
             <dl className="text-md grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-3.5 py-3">
@@ -329,7 +329,7 @@ export function MailTemplateDesigner({
         <Preview kind={kind} subject={d.subject} body={d.body} layout={d.html} chrome={chrome} />
       </div>
 
-      <div className="border-line bg-surface sticky bottom-0 border-t px-5 py-2.5 lg:px-6">
+      <div className="bg-surface sticky bottom-0 px-5 py-2.5 lg:px-6">
         <SaveBar
           draft={draft}
           save={(values) =>
@@ -379,7 +379,7 @@ function Chips({
           key={token}
           type="button"
           onClick={() => onPick(token)}
-          className="border-border text-text-2 hover:border-line-strong hover:bg-surface-2 hover:text-text rounded-control border px-2 py-1 font-mono text-xs transition-colors"
+          className="bg-surface text-text-2 hover:bg-surface-2 hover:text-text rounded-control border border-transparent px-2 py-1 font-mono text-xs shadow-[var(--highlight)] transition-colors"
         >
           {token}
         </button>
@@ -412,11 +412,11 @@ function CodeBox({
   const lines = value.split("\n").length;
 
   return (
-    <div className="border-border rounded-control bg-surface flex h-[300px] overflow-hidden border font-mono text-xs leading-5">
+    <div className="rounded-control bg-surface flex h-[300px] overflow-hidden border border-transparent font-mono text-xs leading-5 shadow-[var(--highlight)]">
       <div
         ref={gutter}
         aria-hidden
-        className="text-text-3 border-line bg-surface-2 shrink-0 overflow-hidden border-r px-2 py-2 text-right select-none"
+        className="text-text-3 bg-surface-2 shrink-0 overflow-hidden px-2 py-2 text-right select-none"
       >
         {Array.from({ length: lines }, (_, index) => (
           <div key={index}>{index + 1}</div>
@@ -520,7 +520,7 @@ function Preview({
 
   return (
     <section className="card flex min-w-0 flex-col overflow-hidden">
-      <div className="border-line flex h-[34px] items-center gap-2 border-b px-3.5">
+      <div className="flex h-[34px] items-center gap-2 px-3.5">
         <h2 className="label">{t.mail.preview}</h2>
 
         <div className="ml-auto flex items-center gap-1.5">
@@ -596,7 +596,7 @@ function Toggle({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="border-border rounded-control flex border p-0.5">
+    <div className="bg-surface rounded-control flex border border-transparent p-0.5 shadow-[var(--highlight)]">
       {options.map((option) => (
         <button
           key={option.label}
@@ -628,7 +628,7 @@ function Segments<T extends string>({
   onChange: (next: T) => void;
 }) {
   return (
-    <div className="border-border rounded-control flex w-fit border p-0.5">
+    <div className="bg-surface rounded-control flex w-fit border border-transparent p-0.5 shadow-[var(--highlight)]">
       {options.map((option) => (
         <button
           key={option.value}

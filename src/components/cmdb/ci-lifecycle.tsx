@@ -29,7 +29,7 @@ export function LifecyclePill({
   return (
     <span
       className={cn(
-        "border-border bg-surface text-text inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-sm font-medium whitespace-nowrap",
+        "bg-surface text-text inline-flex items-center gap-1.5 rounded-full border border-transparent px-2 py-0.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)]",
         className,
       )}
     >

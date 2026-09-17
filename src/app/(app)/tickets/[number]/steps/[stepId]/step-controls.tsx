@@ -131,7 +131,7 @@ export function StepControls({
               defaultValue={dueAt ? dueAt.toISOString().slice(0, 10) : ""}
               disabled={pending}
               onChange={(event) => run(() => setStepDue(stepId, event.target.value))}
-              className="border-border bg-surface focus:border-brand rounded-control h-9 w-full border px-2.5 text-base focus:ring-4 focus:ring-[var(--brand-tint)] focus:outline-none"
+              className="bg-surface focus:border-brand rounded-control h-9 w-full border border-transparent px-2.5 text-base shadow-[var(--highlight)] focus:ring-4 focus:ring-[var(--brand-tint)] focus:outline-none"
             />
           </label>
 

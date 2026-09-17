@@ -92,7 +92,7 @@ export function AccountControls({
                 return setUserActive(userId, !active);
               })
             }
-            className="border-border hover:border-text-3 rounded-control text-md inline-flex h-10 w-full items-center justify-center gap-2 border px-3 font-medium transition-colors disabled:opacity-50"
+            className="rounded-control text-md inline-flex h-10 w-full items-center justify-center gap-2 border border-transparent px-3 font-medium shadow-[var(--highlight)] transition-colors disabled:opacity-50"
           >
             <Power size={15} className="text-text-3" />
             {active ? t.people.deactivate : t.people.reactivate}

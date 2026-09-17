@@ -71,7 +71,7 @@ export function DocSearch({ children }: { children: React.ReactNode }) {
           onKeyDown={(event) => event.key === "Escape" && setQuery("")}
           placeholder={t.docs.searchDocs}
           aria-label={t.docs.searchDocs}
-          className="border-line bg-surface placeholder:text-text-3 focus:border-brand hover:border-line-strong rounded-card text-md h-11 w-full border pr-24 pl-10 shadow-[var(--shadow-sm)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+          className="bg-surface placeholder:text-text-3 focus:border-brand rounded-card text-md h-11 w-full border border-transparent pr-24 pl-10 shadow-[var(--shadow-sm)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
         />
         <span className="absolute top-1/2 right-3.5 flex -translate-y-1/2 items-center gap-2">
           {pending ? <Loader2 size={14} className="text-text-3 animate-spin" /> : null}
@@ -102,7 +102,7 @@ export function DocSearch({ children }: { children: React.ReactNode }) {
           {t.docs.noMatches}
         </p>
       ) : (
-        <ul className="border-line divide-line rounded-card divide-y overflow-hidden border">
+        <ul className="card divide-line divide-y overflow-hidden">
           {hits.map((hit) => (
             <li key={hit.id}>
               <Link

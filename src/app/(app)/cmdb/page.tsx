@@ -364,9 +364,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
       <PageHeader title={t.cmdb.title} />
 
       <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
-        <Suspense
-          fallback={<div className="border-line bg-chrome shrink-0 lg:w-[240px] lg:border-r" />}
-        >
+        <Suspense fallback={<div className="bg-chrome shrink-0 lg:w-[240px]" />}>
           <CiTypeSidebar
             types={types.map((type) => ({
               key: type.key,
@@ -386,9 +384,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
 
         <div className="flex min-w-0 flex-1 lg:min-h-0">
           <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
-            <Suspense
-              fallback={<div className="border-border bg-surface h-[61px] shrink-0 border-b" />}
-            >
+            <Suspense fallback={<div className="bg-surface h-[61px] shrink-0" />}>
               <CiFilterBar
                 teams={teams.map((group) => ({ id: group.id, label: group.name }))}
                 shown={t.cmdb.shown(from, to, total)}
@@ -522,7 +518,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
             </div>
 
             {pages > 1 ? (
-              <nav className="border-line flex shrink-0 items-center justify-between gap-3 border-t px-5 py-3 lg:px-6">
+              <nav className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 lg:px-6">
                 <Step
                   params={params}
                   page={page - 1}
@@ -545,9 +541,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
               <CiPeekKeys ids={rows.map((item) => item.id)} current={peek} />
               <Suspense
                 key={peek}
-                fallback={
-                  <div className="border-line bg-chrome hidden w-[400px] border-l xl:block" />
-                }
+                fallback={<div className="bg-chrome hidden w-[400px] xl:block" />}
               >
                 <CiPeek id={peek} user={user} />
               </Suspense>
@@ -625,7 +619,7 @@ function Step({
 }) {
   if (disabled) {
     return (
-      <span className="border-border text-text-3 rounded-control h-9 border px-3 text-base leading-9 opacity-50">
+      <span className="text-text-3 rounded-control h-9 border border-transparent px-3 text-base leading-9 opacity-50 shadow-[var(--highlight)]">
         {label}
       </span>
     );
@@ -642,7 +636,7 @@ function Step({
   return (
     <Link
       href={search ? `/cmdb?${search}` : "/cmdb"}
-      className="border-border hover:border-line-strong rounded-control h-9 border px-3 text-base leading-9 transition-colors"
+      className="rounded-control h-9 border border-transparent px-3 text-base leading-9 shadow-[var(--highlight)] transition-colors"
     >
       {label}
     </Link>

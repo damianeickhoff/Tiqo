@@ -81,7 +81,7 @@ export function EditableText({
             : // In the corner of the card, in the same segmented shell a
               // comment's controls wear — the two read as the same affordance
               // rather than two different ideas about where an edit button goes.
-              "border-border bg-surface hover:bg-surface-3 hover:text-text rounded-control absolute top-5 right-5 flex size-8 items-center justify-center border opacity-0 group-hover/body:opacity-100 focus-visible:opacity-100",
+              "bg-surface hover:bg-surface-3 hover:text-text rounded-control absolute top-5 right-5 flex size-8 items-center justify-center border border-transparent opacity-0 shadow-[var(--highlight)] group-hover/body:opacity-100 focus-visible:opacity-100",
         )}
       >
         <Pencil size={15} />

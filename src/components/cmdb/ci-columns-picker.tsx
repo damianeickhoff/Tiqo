@@ -68,7 +68,7 @@ export function CiColumnsPicker({
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         className={cn(
-          "border-line bg-surface hover:border-line-strong text-text-2 hover:text-text flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors",
+          "bg-surface text-text-2 hover:text-text flex h-8 items-center gap-1.5 rounded-full border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors",
           pending && "opacity-60",
         )}
       >
@@ -77,7 +77,7 @@ export function CiColumnsPicker({
       </button>
 
       {open ? (
-        <div className="animate-rise border-border bg-surface rounded-card absolute right-0 z-30 mt-1 max-h-[60vh] w-60 overflow-y-auto border p-1 shadow-[var(--shadow-float)]">
+        <div className="animate-rise bg-surface rounded-card absolute right-0 z-30 mt-1 max-h-[60vh] w-60 overflow-y-auto p-1 shadow-[var(--shadow-float)]">
           {available.length === 0 ? (
             <p className="text-text-3 px-2.5 py-3 text-sm">{t.cmdb.noColumns}</p>
           ) : (

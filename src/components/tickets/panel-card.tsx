@@ -33,7 +33,7 @@ export function PanelCard({
     // it the cards are squeezed to fit and the last row of the tallest one —
     // which is the Save footer — is clipped away by `overflow-hidden`.
     <section className={cn("card shrink-0 overflow-hidden", className)}>
-      <div className="border-line flex h-[34px] items-center justify-between gap-2 border-b px-3.5">
+      <div className="flex h-[34px] items-center justify-between gap-2 px-3.5">
         <h2 className="label">{title}</h2>
         {action}
       </div>

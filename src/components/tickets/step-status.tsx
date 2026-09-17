@@ -62,7 +62,7 @@ export function StepRing({ status }: { status: StepStatus }) {
 }
 
 const TONE: Record<StepStatus, string> = {
-  OPEN: "border-line bg-surface text-text-2",
+  OPEN: "border-transparent bg-surface-2 text-text-2",
   IN_PROGRESS:
     "border-[color-mix(in_oklab,var(--brand)_45%,transparent)] bg-[var(--brand-tint)] text-brand-deep",
   BLOCKED:

@@ -105,7 +105,7 @@ export function CategoryArc({
       </ul>
 
       {untagged > 0 ? (
-        <p className="text-text-3 border-line mt-3 border-t pt-2.5 text-sm">
+        <p className="text-text-3 mt-3 pt-2.5 text-sm">
           {t.dashboard.categoriesUntagged(untagged)}
         </p>
       ) : null}

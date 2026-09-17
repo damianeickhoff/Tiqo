@@ -124,7 +124,7 @@ export function CiEditor({
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-line flex items-center justify-between gap-2 border-b px-3.5 py-2">
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2">
         <h2 className="label">{t.cmdb.details}</h2>
         {/* The Save bar's own tick goes with the form it was in, so the
             confirmation moves up here: a save with nothing to show for it is a
@@ -291,7 +291,6 @@ function summarise(
 
   return changed.map((key) => labels[key] ?? key).join(" · ");
 }
-
 
 /** One attribute, drawn as whatever its kind says it is. */
 function AttributeField({
@@ -496,7 +495,7 @@ function ItemPicker({
         placeholder={t.cmdb.searchItems}
         aria-label={t.cmdb.searchItems}
       />
-      <div className="border-border rounded-card max-h-48 space-y-1 overflow-y-auto border p-1">
+      <div className="rounded-card max-h-48 space-y-1 overflow-y-auto p-1">
         {results.length === 0 ? (
           <p className="text-text-3 py-4 text-center text-base">{t.common.noMatches}</p>
         ) : (

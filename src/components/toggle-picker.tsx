@@ -95,7 +95,7 @@ export function TogglePicker({
                         "rounded-control flex w-full items-center gap-2.5 border px-3 py-2 text-left transition-colors disabled:opacity-60",
                         on
                           ? "border-brand/45 bg-[var(--brand-tint)]"
-                          : "border-border hover:bg-surface-2",
+                          : "hover:bg-surface-2 border-transparent shadow-[var(--highlight)]",
                       )}
                     >
                       {item.icon}

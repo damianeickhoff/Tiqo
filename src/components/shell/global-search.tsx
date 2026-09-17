@@ -199,7 +199,7 @@ export function GlobalSearch() {
         aria-label={t.nav.searchEverything}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="border-line bg-surface text-text-3 hover:border-line-strong hover:text-text-2 rounded-control hidden h-9 w-56 items-center gap-2 border px-2.5 text-left text-base shadow-[var(--highlight)] transition-colors sm:flex lg:w-64"
+        className="bg-surface text-text-3 hover:text-text-2 rounded-control hidden h-9 w-56 items-center gap-2 border border-transparent px-2.5 text-left text-base shadow-[var(--highlight)] transition-colors sm:flex lg:w-64"
       >
         <Search size={14} className="shrink-0" />
         <span className="min-w-0 flex-1 truncate">{t.nav.searchEverything}</span>
@@ -237,7 +237,7 @@ export function GlobalSearch() {
                 className="animate-fade fixed inset-0 cursor-default bg-[rgba(9,9,11,0.45)] backdrop-blur-[2px]"
               />
 
-              <div className="animate-rise border-line bg-surface rounded-panel relative w-full max-w-xl overflow-hidden border shadow-[var(--shadow-lg)]">
+              <div className="animate-rise bg-surface rounded-panel relative w-full max-w-xl overflow-hidden shadow-[var(--shadow-lg)]">
                 <form
                   role="search"
                   onSubmit={(event) => {

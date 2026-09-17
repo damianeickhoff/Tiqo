@@ -313,7 +313,7 @@ export default async function CiPage({
       {/* The band under the bar, not the bar itself: the header takes a plain
           title everywhere else in the app, and one page with a differently
           shaped one reads as a different product. */}
-      <div className="border-line flex flex-wrap items-center gap-3 border-b px-5 py-3.5 lg:px-6">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5 lg:px-6">
         <Link
           href="/cmdb"
           aria-label={t.cmdb.title}

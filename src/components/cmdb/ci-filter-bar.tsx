@@ -18,9 +18,9 @@ const KEYS = ["life", "team", "q", "page"] as const;
 
 /** The queue's chip-shaped select, so the two lists read as one product. */
 const CHIP_SELECT =
-  "select-chevron h-8 cursor-pointer appearance-none rounded-full border border-line bg-surface " +
+  "select-chevron h-8 cursor-pointer appearance-none rounded-full border border-transparent bg-surface " +
   "pr-7 pl-2.5 text-sm font-medium text-text-2 shadow-[var(--highlight)] " +
-  "transition-[border-color,color] hover:border-line-strong hover:text-text " +
+  "transition-[border-color,color] hover:text-text " +
   "focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-tint)]";
 
 export function CiFilterBar({
@@ -79,7 +79,7 @@ export function CiFilterBar({
   const active = KEYS.filter((key) => key !== "page" && value(key));
 
   return (
-    <div className="border-line bg-surface/90 sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
+    <div className="bg-surface/90 sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-2 px-5 py-2 backdrop-blur-md lg:px-6">
       <Filter
         label={t.cmdb.lifecycle}
         value={value("life")}
@@ -130,7 +130,7 @@ export function CiFilterBar({
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t.cmdb.search}
             aria-label={t.cmdb.search}
-            className="border-line bg-surface placeholder:text-text-3 focus:border-brand hover:border-line-strong h-8 w-40 rounded-full border pr-8 pl-7 text-sm shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-52"
+            className="bg-surface placeholder:text-text-3 focus:border-brand h-8 w-40 rounded-full border border-transparent pr-8 pl-7 text-sm shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-52"
           />
           {/* Something to press. The box only ever answered to Enter, which is
               a rule nobody can see and a phone keyboard does not always offer;

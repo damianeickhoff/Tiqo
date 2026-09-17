@@ -129,7 +129,7 @@ export function QueueOverview({
                   />
                   <span
                     role="menu"
-                    className="animate-rise border-line bg-surface rounded-control absolute top-full right-0 z-50 mt-1 min-w-[14rem] overflow-hidden border p-1 text-left shadow-[var(--shadow-float)]"
+                    className="animate-rise bg-surface rounded-control absolute top-full right-0 z-50 mt-1 min-w-[14rem] overflow-hidden p-1 text-left shadow-[var(--shadow-float)]"
                   >
                     {scopes.map((one) => (
                       <button

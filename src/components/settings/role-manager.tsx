@@ -114,7 +114,7 @@ function RoleCard({
   }
 
   return (
-    <li className="border-border rounded-card overflow-hidden border">
+    <li className="card overflow-hidden">
       <div className="bg-surface-2 flex flex-wrap items-center gap-3 px-4 py-3">
         {editingName ? (
           <span className="flex flex-1 flex-wrap items-center gap-2">
@@ -231,9 +231,7 @@ function RoleCard({
       </div>
 
       {error ? (
-        <p className="border-border-soft bg-negative/[0.06] text-negative border-t px-4 py-2 text-sm font-medium">
-          {error}
-        </p>
+        <p className="bg-negative/[0.06] text-negative px-4 py-2 text-sm font-medium">{error}</p>
       ) : null}
 
       {expanded ? (
@@ -264,7 +262,7 @@ function RoleCard({
                 {members.map((person) => (
                   <li
                     key={person.id}
-                    className="border-border flex items-center gap-2 rounded-full border py-1 pr-1 pl-1.5 text-base"
+                    className="bg-surface flex items-center gap-2 rounded-full border border-transparent py-1 pr-1 pl-1.5 text-base shadow-[var(--highlight)]"
                   >
                     <Avatar name={person.name} variant={person.avatarVariant} size={20} />
                     <span className="font-medium">{person.name}</span>
@@ -332,7 +330,7 @@ function RoleCard({
                               "rounded-control flex cursor-pointer gap-2.5 border px-3 py-2 transition-colors",
                               on
                                 ? "border-brand/45 bg-[var(--brand-tint)]"
-                                : "border-border hover:bg-surface-2",
+                                : "bg-surface hover:bg-surface-2 border-transparent shadow-[var(--highlight)]",
                             )}
                           >
                             <input
@@ -359,7 +357,7 @@ function RoleCard({
                 </fieldset>
               ))}
 
-              <div className="border-border-soft flex flex-wrap items-center gap-3 border-t pt-3">
+              <div className="flex flex-wrap items-center gap-3 pt-3">
                 <Button
                   disabled={pending || !dirty}
                   onClick={() => run(() => updateRole(role.id, granted))}
@@ -406,10 +404,7 @@ function NewRoleForm({ onDone }: { onDone: () => void }) {
   const errors = state?.errors ?? {};
 
   return (
-    <form
-      action={formAction}
-      className="animate-rise border-border rounded-card space-y-4 border p-4"
-    >
+    <form action={formAction} className="animate-rise card space-y-4 p-4">
       <FormError>{errors.form}</FormError>
 
       <div className="flex flex-wrap items-end gap-3">

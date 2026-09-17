@@ -167,7 +167,7 @@ export function DocArticle({
   if (!editing) {
     return (
       <>
-        <div className="border-line flex min-h-[44px] flex-wrap items-center gap-2 border-b px-5 py-2 lg:px-8">
+        <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-8">
           {breadcrumb}
           <span className="ml-auto flex items-center gap-2">
             {flash ? (
@@ -225,7 +225,7 @@ export function DocArticle({
     <form ref={form} onSubmit={submit} noValidate>
       <AttachmentsProvider>
         <DropZone>
-          <div className="border-line flex min-h-[44px] flex-wrap items-center gap-2 border-b px-5 py-2 lg:px-8">
+          <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-8">
             {breadcrumb}
             {/* Said plainly, because the whole of this screen is a draft and
                 nothing on it has been written down yet. */}
@@ -330,7 +330,7 @@ function SaveRow({
   return (
     // Sticks to the foot of the scrollport: a page long enough to be worth
     // writing is long enough to hide its own Save.
-    <div className="border-line bg-surface rounded-card sticky bottom-3 z-20 flex flex-wrap items-center gap-2 border px-3 py-2 shadow-[var(--shadow-float)]">
+    <div className="bg-surface rounded-card sticky bottom-3 z-20 flex flex-wrap items-center gap-2 px-3 py-2 shadow-[var(--shadow-float)]">
       <Button type="submit" size="sm" disabled={!dirty || pending}>
         {pending ? (
           <Loader2 size={14} className="animate-spin" />
@@ -360,7 +360,7 @@ function SaveRow({
         aria-label={t.docs.note}
         onChange={(event) => onNote(event.target.value)}
         className={cn(
-          "border-line bg-surface-2 placeholder:text-text-3 focus:border-brand rounded-control",
+          "bg-surface-2 placeholder:text-text-3 focus:border-brand rounded-control border-transparent",
           "h-8 w-full min-w-0 border px-2.5 text-base transition-colors focus:outline-none sm:w-64",
         )}
       />

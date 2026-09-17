@@ -229,9 +229,9 @@ const TOOL =
 /** The right-hand group: the plan, the trail and the way through the queue
  *  are raised, so they read as places to go rather than things to do. */
 const TOOL_OUTLINE =
-  "inline-flex h-8 items-center gap-1.5 rounded-control border border-line bg-surface px-2 " +
+  "inline-flex h-8 items-center gap-1.5 rounded-control border border-transparent bg-surface px-2 " +
   "text-sm font-medium text-text-2 shadow-[var(--highlight)] " +
-  "transition-[border-color,color] duration-150 hover:border-line-strong hover:text-text";
+  "transition-[border-color,color] duration-150 hover:text-text";
 
 const TOOL_PRIMARY =
   "inline-flex h-8 items-center gap-1.5 rounded-control bg-brand px-2.5 " +
@@ -239,9 +239,9 @@ const TOOL_PRIMARY =
   "transition-[background-color] duration-150 hover:bg-brand-hover";
 
 const STEP =
-  "flex size-8 items-center justify-center rounded-control border border-line bg-surface " +
+  "flex size-8 items-center justify-center rounded-control border border-transparent bg-surface " +
   "text-text-2 shadow-[var(--highlight)] transition-[border-color,color] " +
-  "hover:border-line-strong hover:text-text";
+  "hover:text-text";
 
 /**
  * The full action row that sits directly under the top bar. Its sticky offset is
@@ -286,7 +286,7 @@ export function TicketToolbar() {
   }
 
   return (
-    <div className="border-line bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1 border-b px-4 backdrop-blur-md lg:top-0 lg:px-5">
+    <div className="bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1 px-4 backdrop-blur-md lg:top-0 lg:px-5">
       {refused ? (
         <p
           role="alert"
@@ -557,7 +557,7 @@ export function ConversationComposer() {
           action={formAction}
           className={cn(
             "animate-rise card space-y-3 p-4",
-            isNote && "border-dashed bg-[var(--brand-tint)]",
+            isNote && "border border-dashed bg-[var(--brand-tint)]",
           )}
           style={
             isNote
@@ -608,11 +608,9 @@ export function ConversationComposer() {
                   {isNote ? m.ticket.noteHint : m.ticket.replyHint}
                   <span className="ml-1.5 hidden sm:inline">
                     {m.ticket.pressKeys}{" "}
-                    <kbd className="border-border bg-surface-3 rounded border px-1 py-0.5 font-mono text-xs">
-                      Alt
-                    </kbd>
+                    <kbd className="bg-surface-3 rounded px-1 py-0.5 font-mono text-xs">Alt</kbd>
                     {" + "}
-                    <kbd className="border-border bg-surface-3 rounded border px-1 py-0.5 font-mono text-xs">
+                    <kbd className="bg-surface-3 rounded px-1 py-0.5 font-mono text-xs">
                       Enter
                     </kbd>{" "}
                     {m.ticket.toPost}
@@ -767,7 +765,7 @@ function ForwardDialog() {
               {m.ticket.nobodyElse}
             </p>
           ) : (
-            <div className="border-border rounded-card max-h-56 space-y-1 overflow-y-auto border p-1">
+            <div className="bg-surface-2 rounded-card max-h-56 space-y-1 overflow-y-auto p-1">
               {t.recipients.map((person) => {
                 const on = selected === person.id;
                 return (
@@ -910,7 +908,7 @@ function MergeDialog() {
             </button>
           </p>
         ) : (
-          <div className="border-border rounded-card max-h-56 space-y-1 overflow-y-auto border p-1">
+          <div className="bg-surface-2 rounded-card max-h-56 space-y-1 overflow-y-auto p-1">
             {results.length === 0 ? (
               <p className="text-text-3 px-2.5 py-3 text-base">{m.ticket.noMatchingTicket}</p>
             ) : (

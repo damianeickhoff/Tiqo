@@ -251,7 +251,7 @@ export function PageBuilder({
                           return result;
                         })
                       }
-                      className="border-border hover:border-brand/45 rounded-card flex w-full items-start gap-2.5 border px-3 py-2.5 text-left transition-colors hover:bg-[var(--brand-tint)]"
+                      className="bg-surface hover:border-brand/45 rounded-card flex w-full items-start gap-2.5 border border-transparent px-3 py-2.5 text-left shadow-[var(--highlight)] transition-colors hover:bg-[var(--brand-tint)]"
                     >
                       <Icon size={16} className="text-text-3 mt-0.5 shrink-0" />
                       <span>
@@ -294,7 +294,7 @@ export function PageBuilder({
 function Preview() {
   const t = useMessages();
   return (
-    <div className="border-line rounded-panel bg-bg overflow-hidden border">
+    <div className="rounded-panel bg-bg overflow-hidden">
       <iframe
         src="/portal"
         title={t.forms.preview}
@@ -520,14 +520,10 @@ function BlockCard({
           )}
         </div>
 
-        {locked ? (
-          <p className="border-border-soft text-text-3 border-t px-3 py-2.5 text-sm">
-            {t.forms.heroLocked}
-          </p>
-        ) : null}
+        {locked ? <p className="text-text-3 px-3 py-2.5 text-sm">{t.forms.heroLocked}</p> : null}
 
         {open && configurable ? (
-          <div className="border-border-soft animate-fade space-y-3 border-t px-3 py-3">
+          <div className="animate-fade space-y-3 px-3 py-3">
             <label className="block">
               <span className="label mb-1.5 block">{t.forms.bandTitle}</span>
               <Input

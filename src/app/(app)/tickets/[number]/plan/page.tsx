@@ -157,7 +157,7 @@ export default async function PlanPage({ params }: { params: Params }) {
 
   return (
     <>
-      <header className="border-line border-b px-5 pt-5 pb-4 lg:px-8">
+      <header className="px-5 pt-5 pb-4 lg:px-8">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
           <Reference reference={ticket.reference} />
           <PriorityBars priority={ticket.priority} title={t.vocab.priority[ticket.priority]} />

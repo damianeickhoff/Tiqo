@@ -60,7 +60,7 @@ export default async function CiHistoryPage({ params }: { params: Params }) {
     <>
       <PageHeader title={t.cmdb.history} />
 
-      <div className="border-line flex items-center gap-3 border-b px-5 py-3 lg:px-6">
+      <div className="flex items-center gap-3 px-5 py-3 lg:px-6">
         <Link
           href={`/cmdb/${item.id}`}
           className="text-text-3 hover:text-text inline-flex items-center gap-1.5 text-sm font-medium transition-colors"

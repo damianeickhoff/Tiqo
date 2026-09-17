@@ -91,7 +91,7 @@ export default async function ProjectPeoplePage({ params }: { params: Params }) 
                           so the difference between the two is visible without
                           splitting the list in two. */}
                       {person.isMember ? null : (
-                        <span className="border-line text-text-3 rounded-full border px-2 py-0.5 text-xs font-medium">
+                        <span className="bg-surface-2 text-text-3 rounded-full px-2 py-0.5 text-xs font-medium">
                           {t.projects.byAssignment}
                         </span>
                       )}

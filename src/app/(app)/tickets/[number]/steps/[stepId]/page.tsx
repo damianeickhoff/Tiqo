@@ -234,7 +234,7 @@ export default async function StepPage({ params }: { params: Params }) {
       viewerAvatar={user.avatarVariant}
       recipients={roster}
     >
-      <header className="border-border bg-surface border-b px-5 py-6 lg:px-8">
+      <header className="bg-surface px-5 py-6 lg:px-8">
         <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
           <div className="animate-rise min-w-0 flex-1">
             <p className="text-text-3 flex flex-wrap items-center gap-2 text-base">
@@ -296,7 +296,7 @@ export default async function StepPage({ params }: { params: Params }) {
           {/* The plan asked for this one to be justified, so the answer is read
               where the step is read and not only in the trail. */}
           {step.status === "SKIPPED" && step.skipReason ? (
-            <p className="border-line bg-surface-2 rounded-card text-text-2 text-md border px-4 py-3">
+            <p className="bg-surface-2 rounded-card text-text-2 text-md px-4 py-3">
               <span className="text-text font-semibold">{step.title}</span> {t.plan.wasSkipped}{" "}
               {step.skipReason}
             </p>

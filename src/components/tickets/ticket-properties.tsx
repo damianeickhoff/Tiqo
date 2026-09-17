@@ -382,7 +382,7 @@ function TagField({
       {/* In the flow, not floating: this panel is a scroll container, and
           anything absolutely positioned inside it is clipped at its edge. */}
       {showList ? (
-        <ul className="animate-rise border-line bg-surface rounded-control max-h-44 overflow-y-auto border p-1 shadow-[var(--shadow-md)]">
+        <ul className="animate-rise bg-surface rounded-control max-h-44 overflow-y-auto p-1 shadow-[var(--shadow-md)]">
           {matches.map((tag) => (
             <li key={tag.id}>
               <button

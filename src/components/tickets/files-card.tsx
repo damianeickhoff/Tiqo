@@ -106,10 +106,10 @@ function FileRow({
         <img
           src={`/api/files/${file.id}`}
           alt=""
-          className="border-line bg-surface-2 rounded-control h-9 w-12 shrink-0 border object-cover"
+          className="bg-surface-2 rounded-control h-9 w-12 shrink-0 object-cover"
         />
       ) : (
-        <span className="border-line bg-surface-2 rounded-control text-text-3 flex h-9 w-12 shrink-0 items-center justify-center border font-mono text-[10px] uppercase">
+        <span className="bg-surface-2 rounded-control text-text-3 flex h-9 w-12 shrink-0 items-center justify-center font-mono text-[10px] uppercase">
           {file.filename.split(".").pop()?.slice(0, 4)}
         </span>
       )}

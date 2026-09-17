@@ -91,7 +91,7 @@ export function ReplyTime({ data, locale = "en-GB" }: { data: ReplyTimes; locale
       </div>
 
       {data.waiting > 0 ? (
-        <p className="text-text-2 border-line mt-3 border-t pt-3 text-base">
+        <p className="text-text-2 mt-3 pt-3 text-base">
           {t.dashboard.replyTimeWaiting(data.waiting)}
         </p>
       ) : null}

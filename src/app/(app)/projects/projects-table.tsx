@@ -98,7 +98,7 @@ export function ProjectsTable({
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t.projects.searchProjects}
                 aria-label={t.projects.searchProjects}
-                className="border-line bg-surface rounded-control focus:border-brand h-8 w-[220px] border pr-2.5 pl-8 text-base transition-[border-color] placeholder:text-[var(--text-3)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+                className="bg-surface rounded-control focus:border-brand h-8 w-[220px] border border-transparent pr-2.5 pl-8 text-base shadow-[var(--highlight)] transition-[border-color] placeholder:text-[var(--text-3)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
               />
             </label>
 
@@ -168,7 +168,10 @@ function Columns() {
   return (
     <div
       aria-hidden
-      className={cn(GRID, "label border-line bg-surface sticky top-0 z-10 hidden h-9 border-b xl:grid")}
+      className={cn(
+        GRID,
+        "label border-line bg-surface sticky top-0 z-10 hidden h-9 border-b xl:grid",
+      )}
     >
       <span />
       <span className="truncate">{t.projects.colProject}</span>

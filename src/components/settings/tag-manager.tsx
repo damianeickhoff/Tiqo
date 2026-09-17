@@ -43,7 +43,7 @@ export function TagManager({ tags }: { tags: Tag[] }) {
           {t.settings.noTags}
         </p>
       ) : (
-        <ul className="divide-border-soft border-border rounded-card divide-y border">
+        <ul className="card divide-border-soft divide-y">
           {tags.map((tag) =>
             editing === tag.id ? (
               <TagEditRow key={tag.id} tag={tag} onDone={() => setEditing(null)} />

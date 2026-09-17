@@ -274,7 +274,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
         {t.tickets.shown(from, to, total)}
       </PageHeader>
 
-      <Suspense fallback={<div className="border-border bg-surface h-[61px] border-b" />}>
+      <Suspense fallback={<div className="bg-surface h-[61px]" />}>
         <FilterBar
           statuses={statuses}
           projects={projects.map((p) => ({ id: p.id, label: `${p.key} · ${p.name}` }))}
@@ -326,7 +326,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
       {/* Outside the scroller: a pager that slid away sideways with the columns
           would be a pager nobody could find. */}
       {pages > 1 ? (
-        <nav className="border-line flex shrink-0 items-center justify-between gap-3 border-t px-5 py-3 lg:px-6">
+        <nav className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 lg:px-6">
           <Step href={pageHref(page - 1)} disabled={page === 1} label={t.tickets.prev} />
           <p className="text-text-3 tnum text-base">{`${page} / ${pages}`}</p>
           <Step href={pageHref(page + 1)} disabled={page === pages} label={t.tickets.next} />
@@ -340,7 +340,7 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
 function Step({ href, disabled, label }: { href: string; disabled: boolean; label: string }) {
   if (disabled) {
     return (
-      <span className="border-border text-text-3 rounded-control h-9 border px-3 text-base leading-9 opacity-50">
+      <span className="text-text-3 rounded-control h-9 border border-transparent px-3 text-base leading-9 opacity-50 shadow-[var(--highlight)]">
         {label}
       </span>
     );

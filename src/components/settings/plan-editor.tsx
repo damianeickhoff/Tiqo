@@ -192,7 +192,7 @@ export function PlanEditor({
 
   return (
     <>
-      <div className="border-line flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 border-b px-5 py-2 lg:px-6">
+      <div className="flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 lg:px-6">
         <Link
           href="/settings/plans"
           className="text-text-2 hover:text-text -ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-base font-medium transition-colors"
@@ -442,7 +442,7 @@ export function PlanEditor({
           </p>
         </div>
 
-        <aside className="bg-chrome border-line flex flex-col gap-3 border-t p-3 xl:border-t-0 xl:border-l">
+        <aside className="bg-chrome flex flex-col gap-3 p-3">
           {activeStep ? (
             <StepInspector
               key={activeStep.id}
@@ -531,7 +531,7 @@ function Chip({
         "flex h-8 items-center gap-1.5 rounded-full border px-3 text-base font-medium transition-colors",
         on
           ? "text-brand-deep border-[color-mix(in_oklab,var(--brand)_45%,transparent)] bg-[var(--brand-tint)]"
-          : "border-line bg-surface text-text-2 hover:border-line-strong hover:text-text",
+          : "bg-surface text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
       )}
     >
       {children}
@@ -586,7 +586,7 @@ function RowMenu({ label, items }: { label: string; items: { label: string; run:
           />
           <div
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute top-7 right-0 z-50 w-48 overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute top-7 right-0 z-50 w-48 overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             {items.map((item) => (
               <button

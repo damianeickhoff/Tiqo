@@ -186,8 +186,8 @@ export function NewTicketForm({
                           aria-pressed={on}
                           onClick={() => setPriority(value)}
                           className={cn(
-                            "rounded-control flex flex-col items-start gap-0.5 border px-3 py-2.5 text-left transition-all duration-150 active:scale-[0.97]",
-                            on ? "border-transparent" : "border-border hover:border-text-3",
+                            "rounded-control flex flex-col items-start gap-0.5 border border-transparent px-3 py-2.5 text-left transition-all duration-150 active:scale-[0.97]",
+                            on ? "" : "shadow-[var(--highlight)]",
                           )}
                           style={
                             on
@@ -238,7 +238,7 @@ export function NewTicketForm({
                   derives the same date and would ignore a typed one. */}
                   {hasResponseTarget(type as "QUESTION" | "INCIDENT" | "CHANGE") ? (
                     <Field label={t.newTicket.derivedDue} hint={t.newTicket.derivedDueHint}>
-                      <p className="border-border-soft bg-surface-2 text-text-2 rounded-control text-md flex h-11 items-center border px-3">
+                      <p className="bg-surface-2 text-text-2 rounded-control text-md flex h-11 items-center border border-transparent px-3">
                         {dueFormat.format(
                           projectedDeadline(
                             priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
@@ -261,7 +261,7 @@ export function NewTicketForm({
                       id="plan"
                       type="button"
                       onClick={() => setPicking(true)}
-                      className="border-border bg-surface hover:border-brand focus:border-brand rounded-control text-md flex h-11 w-full items-center gap-2 border px-3 text-left transition-colors focus:ring-4 focus:ring-[var(--brand-tint)] focus:outline-none"
+                      className="bg-surface hover:border-brand focus:border-brand rounded-control text-md flex h-11 w-full items-center gap-2 border border-transparent px-3 text-left shadow-[var(--highlight)] transition-colors focus:ring-4 focus:ring-[var(--brand-tint)] focus:outline-none"
                     >
                       <ListChecks size={15} className="text-text-3 shrink-0" />
                       {planId ? (
@@ -407,7 +407,7 @@ export function NewTicketForm({
                               "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-base transition-all duration-150 active:scale-95",
                               on
                                 ? "border-brand text-brand-deep bg-[var(--brand-tint)] font-semibold"
-                                : "border-border text-text-2 hover:border-text-3 hover:text-text",
+                                : "text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
                             )}
                           >
                             {tag.name}
@@ -423,7 +423,7 @@ export function NewTicketForm({
               </div>
             </div>
 
-            <div className="border-border-soft bg-surface-2 flex items-center justify-end gap-3 border-t px-6 py-4">
+            <div className="bg-surface-2 flex items-center justify-end gap-3 px-6 py-4">
               <p className="text-text-3 mr-auto text-base">{t.newTicket.changeLater}</p>
               <Submit />
             </div>
@@ -477,7 +477,7 @@ function AssetField({
         <ul className="flex flex-wrap gap-1.5">
           {chosen.map((asset) => (
             <li key={asset.id}>
-              <span className="border-border text-text-2 inline-flex items-center gap-1.5 rounded-full border py-1 pr-1 pl-2.5 text-base">
+              <span className="bg-surface-2 text-text-2 inline-flex items-center gap-1.5 rounded-full border border-transparent py-1 pr-1 pl-2.5 text-base">
                 <CiGlyph icon={asset.type.icon} color={asset.type.color} size={12} />
                 <span className="max-w-[10rem] truncate">{asset.name}</span>
                 <button
@@ -504,7 +504,7 @@ function AssetField({
             placeholder={t.cmdb.searchItems}
             aria-label={t.cmdb.searchItems}
           />
-          <div className="border-border rounded-card max-h-48 space-y-1 overflow-y-auto border p-1">
+          <div className="bg-surface-2 rounded-card max-h-48 space-y-1 overflow-y-auto p-1">
             {results.filter((row) => !chosen.some((one) => one.id === row.id)).length === 0 ? (
               <p className="text-text-3 py-4 text-center text-base">{t.common.noMatches}</p>
             ) : (

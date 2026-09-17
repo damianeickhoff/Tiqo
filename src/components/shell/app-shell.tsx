@@ -275,7 +275,7 @@ function TopBar({
               />
               <div
                 role="menu"
-                className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-2 w-60 overflow-hidden border shadow-[var(--shadow-lg)]"
+                className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-60 overflow-hidden shadow-[var(--shadow-lg)]"
               >
                 <div className="border-line flex items-center gap-2.5 border-b px-4 py-3">
                   <Avatar name={user.name} variant={user.avatarVariant} size={32} />

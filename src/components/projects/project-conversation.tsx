@@ -111,7 +111,7 @@ export function ProjectConversation({
                 key={item.id}
                 className="group/act text-text-2 flex items-center gap-2.5 py-2 text-sm"
               >
-                <span className="bg-surface-2 border-line text-text-3 flex size-5 shrink-0 items-center justify-center rounded-full border">
+                <span className="bg-surface-2 text-text-3 flex size-5 shrink-0 items-center justify-center rounded-full">
                   <EventIcon type={item.type} size={10} />
                 </span>
                 <span className="min-w-0 flex-1 leading-snug">
@@ -173,15 +173,13 @@ export function ProjectConversation({
             />
             <FieldError>{errors.body}</FieldError>
 
-            <div className="border-line flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-3">
               <p className="text-text-3 text-sm">
                 <span className="hidden sm:inline">
                   {t.ticket.pressKeys}{" "}
-                  <kbd className="border-line bg-surface-3 rounded border px-1 py-0.5 font-mono text-xs">
-                    Alt
-                  </kbd>
+                  <kbd className="bg-surface-3 rounded px-1 py-0.5 font-mono text-xs">Alt</kbd>
                   {" + "}
-                  <kbd className="border-line bg-surface-3 rounded border px-1 py-0.5 font-mono text-xs">
+                  <kbd className="bg-surface-3 rounded px-1 py-0.5 font-mono text-xs">
                     Enter
                   </kbd>{" "}
                   {t.ticket.toPost}
@@ -217,7 +215,7 @@ export function ProjectConversation({
 }
 
 /**
- * One message, as a bordered block beside its author's face — the shape a
+ * One message, as a card beside its author's face — the shape a
  * ticket's comments have, so a person who writes in both places is writing in
  * the same place twice.
  */
@@ -243,7 +241,7 @@ function CommentRow({
         />
 
         <div className="min-w-0 flex-1">
-          <div className="border-line bg-surface rounded-card relative border px-4 py-3">
+          <div className="card relative px-4 py-3">
             <p className="mb-1 flex flex-wrap items-baseline gap-x-2">
               <PersonLink
                 id={comment.author.id}
@@ -257,7 +255,7 @@ function CommentRow({
             <Markdown text={comment.body} className="text-md leading-relaxed" />
 
             {canDelete ? (
-              <span className="border-line bg-surface rounded-control absolute -top-7 right-3 z-10 flex shrink-0 border opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
+              <span className="bg-surface rounded-control absolute -top-7 right-3 z-10 flex shrink-0 opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
                 <ConfirmDelete
                   title={t.ticket.deleteThisComment}
                   run={async () => void deleteProjectComment(comment.id)}

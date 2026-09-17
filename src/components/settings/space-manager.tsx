@@ -87,7 +87,7 @@ export function SpaceManager({
         // Eight columns do not fit the settings column on a laptop, and the
         // answer to that is a table that scrolls rather than a table with its
         // names cut in half.
-        <div className="border-line rounded-card overflow-x-auto border">
+        <div className="card overflow-x-auto">
           <div className="min-w-[46rem]">
             <div
               className={cn(
@@ -409,7 +409,7 @@ function SpaceDialog({
                 value={draft.color}
                 aria-label={t.docs.spaceColour}
                 onChange={(event) => set({ color: event.target.value })}
-                className="border-line rounded-control ml-auto size-7 shrink-0 cursor-pointer border bg-transparent p-1"
+                className="bg-surface rounded-control ml-auto size-7 shrink-0 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
               />
             </div>
             <FieldError>{errors.color}</FieldError>
@@ -449,7 +449,7 @@ function SpaceDialog({
           </Field>
         </div>
 
-        <div className="border-line flex items-center gap-2 border-t pt-4">
+        <div className="flex items-center gap-2 pt-4">
           {space ? (
             <ConfirmDelete title={t.common.deleteThing(space.name)} run={remove}>
               {(ask) => (

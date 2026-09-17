@@ -170,7 +170,7 @@ export default async function ProfilePage({ params }: { params: Params }) {
 
   return (
     <>
-      <header className="border-line border-b px-5 py-5 lg:px-8">
+      <header className="px-5 py-5 lg:px-8">
         {/* Only offered to someone who can actually open the directory. */}
         {canViewDirectory(viewer) ? (
           <Link

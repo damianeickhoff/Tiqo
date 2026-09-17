@@ -90,7 +90,7 @@ export function AttachmentList({
                     ? `${file.filename} · ${t.ticket.uploadedBy(file.uploadedBy.name)}`
                     : file.filename
                 }
-                className="border-line bg-surface-2 hover:border-line-strong rounded-card block overflow-hidden border transition-colors"
+                className="bg-surface-2 rounded-card block overflow-hidden border border-transparent transition-colors"
               >
                 {/* The tile is a fixed size so a thread of screenshots reads as
                     a row of thumbnails — but the picture is contained rather
@@ -117,7 +117,7 @@ export function AttachmentList({
               <li key={file.id} className="flex items-center gap-2">
                 <a
                   href={`/api/files/${file.id}`}
-                  className="border-line bg-surface-2 hover:border-line-strong text-text-2 hover:text-text rounded-control flex min-w-0 flex-1 items-center gap-2.5 border px-2.5 py-1.5 text-base transition-colors"
+                  className="bg-surface-2 text-text-2 hover:text-text rounded-control flex min-w-0 flex-1 items-center gap-2.5 border border-transparent px-2.5 py-1.5 text-base transition-colors"
                 >
                   <Glyph size={15} className="text-text-3 shrink-0" />
                   <span className="min-w-0 flex-1">
@@ -176,7 +176,7 @@ function Remove({
             // On a thumbnail it sits over somebody's picture, so it brings its
             // own ground: a bare glyph disappears on anything pale.
             (floating
-              ? "bg-surface/85 border-line absolute top-1 right-1 border shadow-[var(--highlight)] backdrop-blur-sm"
+              ? "bg-surface/85 absolute top-1 right-1 shadow-[var(--highlight)] backdrop-blur-sm"
               : "")
           }
         >

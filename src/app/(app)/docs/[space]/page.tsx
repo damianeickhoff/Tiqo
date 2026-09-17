@@ -243,7 +243,7 @@ export default async function SpacePage({
             ))}
           </ul>
         ) : (
-          <ul className="border-line divide-line rounded-card divide-y overflow-hidden border">
+          <ul className="card divide-line divide-y overflow-hidden">
             {shown.map((doc) => (
               <li
                 key={doc.id}

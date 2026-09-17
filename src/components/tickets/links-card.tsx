@@ -357,7 +357,7 @@ function AddLinkDialog({ ticketId, onClose }: { ticketId: string; onClose: () =>
           aria-label={t.links.search}
         />
 
-        <div className="border-border rounded-card max-h-64 space-y-1 overflow-y-auto border p-1">
+        <div className="bg-surface-2 rounded-card max-h-64 space-y-1 overflow-y-auto p-1">
           {results.length === 0 ? (
             <p className="text-text-3 py-6 text-center text-base">
               {searched ? t.common.noMatches : t.links.searching}

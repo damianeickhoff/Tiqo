@@ -175,7 +175,7 @@ export function NewPerson({
               <FieldError>{errors.password}</FieldError>
             </Field>
 
-            <div className="border-border-soft flex justify-end gap-2 border-t pt-4">
+            <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 {t.common.cancel}
               </Button>

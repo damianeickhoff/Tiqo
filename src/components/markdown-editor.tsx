@@ -467,11 +467,11 @@ export function MarkdownEditor({
     // suggestion list is portalled to the body, so it is not clipped by this.
     <div
       className={cn(
-        "border-border bg-surface rounded-card relative overflow-hidden border",
+        "bg-surface rounded-card relative overflow-hidden border border-transparent shadow-[var(--highlight)]",
         className,
       )}
     >
-      <div className="border-border-soft bg-surface-2 flex flex-wrap items-center gap-0.5 border-b px-1.5 py-1.5">
+      <div className="bg-surface-2 flex flex-wrap items-center gap-0.5 px-1.5 py-1.5">
         {TOOLS.map((tool, index) => (
           <button
             key={tool.label(t)}
@@ -529,7 +529,7 @@ export function MarkdownEditor({
           shouldShow={({ editor: current }) =>
             current.isEditable && (current.isActive("callout") || current.isActive("table"))
           }
-          className="border-border bg-surface rounded-control flex items-center gap-0.5 border p-1 shadow-lg"
+          className="bg-surface rounded-control flex items-center gap-0.5 p-1 shadow-lg"
         >
           {caret?.callout
             ? TONES.map((tone) => (

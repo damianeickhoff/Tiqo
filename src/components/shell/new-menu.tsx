@@ -66,7 +66,7 @@ export function NewMenu({
           <div
             role="menu"
             className={cn(
-              "animate-rise border-border bg-surface rounded-card absolute z-50 mt-1.5 min-w-[13rem] overflow-hidden border p-1 shadow-[var(--shadow-float)]",
+              "animate-rise bg-surface rounded-card absolute z-50 mt-1.5 min-w-[13rem] overflow-hidden p-1 shadow-[var(--shadow-float)]",
               variant === "rail" ? "top-full left-0" : "top-full right-0",
             )}
           >

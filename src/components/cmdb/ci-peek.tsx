@@ -129,11 +129,11 @@ export async function CiPeek({ id, user }: { id: string; user: SessionUser }) {
 
   return (
     <Pane>
-      <div className="border-border rounded-card bg-surface overflow-hidden border">
+      <div className="card overflow-hidden">
         <div className="flex items-start gap-3 p-3.5">
           <CiGlyph icon={item.type.icon} color={item.type.color} size={22} />
           <div className="min-w-0 flex-1 leading-tight">
-            <p className="truncate text-md font-semibold">{item.name}</p>
+            <p className="text-md truncate font-semibold">{item.name}</p>
             <p className="text-text-2 truncate text-sm">
               {item.team ? `${item.type.name} · ${item.team.name}` : item.type.name}
             </p>
@@ -155,7 +155,7 @@ export async function CiPeek({ id, user }: { id: string; user: SessionUser }) {
           </Link>
         </div>
 
-        <div className="border-line border-t px-3.5 py-2.5">
+        <div className="px-3.5 py-2.5">
           {fields.length === 0 ? (
             <p className="text-text-3 text-base">{t.cmdb.noAttributes}</p>
           ) : (
@@ -228,7 +228,9 @@ export async function CiPeek({ id, user }: { id: string; user: SessionUser }) {
                   href={`/tickets/${row.ticket.number}`}
                   className="hover:bg-surface-2 rounded-control -mx-1.5 flex items-center gap-2 px-1.5 py-1 transition-colors"
                 >
-                  <StatusRing status={row.ticket.status ? { ...row.ticket.status, id: "" } : null} />
+                  <StatusRing
+                    status={row.ticket.status ? { ...row.ticket.status, id: "" } : null}
+                  />
                   <span className="min-w-0 flex-1 leading-tight">
                     <Reference reference={row.ticket.reference} />
                     <span className="block truncate text-sm font-medium">{row.ticket.title}</span>
@@ -262,7 +264,7 @@ export async function CiPeek({ id, user }: { id: string; user: SessionUser }) {
  *  below them — a 400px pane on a phone is the page. */
 function Pane({ children }: { children: React.ReactNode }) {
   return (
-    <aside className="border-line bg-chrome hidden w-[400px] shrink-0 space-y-3 overflow-y-auto border-l p-3 xl:block">
+    <aside className="bg-chrome hidden w-[400px] shrink-0 space-y-3 overflow-y-auto p-3 xl:block">
       {children}
     </aside>
   );
@@ -278,8 +280,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-border rounded-card bg-surface border">
-      <div className="border-line flex items-center justify-between gap-2 border-b px-3.5 py-2">
+    <section className="card">
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2">
         <h3 className="label">{title}</h3>
         {hint ? <span className="text-text-3 tnum font-mono text-xs">{hint}</span> : null}
       </div>
@@ -303,7 +305,10 @@ async function resolveNames(fields: FieldSpec[], attributes: unknown): Promise<C
 
   const [accounts, referenced] = await Promise.all([
     people.size
-      ? prisma.user.findMany({ where: { id: { in: [...people] } }, select: { id: true, name: true } })
+      ? prisma.user.findMany({
+          where: { id: { in: [...people] } },
+          select: { id: true, name: true },
+        })
       : Promise.resolve([]),
     items.size
       ? prisma.configurationItem.findMany({

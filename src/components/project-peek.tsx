@@ -85,7 +85,7 @@ export function ProjectPeekDialog({
             </div>
           </div>
 
-          <div className="border-border-soft flex justify-end border-t pt-4">
+          <div className="flex justify-end pt-4">
             <Link
               href={`/projects/${project.key}`}
               className={buttonClass("primary", "md")}

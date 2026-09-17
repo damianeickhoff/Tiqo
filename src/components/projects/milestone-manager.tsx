@@ -188,7 +188,9 @@ function MilestoneCard({
 
   return (
     <div
-      className={cn("card px-4 py-3.5", reached && "opacity-75")}
+      // The card has no border of its own any more, so the brand edge while
+      // editing has to bring one.
+      className={cn("card px-4 py-3.5", reached && "opacity-75", editing && "border")}
       style={
         editing ? { borderColor: "color-mix(in oklab, var(--brand) 45%, transparent)" } : undefined
       }
@@ -380,11 +382,11 @@ function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "border-line bg-surface rounded-control flex size-[26px] items-center justify-center border",
+        "bg-surface rounded-control flex size-[26px] items-center justify-center border border-transparent",
         "shadow-[var(--highlight)] transition-[border-color,color] disabled:opacity-40",
         danger
           ? "text-text-3 hover:border-negative/40 hover:text-negative"
-          : "text-text-2 hover:border-line-strong hover:text-text",
+          : "text-text-2 hover:text-text",
       )}
     >
       {children}

@@ -186,7 +186,7 @@ export function DashboardGrid({
                   className="border-brand/45 pointer-events-none absolute inset-0 rounded-[var(--radius-card)] border-2 border-dashed"
                 />
 
-                <span className="bg-surface border-line text-text-2 absolute top-2 left-2 flex items-center gap-1 rounded-full border py-1 pr-2 pl-1.5 text-xs font-medium shadow-[var(--shadow-sm)]">
+                <span className="bg-surface text-text-2 absolute top-2 left-2 flex items-center gap-1 rounded-full py-1 pr-2 pl-1.5 text-xs font-medium shadow-[var(--shadow-sm)]">
                   <GripVertical size={12} />
                   {names[one.id]}
                 </span>

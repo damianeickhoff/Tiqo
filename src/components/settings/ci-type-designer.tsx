@@ -147,7 +147,7 @@ export function CiTypeDesigner({
 
   return (
     <>
-      <div className="border-line flex flex-wrap items-center gap-2 border-b px-5 py-2.5 lg:px-6">
+      <div className="flex flex-wrap items-center gap-2 px-5 py-2.5 lg:px-6">
         <Link
           href="/settings"
           className="text-text-3 hover:text-text inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
@@ -230,8 +230,8 @@ export function CiTypeDesigner({
           put a preview beside it would buy the preview by wrapping every row. */}
       <div className="px-5 py-5 lg:px-6">
         <div className="grid max-w-5xl items-start gap-5 2xl:max-w-none 2xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="border-border rounded-card bg-surface overflow-hidden border">
-            <div className="border-line flex flex-wrap items-end gap-3 border-b px-4 py-3.5">
+          <div className="card overflow-hidden">
+            <div className="flex flex-wrap items-end gap-3 px-4 py-3.5">
               <label className="block min-w-[10rem] flex-1">
                 <span className="label mb-1.5 block">{t.cmdb.name}</span>
                 <Input
@@ -317,7 +317,7 @@ export function CiTypeDesigner({
                   {t.cmdb.noFields}
                 </p>
               ) : (
-                <ul className="border-border rounded-card divide-line divide-y overflow-hidden border">
+                <ul className="rounded-card divide-line divide-y overflow-hidden">
                   {fields.map((field, index) => (
                     <li key={field.id} className="px-3 py-2.5">
                       <div className="flex flex-wrap items-end gap-2">
@@ -495,7 +495,7 @@ export function CiTypeDesigner({
           </div>
 
           <div className="space-y-4">
-            <div className="border-border rounded-card bg-surface space-y-4 border p-4">
+            <div className="card space-y-4 p-4">
               <div>
                 <span className="label mb-1.5 block">{t.cmdb.defaultColumns}</span>
                 <div className="flex flex-wrap gap-1.5">
@@ -518,7 +518,7 @@ export function CiTypeDesigner({
                           "rounded-full border px-2.5 py-1 text-sm font-medium transition-colors",
                           on
                             ? "text-brand-deep border-transparent bg-[var(--brand-tint)]"
-                            : "border-line text-text-2 hover:text-text hover:border-line-strong",
+                            : "bg-surface text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
                         )}
                       >
                         {column.label}
@@ -549,8 +549,8 @@ export function CiTypeDesigner({
                 one is the item page, always on, following every keystroke: the
                 question the designer keeps asking is what an attribute called
                 that, in that order, will look like to somebody reading one. */}
-            <div className="border-border rounded-card bg-surface overflow-hidden border">
-              <div className="border-line flex flex-wrap items-baseline gap-x-2 border-b px-4 py-2.5">
+            <div className="card overflow-hidden">
+              <div className="flex flex-wrap items-baseline gap-x-2 px-4 py-2.5">
                 <h2 className="label">{t.cmdb.preview}</h2>
                 <span className="text-text-3 text-xs">{t.cmdb.previewBlurb}</span>
               </div>
@@ -622,7 +622,7 @@ function Options({ options, onChange }: { options: string[]; onChange: (next: st
       {options.map((option) => (
         <span
           key={option}
-          className="border-line text-text-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm"
+          className="bg-surface text-text-2 inline-flex items-center gap-1 rounded-full border border-transparent px-2 py-0.5 text-sm shadow-[var(--highlight)]"
         >
           {option}
           <button
@@ -695,7 +695,7 @@ function IconPicker({
               "rounded-control flex size-10 items-center justify-center border transition-colors",
               name === chosen
                 ? "border-brand bg-[var(--brand-tint)]"
-                : "border-line hover:border-line-strong",
+                : "bg-surface border-transparent shadow-[var(--highlight)]",
             )}
           >
             <CiGlyph icon={name} color={colour} size={15} />
@@ -774,7 +774,7 @@ function Popover({
       />
       <div
         className={cn(
-          "animate-rise border-line bg-surface rounded-card absolute left-0 z-50 mt-2 border p-2.5 shadow-[var(--shadow-float)]",
+          "animate-rise bg-surface rounded-card absolute left-0 z-50 mt-2 p-2.5 shadow-[var(--shadow-float)]",
           className,
         )}
       >
@@ -794,7 +794,7 @@ function NewFieldForm({ typeId, onDone }: { typeId: string; onDone: () => void }
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="border-border-soft border-t pt-3">
+    <div className="pt-3">
       <FormError>{errors.form}</FormError>
       <div className="flex flex-wrap items-end gap-2">
         <label className="block min-w-[10rem] flex-1">

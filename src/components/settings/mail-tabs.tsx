@@ -24,7 +24,7 @@ export function MailTabs({ wording, log }: { wording: number; log: number }) {
   ];
 
   return (
-    <nav className="border-line flex gap-5 overflow-x-auto border-b">
+    <nav className="flex gap-5 overflow-x-auto">
       {tabs.map(({ href, label, count, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
         return (

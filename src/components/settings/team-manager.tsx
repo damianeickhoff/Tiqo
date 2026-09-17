@@ -39,7 +39,7 @@ export function TeamManager({ teams, staff }: { teams: Team[]; staff: Person[] }
         </ul>
       )}
 
-      <form action={formAction} className="border-border-soft space-y-3 border-t pt-4">
+      <form action={formAction} className="space-y-3 pt-4">
         <FormError>{errors.form}</FormError>
 
         <div className="flex flex-wrap items-end gap-3">
@@ -58,7 +58,7 @@ export function TeamManager({ teams, staff }: { teams: Team[]; staff: Person[] }
               name="color"
               defaultValue="#febe2e"
               aria-label={t.settings.colour}
-              className="border-border bg-surface rounded-control h-11 w-12 cursor-pointer border p-1"
+              className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
             />
           </label>
           <AddButton />
@@ -98,7 +98,7 @@ function TeamCard({ team, staff }: { team: Team; staff: Person[] }) {
   }
 
   return (
-    <li className="border-border rounded-card overflow-hidden border">
+    <li className="card overflow-hidden">
       <div className="bg-surface-2 flex flex-wrap items-center gap-3 px-4 py-3">
         {editing ? (
           <span className="flex flex-1 flex-wrap items-center gap-2">
@@ -107,7 +107,7 @@ function TeamCard({ team, staff }: { team: Team; staff: Person[] }) {
               value={color}
               onChange={(event) => setColor(event.target.value)}
               aria-label={t.settings.colour}
-              className="border-border bg-surface rounded-control h-9 w-10 shrink-0 cursor-pointer border p-1"
+              className="bg-surface rounded-control h-9 w-10 shrink-0 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
             />
             <Input
               value={name}
@@ -225,9 +225,7 @@ function TeamCard({ team, staff }: { team: Team; staff: Person[] }) {
       </div>
 
       {error ? (
-        <p className="border-border-soft bg-negative/[0.06] text-negative border-t px-4 py-2 text-sm font-medium">
-          {error}
-        </p>
+        <p className="bg-negative/[0.06] text-negative px-4 py-2 text-sm font-medium">{error}</p>
       ) : null}
 
       {picking ? (

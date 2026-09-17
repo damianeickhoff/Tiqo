@@ -10,10 +10,10 @@
 export default function Loading() {
   return (
     <div aria-busy className="lg:flex">
-      <div className="border-line bg-chrome hidden lg:block lg:w-[220px] lg:border-r" />
+      <div className="bg-chrome hidden lg:block lg:w-[220px]" />
 
       <div className="min-w-0 flex-1">
-        <div className="border-line h-[45px] border-b" />
+        <div className="h-[45px]" />
 
         <ul className="divide-line divide-y">
           {Array.from({ length: 8 }, (_, row) => (

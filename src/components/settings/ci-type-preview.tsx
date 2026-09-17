@@ -76,13 +76,13 @@ export function CiTypePreview({
         ))}
       </div>
 
-      <div className="bg-bg rounded-card border-line border p-4">
+      <div className="bg-bg rounded-card p-4">
         {shape === "item" ? (
           <CiTypeItemCard name={name} icon={icon} colour={colour} fields={fields} />
         ) : null}
 
         {shape === "row" ? (
-          <div className="border-border rounded-card bg-surface overflow-hidden border">
+          <div className="card overflow-hidden">
             <div className="border-line text-text-3 label flex items-center gap-3 border-b px-3.5 py-2">
               <span className="min-w-0 flex-1">{t.cmdb.name}</span>
               {columns.map((column) => (
@@ -106,7 +106,7 @@ export function CiTypePreview({
         ) : null}
 
         {shape === "card" ? (
-          <div className="border-border rounded-card bg-surface w-64 border p-3">
+          <div className="card w-64 p-3">
             <div className="flex items-center gap-2.5">
               <CiGlyph icon={icon} color={colour} size={18} />
               <span className="min-w-0 leading-tight">
@@ -154,8 +154,8 @@ export function CiTypeItemCard({
   const t = useMessages();
 
   return (
-    <div className="border-border rounded-card bg-surface overflow-hidden border">
-      <div className="border-line flex items-center gap-2.5 border-b px-3.5 py-2.5">
+    <div className="card overflow-hidden">
+      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
         <CiGlyph icon={icon} color={colour} size={18} />
         <span className="min-w-0 leading-tight">
           <span className="text-md block truncate font-semibold">{t.cmdb.exampleName}</span>

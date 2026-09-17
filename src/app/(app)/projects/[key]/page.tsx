@@ -230,7 +230,7 @@ export default async function ProjectOverview({ params }: { params: Params }) {
         ) : null}
 
         <section className="card overflow-hidden">
-          <div className="border-line flex items-center justify-between gap-3 border-b px-4 py-2.5">
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5">
             <p className="text-base font-semibold">{t.projects.openWork}</p>
             <Link
               href={`/projects/${project.key}/tickets`}
@@ -268,7 +268,7 @@ export default async function ProjectOverview({ params }: { params: Params }) {
 
       {/* The rail, the same object as a ticket's: contained cards on the chrome
           tint, each with the same header, scrolling under the tabs on its own. */}
-      <aside className="border-line bg-chrome rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--project-head)] xl:h-[calc(100dvh-var(--bar)-var(--project-head))] xl:overflow-y-auto xl:overscroll-contain xl:border-l xl:pr-0.5">
+      <aside className="bg-chrome rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--project-head)] xl:h-[calc(100dvh-var(--bar)-var(--project-head))] xl:overflow-y-auto xl:overscroll-contain xl:pr-0.5">
         {/* How far along, and what is in the way: one figure, one bar with
             three colours in it. */}
         <PanelCard

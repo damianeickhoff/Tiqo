@@ -327,7 +327,7 @@ export function AttachChips({ className }: { className?: string }) {
           {attachments.files.map((file) => (
             <li
               key={`${file.name}:${file.size}`}
-              className="border-line bg-surface-2 text-text-2 flex max-w-full items-center gap-1.5 rounded-full border py-1 pr-1 pl-2.5 text-sm"
+              className="bg-surface-2 text-text-2 flex max-w-full items-center gap-1.5 rounded-full border border-transparent py-1 pr-1 pl-2.5 text-sm"
             >
               {/* A ceiling as well as a floor. Without the cap one long
                   filename takes the whole row; without the truncation a narrow

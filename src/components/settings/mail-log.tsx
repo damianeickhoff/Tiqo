@@ -103,9 +103,9 @@ export function MailLog({ rows }: { rows: MailLogRow[] }) {
     <div className="space-y-2">
       <FormError>{error ?? undefined}</FormError>
 
-      <div className="border-line rounded-card overflow-hidden border">
-        <div className="border-line bg-surface-2 flex flex-wrap items-center gap-2 border-b px-3 py-2">
-          <div className="border-border rounded-control flex border p-0.5">
+      <div className="card overflow-hidden">
+        <div className="bg-surface-2 flex flex-wrap items-center gap-2 px-3 py-2">
+          <div className="bg-surface rounded-control flex border border-transparent p-0.5 shadow-[var(--highlight)]">
             {filters.map((option) => (
               <button
                 key={option.key}

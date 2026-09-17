@@ -54,7 +54,7 @@ export function BlockDialog({
           />
         </label>
 
-        <div className="border-line mt-4 flex justify-end gap-2 border-t pt-4">
+        <div className="mt-4 flex justify-end gap-2 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             {t.common.cancel}
           </Button>

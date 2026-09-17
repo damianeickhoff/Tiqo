@@ -28,7 +28,7 @@ export function PortalAdminNav() {
   ];
 
   return (
-    <nav className="border-line flex gap-5 overflow-x-auto border-b">
+    <nav className="flex gap-5 overflow-x-auto">
       {tabs.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
         return (

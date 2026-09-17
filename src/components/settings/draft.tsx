@@ -119,9 +119,9 @@ export function SaveBar<T extends object>({
       className={cn(
         "flex flex-wrap items-center gap-2",
         variant === "footer"
-          ? "border-line bg-surface-2 border-t px-2.5 py-2"
+          ? "bg-surface-2 px-2.5 py-2"
           : draft.dirty &&
-              "border-line bg-surface rounded-card sticky bottom-3 z-20 -mx-1 border px-3 py-2 shadow-[var(--shadow-float)]",
+              "bg-surface rounded-card sticky bottom-3 z-20 -mx-1 px-3 py-2 shadow-[var(--shadow-float)]",
         className,
       )}
     >

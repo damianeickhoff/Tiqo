@@ -37,7 +37,7 @@ export type ApprovalView = {
 export type Approver = { id: string; name: string; avatarVariant: number };
 
 const STATE_TONE: Record<ApprovalState, string> = {
-  PENDING: "border-line bg-surface text-text-2",
+  PENDING: "border-transparent bg-surface-2 text-text-2",
   APPROVED:
     "border-[color-mix(in_oklab,var(--positive)_45%,transparent)] bg-positive/10 text-positive",
   REJECTED:
@@ -394,7 +394,7 @@ function AskDialog({
           </label>
         </div>
 
-        <div className="border-line flex justify-end gap-2 border-t pt-4">
+        <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             {t.common.cancel}
           </Button>
@@ -552,7 +552,7 @@ export function RefuseDialog({
           />
         </label>
 
-        <div className="border-line mt-4 flex justify-end gap-2 border-t pt-4">
+        <div className="mt-4 flex justify-end gap-2 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             {t.common.cancel}
           </Button>

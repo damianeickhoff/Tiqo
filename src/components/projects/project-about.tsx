@@ -65,7 +65,7 @@ export function ProjectAbout({
               onClick={() => setEditing(true)}
               aria-label={t.projects.editDescription}
               title={t.projects.editDescription}
-              className="border-line bg-surface text-text-2 hover:bg-surface-3 hover:text-text rounded-control absolute top-3 right-3 flex size-8 items-center justify-center border opacity-0 transition-all group-hover/about:opacity-100 focus-visible:opacity-100"
+              className="bg-surface text-text-2 hover:bg-surface-3 hover:text-text rounded-control absolute top-3 right-3 flex size-8 items-center justify-center border border-transparent opacity-0 shadow-[var(--highlight)] transition-all group-hover/about:opacity-100 focus-visible:opacity-100"
             >
               <Pencil size={15} />
             </button>

@@ -45,8 +45,8 @@ export function ProjectStarButton({
         })
       }
       className={cn(
-        "border-line bg-surface rounded-control flex size-8 shrink-0 items-center justify-center border shadow-[var(--highlight)] transition-colors disabled:opacity-60",
-        starred ? "text-brand-deep" : "text-text-3 hover:text-text hover:border-line-strong",
+        "bg-surface rounded-control flex size-8 shrink-0 items-center justify-center border border-transparent shadow-[var(--highlight)] transition-colors disabled:opacity-60",
+        starred ? "text-brand-deep" : "text-text-3 hover:text-text",
       )}
     >
       <Star size={14} className={starred ? "fill-current" : undefined} />
@@ -96,7 +96,7 @@ export function ProjectMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={t.common.more}
-        className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex size-8 items-center justify-center border shadow-[var(--highlight)] transition-colors"
+        className="bg-surface text-text-2 hover:text-text rounded-control flex size-8 items-center justify-center border border-transparent shadow-[var(--highlight)] transition-colors"
       >
         <MoreHorizontal size={15} />
       </button>
@@ -112,7 +112,7 @@ export function ProjectMenu({
           />
           <div
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-2 w-52 overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-52 overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             <button
               type="button"
@@ -160,7 +160,7 @@ export function ProjectMenu({
             </p>
           ) : null}
 
-          <div className="border-line flex justify-end gap-2 border-t pt-4">
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="ghost" onClick={() => setAsking(false)}>
               {t.common.cancel}
             </Button>

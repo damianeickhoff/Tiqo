@@ -191,7 +191,7 @@ export function CiImport({ types }: { types: TypeOption[] }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <label className="border-border hover:border-line-strong rounded-control inline-flex cursor-pointer items-center gap-2 border px-3 py-2 text-base font-medium transition-colors">
+        <label className="bg-surface rounded-control inline-flex cursor-pointer items-center gap-2 border border-transparent px-3 py-2 text-base font-medium shadow-[var(--highlight)] transition-colors">
           <Upload size={14} />
           {t.cmdb.importFile}
           <input
@@ -248,7 +248,7 @@ export function CiImport({ types }: { types: TypeOption[] }) {
           action={<span className="text-text-3 text-sm">{t.cmdb.importPreview(body.length)}</span>}
         >
           {duplicates.length ? (
-            <p className="border-line text-text-2 border-b px-3.5 py-2 text-sm">
+            <p className="text-text-2 px-3.5 py-2 text-sm">
               {t.cmdb.importDuplicateColumns(duplicates.length)}
             </p>
           ) : null}
@@ -333,7 +333,7 @@ function Report({ report }: { report: ImportReport }) {
       </div>
 
       {report.skipped.length > 0 ? (
-        <ul className="border-line mt-3 space-y-1 border-t pt-3">
+        <ul className="mt-3 space-y-1 pt-3">
           {report.skipped.map((note) => (
             <li key={`skip-${note.row}`} className="text-text-2 flex gap-2 text-sm">
               <span className="text-text-3 shrink-0 font-mono">{t.cmdb.importRow(note.row)}</span>
@@ -344,7 +344,7 @@ function Report({ report }: { report: ImportReport }) {
       ) : null}
 
       {report.warnings.length > 0 ? (
-        <div className="border-line mt-3 border-t pt-3">
+        <div className="mt-3 pt-3">
           <p className="text-text-2 mb-1.5 flex items-center gap-1.5 text-sm font-medium">
             <CircleAlert size={12} strokeWidth={2.5} />
             {t.cmdb.importWarnings(report.warnings.length)}

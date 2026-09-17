@@ -197,7 +197,7 @@ export function DocMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={t.common.more}
-        className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex size-8 items-center justify-center border shadow-[var(--highlight)] transition-colors"
+        className="bg-surface text-text-2 hover:text-text rounded-control flex size-8 items-center justify-center border border-transparent shadow-[var(--highlight)] transition-colors"
       >
         <MoreHorizontal size={15} />
       </button>
@@ -213,7 +213,7 @@ export function DocMenu({
           />
           <div
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-2 w-60 overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-60 overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             <Row
               icon={<Share2 size={14} className="text-text-3" />}
@@ -295,7 +295,7 @@ export function DocMenu({
               {t.docs.publishLive}
             </label>
 
-            <div className="border-line flex justify-end gap-2 border-t pt-4">
+            <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="ghost" onClick={() => setAsking(null)}>
                 {t.common.cancel}
               </Button>
@@ -320,7 +320,7 @@ export function DocMenu({
             </p>
           ) : null}
 
-          <div className="border-line flex justify-end gap-2 border-t pt-4">
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="ghost" onClick={() => setAsking(null)}>
               {t.common.cancel}
             </Button>

@@ -94,7 +94,7 @@ export function ComplianceGauge({
         {messages.dashboard.compliance(withinTarget, total)}
       </p>
 
-      <ul className="border-line mt-4 w-full space-y-2 border-t pt-4">
+      <ul className="mt-4 w-full space-y-2 pt-4">
         {byPriority.map((row) => {
           const met = Math.round((row.met / row.total) * 100);
           return (
@@ -132,7 +132,7 @@ export function ComplianceGauge({
       </ul>
 
       {medianResolutionHours === null ? null : (
-        <p className="border-line text-text-3 mt-4 w-full border-t pt-3 text-center text-sm">
+        <p className="text-text-3 mt-4 w-full pt-3 text-center text-sm">
           {messages.dashboard.typicalResolution(shortSpan(medianResolutionHours * 36e5, messages))}
         </p>
       )}

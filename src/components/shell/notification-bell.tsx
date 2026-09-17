@@ -188,7 +188,7 @@ export function NotificationBell({
       </button>
 
       {open ? (
-        <div className="animate-rise border-border bg-surface rounded-card absolute top-full right-0 z-50 mt-2 w-[min(22rem,90vw)] overflow-hidden border shadow-[var(--shadow-float)]">
+        <div className="animate-rise bg-surface rounded-card absolute top-full right-0 z-50 mt-2 w-[min(22rem,90vw)] overflow-hidden shadow-[var(--shadow-float)]">
           <div className="border-border-soft flex items-center justify-between gap-3 border-b px-4 py-2.5">
             <p className="text-base font-semibold">{t.notifications.title}</p>
             {unread > 0 ? (

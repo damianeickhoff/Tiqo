@@ -88,7 +88,7 @@ export function BusinessHoursForm({ settings }: { settings: InstanceSettings }) 
                     "rounded-control cursor-pointer border px-3 py-2 text-base transition-colors",
                     on
                       ? "border-brand/45 text-brand-deep bg-[var(--brand-tint)] font-semibold"
-                      : "border-border text-text-2 hover:bg-surface-2",
+                      : "bg-surface text-text-2 hover:bg-surface-2 border-transparent shadow-[var(--highlight)]",
                   )}
                 >
                   <input

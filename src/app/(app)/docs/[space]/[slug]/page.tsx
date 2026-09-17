@@ -243,7 +243,7 @@ export default async function DocPage({
   );
 
   const rail = (
-    <aside className="border-line flex min-w-0 flex-col gap-3 border-t px-5 py-6 lg:px-8 xl:border-t-0 xl:border-l xl:px-4">
+    <aside className="flex min-w-0 flex-col gap-3 px-5 py-6 lg:px-8 xl:px-4">
       {/* First, and above what the page is *about*: it is the only card on the
           rail somebody uses while reading rather than before or after. */}
       <DocOutline headings={outline} />
@@ -341,7 +341,7 @@ export default async function DocPage({
       <TopBarBreadcrumb reference={doc.space.key} title={doc.title} />
 
       {doc.archivedAt ? (
-        <p className="border-line bg-surface-2 text-text-2 flex items-center gap-2 border-b px-5 py-2.5 text-base lg:px-8">
+        <p className="bg-surface-2 text-text-2 flex items-center gap-2 px-5 py-2.5 text-base lg:px-8">
           <Archive size={14} className="text-text-3 shrink-0" />
           {t.docs.archivedNote}
         </p>

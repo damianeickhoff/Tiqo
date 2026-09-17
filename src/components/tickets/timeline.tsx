@@ -224,7 +224,7 @@ export function ConversationTimeline({
                     key={item.id}
                     className="text-text-2 grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-1 text-sm"
                   >
-                    <span className="bg-surface-2 border-line text-text-3 ml-1 flex size-5 items-center justify-center rounded-full border">
+                    <span className="bg-surface-2 text-text-3 ml-1 flex size-5 items-center justify-center rounded-full">
                       <EventIcon type={item.type} />
                     </span>
                     <span className="min-w-0">

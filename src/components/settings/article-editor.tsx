@@ -129,7 +129,7 @@ export function ArticleEditor({
       ) : null}
 
       {fromDoc ? (
-        <p className="border-line bg-surface-2 text-text-2 rounded-control flex flex-wrap items-center gap-x-2 gap-y-1 border px-3.5 py-2.5 text-base">
+        <p className="bg-surface-2 text-text-2 rounded-control flex flex-wrap items-center gap-x-2 gap-y-1 px-3.5 py-2.5 text-base">
           <BookText size={14} className="text-text-3 shrink-0" />
           <span className="font-medium">{t.docs.publishedFromDoc}</span>
           <span className="text-text-3">{t.docs.publishedFromDocHint}</span>
@@ -255,7 +255,7 @@ export function ArticleEditor({
                 "rounded-control flex w-full items-center gap-2 border px-3 py-2 text-base font-medium transition-colors",
                 form.isFeatured
                   ? "border-brand/45 text-brand-deep bg-[var(--brand-tint)]"
-                  : "border-border text-text-2 hover:bg-surface-2",
+                  : "bg-surface text-text-2 hover:bg-surface-2 border-transparent shadow-[var(--highlight)]",
               )}
             >
               <Star size={14} className={form.isFeatured ? "fill-current" : undefined} />
@@ -273,7 +273,7 @@ export function ArticleEditor({
 
       {/* Above the fold on a long body: the bar follows the page rather than
           sitting at the bottom of twenty rows of text. */}
-      <div className="border-border bg-surface rounded-card sticky bottom-4 z-30 flex items-center gap-3 border px-4 py-3 shadow-[var(--shadow-md)]">
+      <div className="bg-surface rounded-card sticky bottom-4 z-30 flex items-center gap-3 px-4 py-3 shadow-[var(--shadow-md)]">
         <SaveBar
           draft={draft}
           save={(values) =>

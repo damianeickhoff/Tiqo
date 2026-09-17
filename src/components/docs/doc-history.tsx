@@ -165,7 +165,7 @@ export function DocHistory({
 
             {/* Boxed and scrollable, so an old version never reads as the page
                 itself — the one mistake that would matter here. */}
-            <div className="border-line bg-surface-2 rounded-card max-h-[50vh] overflow-y-auto border p-4">
+            <div className="bg-surface-2 rounded-card max-h-[50vh] overflow-y-auto p-4">
               {opened.body.trim() ? (
                 <Markdown text={opened.body} className="tiqo-prose text-md leading-relaxed" />
               ) : (

@@ -158,7 +158,7 @@ export function PeopleTable({
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t.people.search}
                 aria-label={t.people.search}
-                className="border-line bg-surface rounded-control focus:border-brand h-8 w-[260px] border pr-2.5 pl-8 text-base transition-[border-color] placeholder:text-[var(--text-3)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+                className="bg-surface rounded-control focus:border-brand h-8 w-[260px] border border-transparent pr-2.5 pl-8 text-base shadow-[var(--highlight)] transition-[border-color] placeholder:text-[var(--text-3)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
               />
             </label>
 
@@ -251,9 +251,9 @@ function ChipSelect({
       aria-label={label}
       onChange={(event) => onChange(event.target.value)}
       className={cn(
-        "select-chevron border-line bg-surface h-7 max-w-[9rem] cursor-pointer appearance-none truncate",
-        "rounded-full border pr-6 pl-2.5 text-sm font-medium transition-colors",
-        "hover:border-line-strong focus:outline-none",
+        "select-chevron bg-surface h-7 max-w-[9rem] cursor-pointer appearance-none truncate",
+        "rounded-full border border-transparent pr-6 pl-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors",
+        "focus:outline-none",
         value ? "text-brand-deep" : "text-text-2",
       )}
     >

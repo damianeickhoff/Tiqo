@@ -247,11 +247,11 @@ export function ProfileForm({
                     aria-pressed={on}
                     onClick={() => toggleDay(day)}
                     className={cn(
-                      "rounded-full border px-3 text-sm transition-colors",
+                      "rounded-full border px-3 text-sm shadow-[var(--highlight)] transition-colors",
                       "flex h-7 items-center",
                       on
                         ? "border-brand/45 text-brand-deep bg-[var(--brand-tint)] font-semibold"
-                        : "border-line text-text-2 hover:bg-surface-2",
+                        : "text-text-2 hover:bg-surface-2 border-transparent",
                     )}
                   >
                     {dayNames[day]}

@@ -718,7 +718,7 @@ export default async function TicketPage({ params }: { params: Params }) {
               </p>
 
               {ticket.mergedInto ? (
-                <p className="border-line bg-surface-2 text-text-2 rounded-control mt-3 inline-flex items-center gap-2 border px-3 py-1.5 text-base">
+                <p className="bg-surface-2 text-text-2 rounded-control mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-base">
                   <Merge size={14} className="text-text-3" />
                   {t.ticket.mergedInto}{" "}
                   <Link
@@ -809,7 +809,7 @@ export default async function TicketPage({ params }: { params: Params }) {
             has nowhere left to go; the scrollbar track is always reserved, and
             the right padding is short by its width so the cards sit the same
             distance from both edges. */}
-        <aside className="border-line bg-chrome rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--toolbar)] xl:h-[calc(100dvh-var(--bar)-var(--toolbar))] xl:overflow-y-auto xl:overscroll-contain xl:border-l xl:pr-0.5">
+        <aside className="bg-chrome rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--toolbar)] xl:h-[calc(100dvh-var(--bar)-var(--toolbar))] xl:overflow-y-auto xl:overscroll-contain xl:pr-0.5">
           <TicketProperties
             ticketId={ticket.id}
             ticketNumber={ticket.number}

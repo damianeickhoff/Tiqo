@@ -302,7 +302,7 @@ export function VolumeChart({ data }: { data: VolumePoint[] }) {
 
       {active ? (
         <div
-          className="border-line bg-surface rounded-control pointer-events-none absolute top-8 border px-3 py-2 text-base shadow-[var(--shadow-md)]"
+          className="bg-surface rounded-control pointer-events-none absolute top-8 px-3 py-2 text-base shadow-[var(--shadow-md)]"
           style={{ left: `${xs[hover!]! - 48}px` }}
         >
           <p className="text-text-3 mb-1 font-mono text-xs">{active.date}</p>

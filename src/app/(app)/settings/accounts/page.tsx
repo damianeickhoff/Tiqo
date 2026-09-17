@@ -66,7 +66,7 @@ export default async function RoleSettingsPage() {
         >
           <Link
             href="/people"
-            className="border-border bg-surface hover:border-brand hover:text-brand-deep rounded-control text-md inline-flex h-11 items-center gap-2 border px-4 font-semibold transition-colors"
+            className="bg-surface hover:border-brand hover:text-brand-deep rounded-control text-md inline-flex h-11 items-center gap-2 border border-transparent px-4 font-semibold shadow-[var(--highlight)] transition-colors"
           >
             {t.settings.openPeople}
             <ArrowRight size={15} />

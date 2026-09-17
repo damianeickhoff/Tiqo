@@ -363,7 +363,7 @@ export function RailActivity({
             ) : null}
 
             <div className="group/act grid grid-cols-[18px_minmax(0,1fr)_auto] items-start gap-2.5 py-1.5">
-              <span className="bg-surface-2 border-line text-text-3 mt-px flex size-[18px] items-center justify-center rounded-full border">
+              <span className="bg-surface-2 text-text-3 mt-px flex size-[18px] items-center justify-center rounded-full">
                 <EventIcon type={event.type} size={10} />
               </span>
               <span className="text-text-2 min-w-0 text-sm leading-snug">
@@ -437,7 +437,7 @@ export function ActivityFeed({
               className="mt-px"
             />
           ) : (
-            <span className="bg-surface-2 border-line text-text-3 mt-px flex size-5 items-center justify-center rounded-full border">
+            <span className="bg-surface-2 text-text-3 mt-px flex size-5 items-center justify-center rounded-full">
               <EventIcon type={event.type} />
             </span>
           )}

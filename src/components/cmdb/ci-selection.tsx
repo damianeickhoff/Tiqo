@@ -155,7 +155,7 @@ export function CiBulkBar({ teams }: { teams: { id: string; name: string }[] }) 
     // One bar at the foot of the screen rather than a strip above the table:
     // what is ticked is at the bottom of a list somebody has scrolled, and a bar
     // that scrolled away with the header was one they had to go back up to.
-    <div className="border-border bg-surface rounded-card fixed inset-x-4 bottom-4 z-30 mx-auto flex w-fit max-w-[calc(100%-2rem)] flex-wrap items-center gap-2 border px-3 py-2 shadow-[var(--shadow-float)]">
+    <div className="bg-surface rounded-card fixed inset-x-4 bottom-4 z-30 mx-auto flex w-fit max-w-[calc(100%-2rem)] flex-wrap items-center gap-2 px-3 py-2 shadow-[var(--shadow-float)]">
       <span className="text-base font-medium">{t.cmdb.selected(ids.length)}</span>
 
       <Select

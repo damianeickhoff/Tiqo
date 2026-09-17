@@ -121,7 +121,7 @@ export function FilterBar({
   });
 
   return (
-    <div className="border-line bg-surface/90 sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b px-5 py-2 backdrop-blur-md lg:px-6">
+    <div className="bg-surface/90 sticky top-0 z-20 flex flex-wrap items-center gap-2 px-5 py-2 backdrop-blur-md lg:px-6">
       {/* Where you are, before what you are narrowing: a segmented control. */}
       <div
         role="group"
@@ -161,7 +161,7 @@ export function FilterBar({
             "flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-sm font-medium whitespace-nowrap transition-colors",
             chips.length
               ? "text-brand-deep border-transparent bg-[var(--brand-tint)]"
-              : "border-line text-text-2 hover:border-line-strong hover:text-text bg-surface shadow-[var(--highlight)]",
+              : "text-text-2 hover:text-text bg-surface border-transparent shadow-[var(--highlight)]",
           )}
         >
           <ListFilter size={13} strokeWidth={2} />
@@ -185,7 +185,7 @@ export function FilterBar({
             <div
               role="dialog"
               aria-label={t.tickets.filters}
-              className="animate-rise border-line bg-surface rounded-card absolute left-0 z-50 mt-2 w-72 border p-3 shadow-[var(--shadow-float)]"
+              className="animate-rise bg-surface rounded-card absolute left-0 z-50 mt-2 w-72 p-3 shadow-[var(--shadow-float)]"
             >
               <div className="grid gap-2.5">
                 <Picker
@@ -286,7 +286,7 @@ export function FilterBar({
           type="button"
           onClick={() => setParam(chip.key, "")}
           aria-label={t.tickets.removeFilter(chip.label)}
-          className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text flex h-8 items-center gap-1.5 rounded-full border pr-2 pl-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
+          className="bg-surface text-text-2 hover:text-text flex h-8 items-center gap-1.5 rounded-full border border-transparent pr-2 pl-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
         >
           {chip.label}
           <X size={12} strokeWidth={2.5} className="text-text-3" />
@@ -322,7 +322,7 @@ export function FilterBar({
             defaultValue={value("q")}
             placeholder={t.tickets.searchAll}
             aria-label={t.tickets.searchAll}
-            className="border-line bg-surface placeholder:text-text-3 focus:border-brand hover:border-line-strong h-8 w-48 rounded-full border pr-3 pl-7 text-sm shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-56"
+            className="bg-surface placeholder:text-text-3 focus:border-brand h-8 w-48 rounded-full border border-transparent pr-3 pl-7 text-sm shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-56"
           />
         </form>
       </div>
@@ -348,7 +348,7 @@ function ColumnsMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((was) => !was)}
-        className="border-line text-text-2 hover:border-line-strong hover:text-text bg-surface flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
+        className="text-text-2 hover:text-text bg-surface flex h-8 items-center gap-1.5 rounded-full border border-transparent px-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
       >
         <Columns3 size={13} strokeWidth={2} />
         {t.tickets.columns}
@@ -365,7 +365,7 @@ function ColumnsMenu() {
           />
           <div
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute left-0 z-50 mt-2 w-52 border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute left-0 z-50 mt-2 w-52 p-1 shadow-[var(--shadow-float)]"
           >
             <button
               type="button"
@@ -447,7 +447,7 @@ function Picker({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="select-chevron border-line bg-surface text-text rounded-control focus:border-brand h-8 w-full cursor-pointer appearance-none pr-7 pl-2.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+        className="select-chevron bg-surface text-text rounded-control focus:border-brand h-8 w-full cursor-pointer appearance-none border-transparent pr-7 pl-2.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
       >
         <option value="">{none}</option>
         {options.map((option) => (

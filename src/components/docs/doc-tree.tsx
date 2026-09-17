@@ -88,7 +88,7 @@ export function DocTree({
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.docs.findInSpace}
           aria-label={t.docs.findInSpace}
-          className="border-line bg-surface placeholder:text-text-3 focus:border-brand hover:border-line-strong rounded-control h-8 w-full border pr-2.5 pl-7.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+          className="bg-surface placeholder:text-text-3 focus:border-brand rounded-control h-8 w-full border border-transparent pr-2.5 pl-7.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
         />
       </div>
 
@@ -347,7 +347,7 @@ function RowMenu({
           />
           <span
             role="menu"
-            className="animate-rise border-line bg-surface rounded-card absolute right-0 z-50 mt-1 flex w-52 flex-col overflow-hidden border p-1 shadow-[var(--shadow-float)]"
+            className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-1 flex w-52 flex-col overflow-hidden p-1 shadow-[var(--shadow-float)]"
           >
             <MenuItem
               icon={<ChevronUp size={13} className="text-text-3" />}
@@ -463,7 +463,7 @@ export function AddPage({
 
   return (
     <div className={cn("py-1", full ? "w-full" : "px-1 pb-1")}>
-      <div className="border-line bg-surface rounded-control flex items-center gap-1 border px-1.5 shadow-[var(--shadow-sm)]">
+      <div className="bg-surface rounded-control flex items-center gap-1 border border-transparent px-1.5 shadow-[var(--shadow-sm)]">
         <FileText size={12} className="text-text-3 shrink-0" />
         <input
           autoFocus

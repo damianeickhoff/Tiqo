@@ -159,7 +159,7 @@ export function MailTemplatesTable({ templates }: { templates: TemplateRow[] }) 
       <div
         ref={container}
         style={{ ...style, ["--template" as string]: TEMPLATE }}
-        className="border-line rounded-card border"
+        className="card"
       >
         <div
           className={cn(

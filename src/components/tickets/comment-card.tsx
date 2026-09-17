@@ -98,7 +98,7 @@ export function CommentCard({
           <div
             className={cn(
               "rounded-card relative border px-4 py-3",
-              comment.isInternal ? "" : "border-line bg-surface",
+              comment.isInternal ? "" : "bg-surface border-transparent shadow-[var(--highlight)]",
               comment.pinnedAt && "ring-brand/40 ring-2 ring-offset-2 ring-offset-[var(--surface)]",
             )}
             style={
@@ -127,7 +127,7 @@ export function CommentCard({
               ) : null}
               {comment.editedAt ? (
                 <span
-                  className="border-border text-text-3 inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs font-medium"
+                  className="bg-surface-2 text-text-3 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-medium"
                   title={t.ticket.editedOn(dateFormat.format(comment.editedAt))}
                 >
                   <PencilLine size={9} />
@@ -159,7 +159,7 @@ export function CommentCard({
                   the corner, revealed on hover — present when wanted, invisible
                   while reading. */}
               {editing ? null : (
-                <span className="border-line bg-surface rounded-control absolute -top-7 right-3 z-10 flex shrink-0 overflow-visible border opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
+                <span className="bg-surface rounded-control absolute -top-7 right-3 z-10 flex shrink-0 overflow-visible opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
                   <button
                     type="button"
                     onClick={() => setPickerOpen((open) => !open)}
@@ -305,7 +305,7 @@ function ReactionPill({ commentId, reaction }: { commentId: string; reaction: Co
         "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-base transition-colors",
         reaction.mine
           ? "border-brand text-brand-deep bg-[var(--brand-tint)] font-semibold"
-          : "border-border text-text-2 hover:border-text-3 hover:text-text",
+          : "text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
       )}
       title={reaction.mine ? t.ticket.removeReaction : t.ticket.addThisReaction}
     >
@@ -322,7 +322,7 @@ function EmojiPicker({ commentId, onPicked }: { commentId: string; onPicked: () 
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="animate-rise border-border bg-surface absolute top-full right-0 z-40 mt-1.5 flex gap-0.5 rounded-full border p-1 shadow-[var(--shadow-float)]">
+    <div className="animate-rise bg-surface absolute top-full right-0 z-40 mt-1.5 flex gap-0.5 rounded-full p-1 shadow-[var(--shadow-float)]">
       {EMOJI.map((emoji) => (
         <button
           key={emoji}

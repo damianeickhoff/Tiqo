@@ -157,7 +157,7 @@ export default async function ProjectLayout({
                 <HealthPicker projectId={project.id} health={project.health} />
               ) : (
                 <span
-                  className="border-line bg-surface inline-flex h-8 items-center gap-2 rounded-full border px-2.5 text-sm font-medium"
+                  className="bg-surface inline-flex h-8 items-center gap-2 rounded-full border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)]"
                   style={{ color: health.color }}
                 >
                   <span
@@ -185,7 +185,7 @@ export default async function ProjectLayout({
 
         {/* Below xl there is no rail, so the tabs stick on their own the way a
             ticket's toolbar does. From xl up the block above carries them. */}
-        <div className="border-line bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end border-b px-5 backdrop-blur-md lg:top-0 lg:px-6 xl:static">
+        <div className="bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end px-5 backdrop-blur-md lg:top-0 lg:px-6 xl:static">
           <ProjectTabs
             projectKey={project.key}
             counts={{

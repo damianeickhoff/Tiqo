@@ -106,7 +106,7 @@ export function ProjectTicketList({
       />
 
       <Card className="animate-rise overflow-hidden">
-        <div className={cn(GRID, "label border-line bg-surface-2 hidden h-9 border-b lg:grid")}>
+        <div className={cn(GRID, "label bg-surface-2 hidden h-9 lg:grid")}>
           <span className="truncate">{t.tickets.colReference}</span>
           <span className="truncate">{t.tickets.colSubject}</span>
           <HeadFilter

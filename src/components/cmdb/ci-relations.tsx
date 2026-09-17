@@ -200,7 +200,7 @@ function RelateDialog({ itemId, onClose }: { itemId: string; onClose: () => void
           aria-label={t.cmdb.searchItems}
         />
 
-        <div className="border-border rounded-card max-h-64 space-y-1 overflow-y-auto border p-1">
+        <div className="rounded-card max-h-64 space-y-1 overflow-y-auto p-1">
           {results.length === 0 ? (
             <p className="text-text-3 py-6 text-center text-base">{t.common.noMatches}</p>
           ) : (

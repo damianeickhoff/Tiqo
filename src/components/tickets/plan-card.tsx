@@ -93,7 +93,7 @@ export async function PlanCard({
 
   return (
     <div className="card overflow-hidden">
-      <div className="border-line flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
         <span className="text-base font-semibold">{t.plan.title}</span>
         {template ? (
           <span className="text-text-3 text-sm">{t.plan.fromTemplate(template)}</span>

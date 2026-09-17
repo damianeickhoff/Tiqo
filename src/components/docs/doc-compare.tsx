@@ -71,7 +71,7 @@ export function DocCompare({
 
   return (
     <>
-      <div className="border-line flex min-h-[44px] flex-wrap items-center gap-2 border-b px-5 py-2 lg:px-8">
+      <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-8">
         <Link
           href={backHref}
           className="text-text-3 hover:text-text inline-flex items-center gap-1 text-sm font-medium transition-colors"
@@ -116,7 +116,7 @@ export function DocCompare({
 
           <Link
             href={backHref}
-            className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control flex h-8 items-center gap-1.5 border px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors"
+            className="bg-surface text-text-2 hover:text-text rounded-control flex h-8 items-center gap-1.5 border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors"
           >
             <X size={13} />
             {t.common.close}
@@ -174,7 +174,7 @@ export function DocCompare({
                         router.push(backHref);
                       })
                     }
-                    className="border-line bg-surface text-text-2 hover:border-line-strong hover:text-text rounded-control ml-auto flex h-7 shrink-0 items-center gap-1.5 border px-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+                    className="bg-surface text-text-2 hover:text-text rounded-control ml-auto flex h-7 shrink-0 items-center gap-1.5 border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)] transition-colors disabled:opacity-50"
                   >
                     {pending ? (
                       <Loader2 size={12} className="animate-spin" />

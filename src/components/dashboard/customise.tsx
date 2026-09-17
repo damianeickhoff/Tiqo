@@ -121,7 +121,7 @@ export function CustomiseDashboard({
             })}
           </ul>
 
-          <div className="border-border-soft mt-4 flex items-center justify-between gap-3 border-t pt-4">
+          <div className="mt-4 flex items-center justify-between gap-3 pt-4">
             <SaveBar
               draft={draft}
               onSaved={() => setOpen(false)}

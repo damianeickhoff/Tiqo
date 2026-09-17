@@ -44,7 +44,7 @@ export function PlanManager({ templates }: { templates: Template[] }) {
         </ul>
       )}
 
-      <form action={formAction} className="border-border-soft space-y-3 border-t pt-4">
+      <form action={formAction} className="space-y-3 pt-4">
         <FormError>{errors.form}</FormError>
 
         <div className="flex flex-wrap items-end gap-3">
@@ -69,7 +69,7 @@ function TemplateRow({ template }: { template: Template }) {
   const t = useMessages();
 
   return (
-    <li className="border-border rounded-card overflow-hidden border">
+    <li className="card overflow-hidden">
       <div className="bg-surface-2 flex flex-wrap items-center gap-3 px-4 py-3">
         <span className="min-w-0 flex-1">
           <span className="text-md block font-semibold">{template.name}</span>

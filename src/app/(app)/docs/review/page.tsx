@@ -93,7 +93,7 @@ export default async function ReviewQueuePage() {
         ) : (
           [...groups.values()].map((group) => (
             <Card key={group.owner?.id ?? "none"} className="overflow-hidden">
-              <div className="border-line flex items-center gap-2.5 border-b px-4 py-2.5">
+              <div className="flex items-center gap-2.5 px-4 py-2.5">
                 {group.owner ? (
                   <Avatar
                     name={group.owner.name}

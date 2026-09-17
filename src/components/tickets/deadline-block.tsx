@@ -215,7 +215,7 @@ export function DeadlineBlock({
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             aria-label={t.ticket.dueDateLabel}
-            className="border-line bg-surface focus:border-brand rounded-control h-8 min-w-0 flex-1 border px-2 text-base focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+            className="bg-surface focus:border-brand rounded-control h-8 min-w-0 flex-1 border border-transparent px-2 text-base shadow-[var(--highlight)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
           />
           <button
             type="button"

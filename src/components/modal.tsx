@@ -50,11 +50,11 @@ export function Modal({
       />
       <div
         className={cn(
-          "animate-rise border-border bg-surface rounded-panel relative w-full overflow-hidden border shadow-[var(--shadow-lg)]",
+          "animate-rise bg-surface rounded-panel relative w-full overflow-hidden shadow-[var(--shadow-lg)]",
           size === "lg" ? "max-w-3xl" : "max-w-lg",
         )}
       >
-        <div className="border-border-soft border-b px-5 py-4">
+        <div className="px-5 py-4">
           <h2 className="text-lg font-bold tracking-[-0.02em]">{title}</h2>
           {description ? <p className="text-text-2 mt-1 text-base">{description}</p> : null}
         </div>

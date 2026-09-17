@@ -86,7 +86,7 @@ export function ProjectBrief({
               {members.map((person) => (
                 <li
                   key={person.id}
-                  className="border-border flex items-center gap-2 rounded-full border px-2 py-1 text-base"
+                  className="flex items-center gap-2 rounded-full border border-transparent px-2 py-1 text-base shadow-[var(--highlight)]"
                 >
                   <Avatar name={person.name} variant={person.avatarVariant} size={20} />
                   <span className="font-medium">{person.name}</span>
@@ -170,7 +170,7 @@ export function ProjectBrief({
             {members.map((person) => (
               <li
                 key={person.id}
-                className="border-border flex items-center gap-2 rounded-full border py-1 pr-1 pl-1.5 text-base"
+                className="flex items-center gap-2 rounded-full border border-transparent py-1 pr-1 pl-1.5 text-base shadow-[var(--highlight)]"
               >
                 <Avatar name={person.name} variant={person.avatarVariant} size={20} />
                 <span className="font-medium">{person.name}</span>

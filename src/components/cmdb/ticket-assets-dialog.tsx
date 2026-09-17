@@ -80,7 +80,7 @@ export function TicketAssetsDialog({
         {assets.length === 0 ? (
           <p className="text-text-3 text-base">{t.cmdb.noAssetsOnTicket}</p>
         ) : (
-          <ul className="border-border rounded-card divide-line divide-y border">
+          <ul className="rounded-card divide-line divide-y">
             {assets.map((asset) => (
               <li key={asset.id} className="flex items-start gap-2.5 px-3 py-2.5">
                 <CiGlyph icon={asset.type.icon} color={asset.type.color} size={14} />
@@ -149,7 +149,7 @@ export function TicketAssetsDialog({
               placeholder={t.cmdb.searchItems}
               aria-label={t.cmdb.searchItems}
             />
-            <div className="border-border rounded-card max-h-52 space-y-1 overflow-y-auto border p-1">
+            <div className="rounded-card max-h-52 space-y-1 overflow-y-auto p-1">
               {results.length === 0 ? (
                 <p className="text-text-3 py-5 text-center text-base">{t.common.noMatches}</p>
               ) : (

@@ -34,7 +34,7 @@ export function StatusManager({ statuses }: { statuses: Status[] }) {
 
   return (
     <div className="space-y-4">
-      <ul className="divide-border-soft border-border rounded-card divide-y border">
+      <ul className="card divide-border-soft divide-y">
         {statuses.map((status, index) => (
           <StatusRow
             key={status.id}
@@ -45,7 +45,7 @@ export function StatusManager({ statuses }: { statuses: Status[] }) {
         ))}
       </ul>
 
-      <form action={formAction} className="border-border-soft space-y-3 border-t pt-4">
+      <form action={formAction} className="space-y-3 pt-4">
         <FormError>{errors.form}</FormError>
 
         <div className="flex flex-wrap items-end gap-3">
@@ -60,18 +60,18 @@ export function StatusManager({ statuses }: { statuses: Status[] }) {
               name="color"
               defaultValue="#9a9287"
               aria-label={t.settings.colour}
-              className="border-border bg-surface rounded-control h-11 w-12 cursor-pointer border p-1"
+              className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
             />
           </label>
-          <label className="border-border rounded-control flex h-11 cursor-pointer items-center gap-2 border px-3 text-base">
+          <label className="bg-surface rounded-control flex h-11 cursor-pointer items-center gap-2 border border-transparent px-3 text-base shadow-[var(--highlight)]">
             <input type="checkbox" name="settles" className="size-4 accent-[var(--brand)]" />
             {t.settings.countsAsSettled}
           </label>
-          <label className="border-border rounded-control flex h-11 cursor-pointer items-center gap-2 border px-3 text-base">
+          <label className="bg-surface rounded-control flex h-11 cursor-pointer items-center gap-2 border border-transparent px-3 text-base shadow-[var(--highlight)]">
             <input type="checkbox" name="showOnPortal" className="size-4 accent-[var(--brand)]" />
             {t.settings.showOnPortal}
           </label>
-          <label className="border-border rounded-control flex h-11 cursor-pointer items-center gap-2 border px-3 text-base">
+          <label className="bg-surface rounded-control flex h-11 cursor-pointer items-center gap-2 border border-transparent px-3 text-base shadow-[var(--highlight)]">
             <input type="checkbox" name="pausesClock" className="size-4 accent-[var(--brand)]" />
             {t.settings.stopsClock}
           </label>
@@ -114,7 +114,7 @@ function StatusRow({ status, first, last }: { status: Status; first: boolean; la
           value={color}
           onChange={(event) => setColor(event.target.value)}
           aria-label={t.settings.colour}
-          className="border-border bg-surface rounded-control h-9 w-10 shrink-0 cursor-pointer border p-1"
+          className="bg-surface rounded-control h-9 w-10 shrink-0 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
         />
         <Input
           value={name}
