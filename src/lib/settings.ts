@@ -39,6 +39,7 @@ export type InstanceSettings = {
   portalTitle: string;
   portalWelcome: string;
   portalClosedReason: string | null;
+  avatarFallback: "SILHOUETTE" | "INITIALS";
   defaultType: "QUESTION" | "INCIDENT" | "CHANGE";
   defaultPriority: Priority;
   defaultProjectId: string | null;
@@ -58,6 +59,7 @@ const FALLBACK: InstanceSettings = {
   portalTitle: "Service portal",
   portalWelcome: "Tell us what you need and we will pick it up.",
   portalClosedReason: null,
+  avatarFallback: "INITIALS",
   defaultType: "QUESTION",
   defaultPriority: "MEDIUM",
   defaultProjectId: null,
@@ -88,6 +90,7 @@ export const getSettings = requestCache(async (): Promise<InstanceSettings> => {
       portalTitle: true,
       portalWelcome: true,
       portalClosedReason: true,
+      avatarFallback: true,
       defaultType: true,
       defaultPriority: true,
       defaultProjectId: true,

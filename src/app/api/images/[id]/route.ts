@@ -8,13 +8,13 @@ export const runtime = "nodejs";
 const gone = () => new Response("Not found", { status: 404 });
 
 /**
- * Hands back a picture the portal wears.
+ * Hands back a picture the app wears: a portal background, somebody's face.
  *
- * Unlike an attachment there is nothing to weigh up about who may see it —
- * it is the background of a page every requester is shown — so the only test
- * is that somebody is signed in, which the portal already requires. It is not
- * served from `public/` because these arrive at runtime, and because a
- * directory the whole internet can list is a different promise.
+ * Unlike an attachment there is nothing to weigh up about who may see it — it
+ * is furniture on a page everybody signed in is shown — so the only test is
+ * that somebody is signed in. It is not served from `public/` because these
+ * arrive at runtime, and because a directory the whole internet can list is a
+ * different promise.
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,7 +22,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const user = await getCurrentUser();
   if (!user) return gone();
 
-  const asset = await prisma.portalAsset.findUnique({
+  const asset = await prisma.imageAsset.findUnique({
     where: { id },
     select: { id: true, mimeType: true },
   });
@@ -39,9 +39,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       // formats, so the browser must not reconsider it here.
       "X-Content-Type-Options": "nosniff",
       // Unlike an attachment this may be cached: it is the same picture for
-      // everybody, it changes only when an admin replaces it, and it is
-      // fetched on every page of the portal. Private, because the portal is
-      // behind a sign-in and a shared cache has no business holding it.
+      // everybody, it changes only when somebody replaces it, and a roster
+      // fetches fifty of them. Private, because the app is behind a sign-in and
+      // a shared cache has no business holding it.
       "Cache-Control": "private, max-age=3600",
     },
   });

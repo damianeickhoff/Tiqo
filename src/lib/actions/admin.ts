@@ -23,6 +23,7 @@ import { hashPassword } from "@/lib/auth";
 import { getMessages } from "@/lib/settings";
 import { CONTENT_LOCALES } from "@/lib/i18n";
 import { AVATAR_COUNT } from "@/components/avatar";
+import { saveImageAsset } from "@/lib/files";
 import type { FormState } from "@/lib/actions/auth";
 
 export async function createProject(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -88,6 +89,42 @@ export async function deleteLabel(labelId: string) {
 }
 
 /** Anyone may change their own face; nobody may change someone else's. */
+/**
+ * A picture of themselves, uploaded by whoever it is of.
+ *
+ * Nobody else's: this is the one thing on an account that needs no permission
+ * beyond being signed in, and an operator putting a face on a colleague's
+ * account is not a feature anybody asked for.
+ */
+export async function setAvatarImage(file: File) {
+  const [user, t] = await Promise.all([requireUser(), getMessages()]);
+
+  const stored = await saveImageAsset(file, user.id);
+  if ("error" in stored) {
+    return {
+      ok: false as const,
+      error:
+        stored.error === "type"
+          ? t.errors.imageTypeOnly
+          : stored.error === "size"
+            ? t.errors.imageTooBig
+            : t.errors.generic,
+    };
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { avatarImage: stored.url } });
+  revalidatePath("/", "layout");
+  return { ok: true as const, url: stored.url };
+}
+
+/** Back to whatever the instance draws for people without a picture. */
+export async function clearAvatarImage() {
+  const user = await requireUser();
+  await prisma.user.update({ where: { id: user.id }, data: { avatarImage: null } });
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
 export async function setAvatarVariant(variant: number) {
   const [user, t] = await Promise.all([requireUser(), getMessages()]);
   if (!Number.isInteger(variant) || variant < 0 || variant >= AVATAR_COUNT) {

@@ -36,7 +36,6 @@ import {
 } from "@/components/editor/reference-suggestion";
 import { ReferencePicker, type PickerAnchor } from "@/components/reference-picker";
 import {
-  AttachButton,
   AttachChips,
   useAttachments,
   usePasteAttachments,
@@ -461,17 +460,27 @@ export function MarkdownEditor({
   }, [editor, droppedKey]);
 
   return (
-    // Clipped to the radius: the toolbar and the writing area both have solid
-    // backgrounds and square corners of their own, and without this they fill
-    // in the rounded corners so the top of the box reads as cut off. The
-    // suggestion list is portalled to the body, so it is not clipped by this.
+    // One well, toolbar and writing area together: the box is something you
+    // write *into*, and a raised white box has no edge at all once it is put on
+    // a white card — which is where most of them sit. The toolbar carries no
+    // fill of its own, only a hairline under it, so the two read as one object
+    // rather than a grey strip on a white pad.
+    //
+    // The hairline around it is not decoration: a doc in edit mode puts this
+    // box straight on the grey ground, where a grey fill alone would have no
+    // edge either. The line is what makes one shape work on both surfaces.
+    //
+    // Clipped to the radius: the strip and the attachment row have square
+    // corners of their own, and without this they fill in the rounded ones so
+    // the box reads as cut off. The suggestion list is portalled to the body,
+    // so it is not clipped by this.
     <div
       className={cn(
-        "bg-surface rounded-card relative overflow-hidden border border-transparent shadow-[var(--highlight)]",
+        "bg-surface-2 border-line rounded-card relative overflow-hidden border",
         className,
       )}
     >
-      <div className="bg-surface-2 flex flex-wrap items-center gap-0.5 px-1.5 py-1.5">
+      <div className="border-border-soft flex flex-wrap items-center gap-0.5 border-b px-1.5 py-1.5">
         {TOOLS.map((tool, index) => (
           <button
             key={tool.label(t)}
@@ -491,10 +500,6 @@ export function MarkdownEditor({
             <tool.icon size={14} />
           </button>
         ))}
-
-        {/* Attaching is part of writing the message, so the paperclip lives
-            with bold and italic rather than beside the button that sends it. */}
-        <AttachButton />
 
         {hint ? (
           <span className="text-text-3 ml-1.5 hidden items-center gap-1 text-sm sm:flex">

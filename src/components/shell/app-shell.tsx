@@ -14,7 +14,7 @@ import {
 import { logout } from "@/lib/actions/auth";
 import { MobileNav, SideNav } from "@/components/shell/nav";
 import { Logo } from "@/components/shell/logo";
-import { Avatar } from "@/components/avatar";
+import { Avatar, type AvatarFallback } from "@/components/avatar";
 import { AvatarPicker } from "@/components/shell/avatar-picker";
 import { ScrollWatcher } from "@/components/shell/scroll-watcher";
 import { GlobalSearch } from "@/components/shell/global-search";
@@ -37,6 +37,7 @@ type ShellUser = {
   name: string;
   email: string;
   avatarVariant: number;
+  avatarImage: string | null;
   roleName: string;
   isMaster: boolean;
   permissions: string[];
@@ -56,6 +57,7 @@ export function AppShell({
   unread,
   portalOpen,
   theme,
+  avatarFallback,
   children,
 }: {
   user: ShellUser;
@@ -71,6 +73,8 @@ export function AppShell({
   /// Read from the cookie by the layout, so the first client render agrees
   /// with the HTML the server sent.
   theme: ThemeChoice;
+  /// What people without a picture look like, instance-wide.
+  avatarFallback: AvatarFallback;
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -90,14 +94,15 @@ export function AppShell({
   }
 
   return (
-    // One ground. The rail runs the full height on the left and the bar sits
-    // over the content only; both are on the ground, and the page is a white
-    // panel resting on it — no hairlines, the fill does the dividing. --rail is
-    // the single source of the rail's width: the grid column and everything
-    // that lines up with it read the same value.
+    // One L-shaped frame. The rail runs the full height on the left and the bar
+    // sits over the content only; both are --chrome with no line between them
+    // or against the work area, so they read as one piece, and the work area is
+    // the ground inset into them. --rail is the single source of the rail's
+    // width: the grid column and everything that lines up with it read the same
+    // value.
     <InstanceProvider clock={clock} locale={locale} dateLocale={dateLocale}>
       <div
-        className="bg-bg flex min-h-dvh flex-col lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-[var(--rail)_minmax(0,1fr)] lg:grid-rows-[var(--bar)_minmax(0,1fr)] lg:overflow-hidden"
+        className="bg-chrome flex min-h-dvh flex-col lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-[var(--rail)_minmax(0,1fr)] lg:grid-rows-[var(--bar)_minmax(0,1fr)] lg:overflow-hidden"
         style={{
           ["--rail" as string]: collapsed ? "var(--rail-collapsed)" : "var(--rail-expanded)",
         }}
@@ -154,14 +159,16 @@ export function AppShell({
           unread={unread}
           portalOpen={portalOpen}
           theme={theme}
+          avatarFallback={avatarFallback}
         />
 
         {/* From lg up this box is the scrollport: sticky descendants sit at its
             own edge (`lg:top-0`). Below lg the window scrolls and they clear the
-            bar with `top-[var(--bar)]`. It is also the panel: a white surface
-            with a margin to the window's right and bottom edges, so the page
-            reads as a sheet on the ground rather than the ground itself. */}
-        <div className="bg-surface flex min-h-[calc(100dvh-var(--bar))] flex-col shadow-[var(--highlight)] lg:mr-3 lg:mb-3 lg:min-h-0 lg:overflow-y-auto lg:rounded-[var(--radius-panel)]">
+            bar with `top-[var(--bar)]`. It is also the work area: the ground,
+            inset into the white chrome with a margin to the window's right and
+            bottom edges. What sits on it is the page's business — one sheet, or
+            cards. */}
+        <div className="bg-bg flex min-h-[calc(100dvh-var(--bar))] flex-col lg:mr-3 lg:mb-3 lg:min-h-0 lg:overflow-y-auto lg:rounded-[var(--radius-panel)]">
           <main className="flex-1 pb-24 lg:pb-0">{children}</main>
         </div>
 
@@ -182,6 +189,7 @@ function TopBar({
   unread,
   portalOpen,
   theme,
+  avatarFallback,
 }: {
   user: ShellUser;
   t: Messages;
@@ -189,6 +197,7 @@ function TopBar({
   unread: number;
   portalOpen: boolean;
   theme: ThemeChoice;
+  avatarFallback: AvatarFallback;
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -234,7 +243,11 @@ function TopBar({
       ) : null}
 
       <div className="ml-auto flex items-center gap-2">
-        {portalOpen ? <EnvironmentSwitch here="desk" /> : null}
+        {/* On white chrome a white button with a shadow has nothing to sit on,
+            so the bar's controls are wells like the search box. */}
+        {portalOpen ? (
+          <EnvironmentSwitch here="desk" className="bg-surface-2 shadow-none hover:shadow-none" />
+        ) : null}
 
         <GlobalSearch />
 
@@ -252,7 +265,13 @@ function TopBar({
             aria-expanded={menuOpen}
             className="hover:bg-surface-3 flex items-center gap-1 rounded-full py-0.5 pr-1.5 pl-0.5 transition-colors"
           >
-            <Avatar name={user.name} variant={user.avatarVariant} size={30} />
+            <Avatar
+              name={user.name}
+              variant={user.avatarVariant}
+              image={user.avatarImage}
+              fallback={avatarFallback}
+              size={30}
+            />
             <ChevronDown
               size={13}
               className={cn(
@@ -278,14 +297,25 @@ function TopBar({
                 className="animate-rise bg-surface rounded-card absolute right-0 z-50 mt-2 w-60 overflow-hidden shadow-[var(--shadow-lg)]"
               >
                 <div className="border-line flex items-center gap-2.5 border-b px-4 py-3">
-                  <Avatar name={user.name} variant={user.avatarVariant} size={32} />
+                  <Avatar
+                    name={user.name}
+                    variant={user.avatarVariant}
+                    image={user.avatarImage}
+                    fallback={avatarFallback}
+                    size={32}
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-base font-semibold">{user.name}</p>
                     <p className="text-text-3 truncate font-mono text-xs">{user.email}</p>
                   </div>
                 </div>
 
-                <AvatarPicker current={user.avatarVariant} name={user.name} />
+                <AvatarPicker
+                  name={user.name}
+                  variant={user.avatarVariant}
+                  image={user.avatarImage}
+                  fallback={avatarFallback}
+                />
 
                 <div className="border-line border-b px-4 py-2.5">
                   <span className="text-brand-deep rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-xs font-semibold">

@@ -140,28 +140,28 @@ async function ensureDir(id: string) {
   return target;
 }
 
-/** What a portal picture may be. Raster only: an SVG is a document with script
- *  in it, and this one is painted onto a page everybody sees. */
-const PORTAL_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif", "image/gif"];
+/** What an uploaded picture may be. Raster only: an SVG is a document with
+ *  script in it, and these are painted onto pages everybody sees. */
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif", "image/gif"];
 
-/** Four megabytes. A background wider than that is a background nobody waits for. */
-const PORTAL_IMAGE_MAX = 4 * 1024 * 1024;
+/** Four megabytes. A picture bigger than that is one nobody waits for. */
+const IMAGE_MAX = 4 * 1024 * 1024;
 
 export type AssetRefusal = "type" | "size" | "failed";
 
 /**
- * Stores a picture the portal wears, and hands back the address it is served
- * at — the same shape the field held when it only took a web address, so
- * everything downstream is unchanged by where the picture came from.
+ * Stores a picture the app wears — a portal background, somebody's own face —
+ * and hands back the address it is served at. A URL either way, so a field that
+ * used to take only a web address is unchanged by where the picture came from.
  */
-export async function savePortalAsset(
+export async function saveImageAsset(
   file: File,
   uploadedById: string,
 ): Promise<{ url: string } | { error: AssetRefusal }> {
-  if (!PORTAL_IMAGE_TYPES.includes(file.type)) return { error: "type" };
-  if (file.size > PORTAL_IMAGE_MAX) return { error: "size" };
+  if (!IMAGE_TYPES.includes(file.type)) return { error: "type" };
+  if (file.size > IMAGE_MAX) return { error: "size" };
 
-  const row = await prisma.portalAsset.create({
+  const row = await prisma.imageAsset.create({
     data: {
       filename: file.name.slice(0, 200),
       mimeType: file.type,
@@ -174,10 +174,10 @@ export async function savePortalAsset(
   try {
     await writeFile(await ensureDir(row.id), Buffer.from(await file.arrayBuffer()));
   } catch (error) {
-    console.error(`[files] could not store a portal image: ${String(error)}`);
-    await prisma.portalAsset.delete({ where: { id: row.id } });
+    console.error(`[files] could not store an image: ${String(error)}`);
+    await prisma.imageAsset.delete({ where: { id: row.id } });
     return { error: "failed" };
   }
 
-  return { url: `/api/portal/assets/${row.id}` };
+  return { url: `/api/images/${row.id}` };
 }

@@ -15,6 +15,8 @@ export type SessionUser = {
   email: string;
   name: string;
   avatarVariant: number;
+  /// The picture they uploaded, where they have one.
+  avatarImage: string | null;
   /// The language they read the portal in. Null follows the instance.
   locale: string | null;
   /// The role travels with the session rather than being looked up per check:
@@ -87,6 +89,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
           email: true,
           name: true,
           avatarVariant: true,
+          avatarImage: true,
           locale: true,
           isActive: true,
           role: {
@@ -101,12 +104,13 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     return null;
   }
 
-  const { id, email, name, avatarVariant, locale, role } = session.user;
+  const { id, email, name, avatarVariant, avatarImage, locale, role } = session.user;
   return {
     id,
     email,
     name,
     avatarVariant,
+    avatarImage,
     locale,
     roleId: role.id,
     roleName: role.name,

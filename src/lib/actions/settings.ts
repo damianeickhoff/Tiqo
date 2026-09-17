@@ -82,6 +82,17 @@ export async function updateBrandColor(brandColor: string): Promise<Written> {
   return { ok: true };
 }
 
+/** What people without a picture look like. One choice for the whole desk. */
+export async function updateAvatarFallback(value: "SILHOUETTE" | "INITIALS"): Promise<Written> {
+  const t = await getMessages();
+  if (!(await allowed("settings.general"))) return { ok: false, error: t.errors.noSettings };
+
+  await writeInstance({ avatarFallback: value });
+  // Faces are on every page, so nothing narrower would refresh them.
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 export async function updateLocale(locale: string, dateLocale: string): Promise<Written> {
   const t = await getMessages();
   if (!(await allowed("settings.general"))) return { ok: false, error: t.errors.noSettings };

@@ -139,7 +139,12 @@ model User {
   passwordHash  String
   roleId        String
   role          Role      @relation(fields: [roleId], references: [id])
-  /// Which illustrated avatar this person picked. An index into AVATARS.
+  /// A picture they uploaded, as the address it is served at. Null falls back
+  /// to whatever the instance draws for people who have not uploaded one.
+  avatarImage   String?
+  /// Kept from when avatars were eight illustrated faces: it no longer picks a
+  /// drawing, only the colour behind somebody's initials, so a roster stays
+  /// told apart at a glance. Every caller still passes it.
   avatarVariant Int       @default(0)
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
@@ -168,7 +173,7 @@ model User {
   notifications   Notification[]        @relation("NotificationRecipient")
   notified        Notification[]        @relation("NotificationActor")
   uploads         Attachment[]
-  portalAssets    PortalAsset[]
+  imageAssets     ImageAsset[]
   changeSteps     ChangeStep[]          @relation("StepAssignee")
   templateSteps   ChangeTemplateStep[]  @relation("TemplateStepAssignee")
   completedSteps  ChangeStep[]          @relation("StepCompleter")
@@ -236,6 +241,11 @@ model Instance {
   /// Why the portal is shut, shown on it. Required to close it: a door with no
   /// notice on it sends people to the phone.
   portalClosedReason String?
+
+  /// What a person looks like before they upload anything: a plain silhouette,
+  /// or their initials on a colour. One choice for the instance rather than per
+  /// person — a roster drawn two ways reads as two rosters.
+  avatarFallback AvatarFallback @default(INITIALS)
 
   /// Opening hours. With these on, the response clock only runs while the desk
   /// is open — a ticket raised on Friday evening is not late by Monday.
@@ -1338,11 +1348,36 @@ model PortalAnnouncement {
 /// What the search band is painted with. BRAND follows the tenant's colour,
 /// so a desk that never opens this setting keeps whatever the colour becomes;
 /// the other three are chosen here and stop following it.
-/// A picture an admin uploaded for the portal to wear — today only the search
-/// band's background. Its own table rather than an Attachment: an attachment
+/// How a person is drawn when they have not uploaded a picture.
+enum AvatarFallback {
+  SILHOUETTE
+  INITIALS
+}
+
+/// An answer written once and sent a hundred times: the wifi instructions, the
+/// line about a password reset, the note that says a change needs a window.
+/// Kept as Markdown like every other body, so what is stored is what an
+/// operator would have typed.
+model CannedReply {
+  id    String @id @default(cuid())
+  /// What it is called in the picker. Never sent.
+  title String
+  body  String
+
+  position Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+}
+
+/// A picture uploaded for the app to wear: the portal's search band, somebody's
+/// own face. Its own table rather than an Attachment, because an attachment
 /// hangs from a ticket or a document and is read by whoever may read that,
-/// and this one is part of the furniture every requester sees.
-model PortalAsset {
+/// while these are furniture anybody signed in can see.
+model ImageAsset {
   id       String @id @default(cuid())
   filename String
   mimeType String

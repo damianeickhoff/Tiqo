@@ -7,7 +7,7 @@ import { peekPerson, type PersonPeek } from "@/lib/actions/peek";
 import { Modal } from "@/components/modal";
 import { Avatar } from "@/components/avatar";
 import { CopyValue } from "@/components/copy-value";
-import { DAY_NAMES } from "@/lib/clock";
+import { DAY_NAMES, describeHours } from "@/lib/clock";
 import { useDateLocale, useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +82,22 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
     };
   }, [id]);
 
+  // Their own hours and nobody else's: somebody who has never written theirs
+  // down has no answer here, and borrowing the desk's would be inventing one.
+  const loaded = person && person !== "loading" ? person : null;
+  const inOffice =
+    loaded && loaded.workDays.length
+      ? describeHours({
+          enabled: true,
+          days: loaded.workDays,
+          start: loaded.workStart,
+          end: loaded.workEnd,
+          // The instance's zone: a person's hours are written in the desk's
+          // clock, which is the only one the peek carries.
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }).open
+      : null;
+
   const rows: [string, React.ReactNode][] =
     person && person !== "loading"
       ? [
@@ -129,6 +145,26 @@ function PersonCard({ id, name, onClose }: { id: string; name: string; onClose: 
               </p>
               <p className="text-text-3 truncate font-mono text-sm">@{person.username}</p>
             </div>
+
+            {/* The pill the ticket rail used to wear. It belongs where somebody
+                is reading about a person rather than beside a name they are
+                about to write to: on the rail all it had to say was whether a
+                reply now would be read now, which is a dot. */}
+            {inOffice === null ? null : (
+              <span
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
+                style={
+                  {
+                    "--pill": inOffice ? "var(--positive)" : "var(--text-3)",
+                    color: "var(--pill)",
+                    background: "color-mix(in oklab, var(--pill) 12%, transparent)",
+                  } as React.CSSProperties
+                }
+              >
+                <span aria-hidden className="size-1.5 rounded-full bg-current" />
+                {inOffice ? t.ticket.inOffice : t.ticket.outOfHours}
+              </span>
+            )}
             {/* The page is still there for whoever wants the history; it is
                 just no longer the only thing a name can do. */}
             <Link

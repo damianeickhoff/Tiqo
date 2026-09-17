@@ -43,6 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       unread={bell.unread}
       portalOpen={settings.portalEnabled}
       theme={readThemeChoice(jar.get(THEME_COOKIE)?.value)}
+      avatarFallback={settings.avatarFallback}
     >
       {children}
     </AppShell>

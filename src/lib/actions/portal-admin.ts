@@ -8,7 +8,7 @@ import { can } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { uniqueSlug } from "@/lib/portal";
 import { parseHex } from "@/lib/brand";
-import { savePortalAsset } from "@/lib/files";
+import { saveImageAsset } from "@/lib/files";
 import type { FormState } from "@/lib/actions/auth";
 import type {
   AnnouncementTone,
@@ -128,7 +128,7 @@ export async function uploadHeroImage(file: File) {
   const { t, ok, user } = await guard();
   if (!ok) return { ok: false as const, error: t.errors.noSettings };
 
-  const stored = await savePortalAsset(file, user.id);
+  const stored = await saveImageAsset(file, user.id);
   if ("error" in stored) {
     return {
       ok: false as const,
