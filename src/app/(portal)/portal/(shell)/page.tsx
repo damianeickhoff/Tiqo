@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import type { PortalBlockKind } from "@/generated/prisma/enums";
+import { RAIL_KINDS, isFullWidth } from "@/lib/portal-layout";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -61,37 +63,18 @@ export default async function PortalHome() {
     getMessages(),
   ]);
 
-  // Marking a status "show on the portal" is a promise that those requests
-  // turn up here. A laid-out front page that has no band for them would break
-  // it silently, so one is added at the end rather than the setting doing
-  // nothing — an admin who wants it somewhere else adds it in the page builder
-  // and this stops.
+  // Which states are worth telling a requester about is a per-status setting;
+  // the band that shows them is a band like any other, and the designer says
+  // so when the two disagree. Nothing is appended here: a page that quietly
+  // grew a band nobody placed was the reason the designer drew a layout the
+  // portal did not have.
   const flagged = await prisma.status.count({ where: { showOnPortal: true } });
-  const laidOut =
-    flagged > 0 && blocks.length > 0 && !blocks.some((block) => block.kind === "MY_REQUESTS")
-      ? [
-          ...blocks,
-          {
-            id: "requests",
-            kind: "MY_REQUESTS" as const,
-            title: null,
-            subtitle: null,
-            limit: 3,
-            categoryId: null,
-            span: 3,
-            heroStyle: "BRAND" as const,
-            heroColor: null,
-            heroColor2: null,
-            heroImage: null,
-          },
-        ]
-      : blocks;
 
   // A portal nobody has laid out yet still has to work: these are the bands a
   // service portal has when nobody has expressed an opinion.
   const bands =
-    laidOut.length > 0
-      ? laidOut
+    blocks.length > 0
+      ? blocks
       : ([
           { id: "d1", kind: "HERO", limit: null, categoryId: null, span: 6 },
           { id: "d2", kind: "ANNOUNCEMENTS", limit: null, categoryId: null, span: 6 },
@@ -99,6 +82,7 @@ export default async function PortalHome() {
           { id: "d4", kind: "FEATURED_FORMS", limit: 6, categoryId: null, span: 6 },
           { id: "d5", kind: "ARTICLES", limit: 4, categoryId: null, span: 3 },
           { id: "d6", kind: "MY_REQUESTS", limit: 3, categoryId: null, span: 3 },
+          { id: "d7", kind: "DESK_CARD", limit: null, categoryId: null, span: 3 },
         ].map((band) => ({
           ...band,
           title: null,
@@ -179,14 +163,14 @@ export default async function PortalHome() {
   // keeps the order the admin put it in, and a band given the whole row in the
   // page builder takes both columns.
   const column: { node: ReactNode; full: boolean }[] = [];
-  const mine: ReactNode[] = [];
+  const rail: ReactNode[] = [];
 
   for (const [index, band] of bands.entries()) {
     if (band.kind === "HERO" || index === shelfAt) continue;
     const node = await renderBand(band, { user, flagged, t });
     if (!node) continue;
-    if (band.kind === "MY_REQUESTS") mine.push(node);
-    else column.push({ node, full: band.span >= 6 });
+    if (RAIL_KINDS.includes(band.kind)) rail.push(node);
+    else column.push({ node, full: isFullWidth(band) });
   }
 
   // A full-width band interrupts the two-column stretch rather than jumping to
@@ -242,10 +226,9 @@ export default async function PortalHome() {
                   last: a requester on a phone wants the catalogue first and
                   the opening hours after it. */}
               <aside className="flex flex-col gap-[22px]">
-                {mine.map((node, at) => (
+                {rail.map((node, at) => (
                   <div key={at}>{node}</div>
                 ))}
-                <PortalDeskCard />
               </aside>
             </div>
           ) : (
@@ -401,14 +384,7 @@ async function heroCards(userId: string, clock: Awaited<ReturnType<typeof getClo
 
 type Band = {
   id: string;
-  kind:
-    | "HERO"
-    | "ANNOUNCEMENTS"
-    | "CATEGORIES"
-    | "FEATURED_FORMS"
-    | "ARTICLES"
-    | "MY_REQUESTS"
-    | "RICH_TEXT";
+  kind: PortalBlockKind;
   title: string | null;
   subtitle: string | null;
   limit: number | null;
@@ -673,6 +649,8 @@ async function renderBand(
       </section>
     );
   }
+
+  if (band.kind === "DESK_CARD") return <PortalDeskCard />;
 
   if (band.kind === "RICH_TEXT" && (band.title || band.subtitle)) {
     return (

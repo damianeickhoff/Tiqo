@@ -139,3 +139,45 @@ async function ensureDir(id: string) {
   await mkdir(path.dirname(target), { recursive: true });
   return target;
 }
+
+/** What a portal picture may be. Raster only: an SVG is a document with script
+ *  in it, and this one is painted onto a page everybody sees. */
+const PORTAL_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif", "image/gif"];
+
+/** Four megabytes. A background wider than that is a background nobody waits for. */
+const PORTAL_IMAGE_MAX = 4 * 1024 * 1024;
+
+export type AssetRefusal = "type" | "size" | "failed";
+
+/**
+ * Stores a picture the portal wears, and hands back the address it is served
+ * at — the same shape the field held when it only took a web address, so
+ * everything downstream is unchanged by where the picture came from.
+ */
+export async function savePortalAsset(
+  file: File,
+  uploadedById: string,
+): Promise<{ url: string } | { error: AssetRefusal }> {
+  if (!PORTAL_IMAGE_TYPES.includes(file.type)) return { error: "type" };
+  if (file.size > PORTAL_IMAGE_MAX) return { error: "size" };
+
+  const row = await prisma.portalAsset.create({
+    data: {
+      filename: file.name.slice(0, 200),
+      mimeType: file.type,
+      size: file.size,
+      uploadedById,
+    },
+    select: { id: true },
+  });
+
+  try {
+    await writeFile(await ensureDir(row.id), Buffer.from(await file.arrayBuffer()));
+  } catch (error) {
+    console.error(`[files] could not store a portal image: ${String(error)}`);
+    await prisma.portalAsset.delete({ where: { id: row.id } });
+    return { error: "failed" };
+  }
+
+  return { url: `/api/portal/assets/${row.id}` };
+}

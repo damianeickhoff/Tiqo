@@ -9,6 +9,7 @@ import {
   EyeOff,
   GripVertical,
   Inbox,
+  LifeBuoy,
   Lock,
   Megaphone,
   Plus,
@@ -18,6 +19,7 @@ import {
   Star,
   Text,
   Trash2,
+  Upload,
 } from "lucide-react";
 import type { PortalBlockKind, PortalHeroStyle } from "@/generated/prisma/enums";
 import {
@@ -26,9 +28,11 @@ import {
   moveBlock,
   reorderBlocks,
   updateBlock,
+  uploadHeroImage,
 } from "@/lib/actions/portal-admin";
-import { Button, Card, Input, Select, Textarea } from "@/components/ui";
+import { Button, Card, FieldError, Input, Select, Textarea } from "@/components/ui";
 import { SaveBar, useDraft } from "@/components/settings/draft";
+import { COLUMN_SPAN, COLUMNS, RAIL_KINDS, isFullWidth } from "@/lib/portal-layout";
 import { useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +43,7 @@ const BLOCK_ICONS: Record<PortalBlockKind, typeof Search> = {
   FEATURED_FORMS: Star,
   ARTICLES: BookOpen,
   MY_REQUESTS: Inbox,
+  DESK_CARD: LifeBuoy,
   RICH_TEXT: Text,
 };
 
@@ -56,22 +61,6 @@ const GLOBAL_KINDS: PortalBlockKind[] = ["HERO", "ANNOUNCEMENTS"];
 const KINDS = (Object.keys(BLOCK_ICONS) as PortalBlockKind[]).filter(
   (kind) => !GLOBAL_KINDS.includes(kind),
 );
-
-/** The front page is six columns wide; a band takes between two and all six. */
-const COLUMNS = 6;
-const MIN_SPAN = 2;
-
-/**
- * Tailwind needs the class in the source to emit it, so the spans are a table
- * rather than a template string.
- */
-const SPAN_CLASS: Record<number, string> = {
-  2: "col-span-2",
-  3: "col-span-3",
-  4: "col-span-4",
-  5: "col-span-5",
-  6: "col-span-6",
-};
 
 export type Block = {
   id: string;
@@ -220,33 +209,50 @@ export function PageBuilder({
             <p className="text-text-3 text-md">{t.forms.defaultLayout}</p>
           </Card>
         ) : (
-          <ol className="grid grid-cols-6 gap-3">
-            {order.map((block, index) => (
-              <BlockCard
-                key={block.id}
-                block={block}
-                categories={categories}
-                first={index === 0}
-                last={index === order.length - 1}
-                pending={pending}
-                dragging={dragging === block.id}
-                over={over === block.id && dragging !== block.id}
-                onDragStart={() => {
-                  held.current = block.id;
-                  setDragging(block.id);
-                }}
-                onDragEnd={() => {
-                  held.current = null;
-                  setDragging(null);
-                  setOver(null);
-                }}
-                onDragOver={() => setOver(block.id)}
-                onDrop={() => drop(block.id)}
-                onResize={resize}
-                run={run}
-              />
-            ))}
-          </ol>
+          <div className="space-y-3">
+            {shape(order).map((group, groupIndex) => {
+              const cards = (blocks: Block[]) =>
+                blocks.map((block) => (
+                  <BlockCard
+                    key={block.id}
+                    block={block}
+                    categories={categories}
+                    first={order[0]?.id === block.id}
+                    last={order[order.length - 1]?.id === block.id}
+                    pending={pending}
+                    dragging={dragging === block.id}
+                    over={over === block.id && dragging !== block.id}
+                    onDragStart={() => {
+                      held.current = block.id;
+                      setDragging(block.id);
+                    }}
+                    onDragEnd={() => {
+                      held.current = null;
+                      setDragging(null);
+                      setOver(null);
+                    }}
+                    onDragOver={() => setOver(block.id)}
+                    onDrop={() => drop(block.id)}
+                    onResize={resize}
+                    run={run}
+                  />
+                ));
+
+              return group.rail ? (
+                <div
+                  key={groupIndex}
+                  className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)]"
+                >
+                  <ol className="flex flex-col gap-3">{cards(group.items)}</ol>
+                  <ol className="flex flex-col gap-3">{cards(group.rail)}</ol>
+                </div>
+              ) : (
+                <ol key={groupIndex} className="flex flex-col gap-3">
+                  {cards(group.items)}
+                </ol>
+              );
+            })}
+          </div>
         )}
 
         {adding ? (
@@ -387,27 +393,27 @@ function BlockCard({
   /**
    * Pulling the right edge.
    *
-   * The width is worked out from the pointer's distance across the grid rather
-   * than from how far it has moved, so a slow drag and a fast one land on the
-   * same column. Pointer capture keeps the drag alive when the cursor leaves
-   * the handle, which it does immediately.
+   * There are two places a band can be — across the page, or in the left
+   * column beside the right one — so the edge snaps between them rather than
+   * offering six widths the portal has no way to draw. The position is taken
+   * from the pointer's distance across the row rather than from how far it has
+   * moved, so a slow drag and a fast one land in the same place. Pointer
+   * capture keeps the drag alive when the cursor leaves the handle, which it
+   * does immediately.
    */
   function startResize(event: React.PointerEvent<HTMLButtonElement>) {
     if (locked) return;
-    const grid = item.current?.parentElement;
-    if (!grid) return;
+    const row = item.current?.parentElement;
+    if (!row) return;
 
-    const box = grid.getBoundingClientRect();
-    const left = item.current!.getBoundingClientRect().left;
-    const column = box.width / COLUMNS;
+    const box = row.getBoundingClientRect();
     // Not every pointer can be captured; the window listeners below are what
     // actually keep the drag alive, so a refusal is not worth failing over.
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {}
 
-    const spanAt = (x: number) =>
-      Math.min(COLUMNS, Math.max(MIN_SPAN, Math.round((x - left) / column)));
+    const spanAt = (x: number) => (x - box.left > box.width * 0.75 ? COLUMNS : COLUMN_SPAN);
 
     const move = (moved: PointerEvent) => onResize(block.id, spanAt(moved.clientX), false);
     const up = (ended: PointerEvent) => {
@@ -440,12 +446,7 @@ function BlockCard({
         event.preventDefault();
         onDrop();
       }}
-      className={cn(
-        SPAN_CLASS[block.span] ?? SPAN_CLASS[6],
-        "relative",
-        dragging && "opacity-40",
-        over && "ring-brand rounded-card ring-2",
-      )}
+      className={cn("relative", dragging && "opacity-40", over && "ring-brand rounded-card ring-2")}
     >
       <Card
         className={cn(
@@ -484,7 +485,11 @@ function BlockCard({
             <span className="text-text-3 block truncate text-xs">
               {/* The width in words, because the card is already at that width
                   and a number beside it would be the same thing twice. */}
-              {block.span === COLUMNS ? t.forms.widthFull : t.forms.widthOf(block.span, COLUMNS)}
+              {RAIL_KINDS.includes(block.kind)
+                ? t.forms.widthRail
+                : isFullWidth(block)
+                  ? t.forms.widthFull
+                  : t.forms.widthColumn}
             </span>
           </span>
 
@@ -692,7 +697,23 @@ function HeroPaint({
   ) => void;
 }) {
   const t = useMessages();
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
   const STYLES: PortalHeroStyle[] = ["BRAND", "SOLID", "GRADIENT", "IMAGE"];
+
+  // The upload is a write of its own — the picture is stored the moment it is
+  // chosen, because there is nothing to preview until it is. What it writes
+  // into is the draft, so the band itself still changes only on Save.
+  function upload(file: File) {
+    setProblem(null);
+    setBusy(true);
+    void uploadHeroImage(file)
+      .then((result) => {
+        if (result.ok) set({ heroImage: result.url });
+        else setProblem(result.error);
+      })
+      .finally(() => setBusy(false));
+  }
 
   const swatch =
     form.heroStyle === "BRAND"
@@ -782,17 +803,78 @@ function HeroPaint({
       ) : null}
 
       {form.heroStyle === "IMAGE" ? (
-        <label className="block">
-          <span className="label mb-1.5 block">{t.forms.heroImage}</span>
-          <Input
-            value={form.heroImage}
-            placeholder="https://"
-            onChange={(event) => set({ heroImage: event.target.value })}
-            spellCheck={false}
-          />
-          <span className="text-text-3 mt-1.5 block text-sm">{t.forms.heroImageHint}</span>
-        </label>
+        <div className="space-y-2">
+          <span className="label block">{t.forms.heroImage}</span>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Upload or paste: a desk with the picture on its own machine
+                should not have to put it on the web first, and a desk that
+                already keeps its artwork somewhere should not have to copy it
+                in here. Either way the field ends up holding an address. */}
+            <label
+              className={cn(
+                "bg-surface text-text hover:bg-surface-2 inline-flex h-[42px] shrink-0 cursor-pointer items-center gap-2 rounded-full px-4 text-base font-medium shadow-[var(--highlight)] transition-colors",
+                busy && "pointer-events-none opacity-60",
+              )}
+            >
+              <Upload size={15} />
+              {busy ? t.common.saving : t.forms.heroUpload}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  // The picker keeps the file selected, so choosing the same
+                  // one twice after a failure would otherwise do nothing.
+                  event.target.value = "";
+                  if (file) upload(file);
+                }}
+              />
+            </label>
+
+            <Input
+              value={form.heroImage}
+              placeholder="https://"
+              onChange={(event) => set({ heroImage: event.target.value })}
+              spellCheck={false}
+              className="min-w-[12rem] flex-1"
+            />
+          </div>
+
+          {problem ? <FieldError>{problem}</FieldError> : null}
+          <span className="text-text-3 block text-sm">{t.forms.heroImageHint}</span>
+        </div>
       ) : null}
     </div>
   );
+}
+
+/**
+ * The page's own placement, applied to the schematic.
+ *
+ * The portal puts what is theirs and what the desk is doing in a column on the
+ * right, runs everything else down the left in order, and lets a band given
+ * the whole row break the two columns apart. Drawing that here rather than a
+ * plain six-column grid is the difference between a diagram of this page and a
+ * diagram of some page: side by side in the designer has to mean side by side
+ * in the portal.
+ */
+function shape(order: Block[]): { items: Block[]; rail?: Block[] }[] {
+  const rail = order.filter((block) => RAIL_KINDS.includes(block.kind));
+  const stream = order.filter((block) => !RAIL_KINDS.includes(block.kind));
+
+  const runs: { items: Block[]; full: boolean }[] = [];
+  for (const block of stream) {
+    const full = isFullWidth(block);
+    const last = runs.at(-1);
+    if (full || !last || last.full) runs.push({ items: [block], full });
+    else last.items.push(block);
+  }
+
+  const narrow = runs.findIndex((run) => !run.full);
+  if (rail.length === 0) return runs.map(({ items }) => ({ items }));
+  if (narrow < 0) return [...runs.map(({ items }) => ({ items })), { items: [], rail }];
+
+  return runs.map(({ items }, index) => (index === narrow ? { items, rail } : { items }));
 }

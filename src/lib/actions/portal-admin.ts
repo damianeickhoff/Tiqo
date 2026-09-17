@@ -8,6 +8,7 @@ import { can } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { uniqueSlug } from "@/lib/portal";
 import { parseHex } from "@/lib/brand";
+import { savePortalAsset } from "@/lib/files";
 import type { FormState } from "@/lib/actions/auth";
 import type {
   AnnouncementTone,
@@ -113,6 +114,34 @@ export async function updateBlock(
 
   refresh();
   return { ok: true as const };
+}
+
+/**
+ * A picture for the search band, uploaded rather than linked.
+ *
+ * Returns the address it is served at, which is what the field already held
+ * when the only way to fill it was to paste one. Nothing is written to the
+ * band here: the picture is stored, the designer puts the address in the
+ * draft, and Save is still what commits it.
+ */
+export async function uploadHeroImage(file: File) {
+  const { t, ok, user } = await guard();
+  if (!ok) return { ok: false as const, error: t.errors.noSettings };
+
+  const stored = await savePortalAsset(file, user.id);
+  if ("error" in stored) {
+    return {
+      ok: false as const,
+      error:
+        stored.error === "type"
+          ? t.errors.imageTypeOnly
+          : stored.error === "size"
+            ? t.errors.imageTooBig
+            : t.errors.generic,
+    };
+  }
+
+  return { ok: true as const, url: stored.url };
 }
 
 /**
