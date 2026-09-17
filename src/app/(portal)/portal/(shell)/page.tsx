@@ -4,23 +4,17 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { dateLocaleOf, getClock, getMessages, getSettings } from "@/lib/settings";
+import { getClock, getMessages, getSettings } from "@/lib/settings";
 import { describeHours } from "@/lib/clock";
 import { excerptOf } from "@/lib/docs";
 import { StatusRing } from "@/components/tickets/glyphs";
 import { Reference } from "@/components/tickets/ticket-row";
-import { liveAnnouncements, longestWait, typicalReplyMinutes } from "@/lib/portal";
+import { longestWait, typicalReplyMinutes } from "@/lib/portal";
 import { heatOf, shortAge, shortSpan } from "@/lib/tickets";
 import { PortalHero, type HeroCards } from "@/components/portal/portal-hero";
 import { PortalShelf, type ShelfItem } from "@/components/portal/portal-shelf";
 import { PortalDeskCard } from "@/components/portal/portal-desk-card";
-import {
-  Announcement,
-  AnswerRow,
-  BandHeader,
-  ServiceCard,
-  Tile,
-} from "@/components/portal/portal-pieces";
+import { AnswerRow, BandHeader, ServiceCard, Tile } from "@/components/portal/portal-pieces";
 import { ApprovalNudge, WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
@@ -167,7 +161,7 @@ export default async function PortalHome() {
 
   for (const [index, band] of bands.entries()) {
     if (band.kind === "HERO" || index === shelfAt) continue;
-    const node = await renderBand(band, { user, flagged, locale: dateLocaleOf(settings), t });
+    const node = await renderBand(band, { user, flagged, t });
     if (!node) continue;
     if (band.kind === "MY_REQUESTS") mine.push(node);
     else column.push({ node, full: band.span >= 6 });
@@ -405,35 +399,18 @@ async function renderBand(
   {
     user,
     flagged,
-    locale,
     t,
   }: {
     user: { id: string };
     flagged: number;
-    locale: string;
     t: Awaited<ReturnType<typeof getMessages>>;
   },
 ): Promise<ReactNode> {
   const heading = { title: band.title, subtitle: band.subtitle };
 
-  if (band.kind === "ANNOUNCEMENTS") {
-    const notices = await liveAnnouncements(false);
-    if (notices.length === 0) return null;
-    return (
-      <section className="space-y-3">
-        {notices.map((notice) => (
-          <Announcement
-            key={notice.id}
-            title={notice.title}
-            body={notice.body}
-            tone={notice.tone}
-            endsAt={notice.endsAt}
-            locale={locale}
-          />
-        ))}
-      </section>
-    );
-  }
+  // ANNOUNCEMENTS draws nothing here any more: the shell puts every live
+  // notice under the bar on every page, and a card repeating it on the front
+  // page was the same sentence twice.
 
   if (band.kind === "CATEGORIES") {
     const categories = await prisma.portalCategory.findMany({

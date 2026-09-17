@@ -42,9 +42,20 @@ const BLOCK_ICONS: Record<PortalBlockKind, typeof Search> = {
   RICH_TEXT: Text,
 };
 
-// The hero is the portal's front door and is the same on every desk, so it is
-// not something to add, move or rewrite — only the bands under it are.
-const KINDS = (Object.keys(BLOCK_ICONS) as PortalBlockKind[]).filter((kind) => kind !== "HERO");
+/*
+ * What can be added to the front page.
+ *
+ * The hero is the portal's front door and is the same on every desk, so it is
+ * not something to add, move or rewrite — only the bands under it are. Notices
+ * are not here either: every live one now shows as a band under the bar on
+ * every page of the portal, so a band that repeated them on the front page
+ * said the same sentence twice. A page that still has one draws nothing, and
+ * its card says so.
+ */
+const GLOBAL_KINDS: PortalBlockKind[] = ["HERO", "ANNOUNCEMENTS"];
+const KINDS = (Object.keys(BLOCK_ICONS) as PortalBlockKind[]).filter(
+  (kind) => !GLOBAL_KINDS.includes(kind),
+);
 
 /** The front page is six columns wide; a band takes between two and all six. */
 const COLUMNS = 6;
@@ -349,8 +360,12 @@ function BlockCard({
   const { draft: form, set } = draft;
 
   const Icon = BLOCK_ICONS[block.kind];
-  const locked = block.kind === "HERO";
-  const configurable = block.kind !== "ANNOUNCEMENTS" && !locked;
+  // Locked bands have no width to set: the hero and the shelf run the whole
+  // page, notices are drawn by the shell on every page, and what is theirs
+  // always sits in the column on the right whatever width it is given.
+  const locked =
+    block.kind === "HERO" || block.kind === "ANNOUNCEMENTS" || block.kind === "MY_REQUESTS";
+  const configurable = block.kind !== "ANNOUNCEMENTS" && block.kind !== "HERO";
   const countable = ["CATEGORIES", "FEATURED_FORMS", "ARTICLES", "MY_REQUESTS"].includes(
     block.kind,
   );

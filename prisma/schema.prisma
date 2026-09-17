@@ -235,9 +235,6 @@ model Instance {
   /// Why the portal is shut, shown on it. Required to close it: a door with no
   /// notice on it sends people to the phone.
   portalClosedReason String?
-  /// The number to ring when the desk is closed, shown on the portal's desk
-  /// card. Optional: a desk without a phone line simply has no row for it.
-  deskPhone          String?
 
   /// Opening hours. With these on, the response clock only runs while the desk
   /// is open — a ticket raised on Friday evening is not late by Monday.

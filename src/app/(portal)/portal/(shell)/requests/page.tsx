@@ -12,7 +12,7 @@ import { StatusRing } from "@/components/tickets/glyphs";
 import { Reference } from "@/components/tickets/ticket-row";
 import { RequestFilters } from "@/components/portal/request-filters";
 import { longestWait } from "@/lib/portal";
-import { WaitingBanner } from "@/components/portal/waiting-banner";
+import { ApprovalNudge, WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -111,6 +111,15 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
   // a wall, and the tag on each row carries the rest.
   const waiting = await longestWait(user.id);
 
+  // The other thing stopped on them. It sits here and on the front page and
+  // nowhere else: those are the two places somebody goes to find out what of
+  // theirs is outstanding.
+  const approval = await prisma.approval.findFirst({
+    where: { approverId: user.id, state: "PENDING" },
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true, ticket: { select: { reference: true, title: true } } },
+  });
+
   return (
     <div className="portal-wrap pb-14">
       <div className="animate-rise flex flex-wrap items-end gap-x-6 gap-y-5 pt-9 pb-[30px]">
@@ -137,15 +146,25 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
         </div>
       </div>
 
-      {waiting ? (
-        <WaitingBanner
-          href={`/portal/requests/${waiting.number}`}
-          who={waiting.assignee.name}
-          reference={waiting.reference}
-          title={waiting.title}
-          since={waiting.since}
-        />
-      ) : null}
+      <div className="flex flex-col gap-3">
+        {approval ? (
+          <ApprovalNudge
+            reference={approval.ticket.reference}
+            title={approval.ticket.title}
+            since={approval.createdAt}
+          />
+        ) : null}
+
+        {waiting ? (
+          <WaitingBanner
+            href={`/portal/requests/${waiting.number}`}
+            who={waiting.assignee.name}
+            reference={waiting.reference}
+            title={waiting.title}
+            since={waiting.since}
+          />
+        ) : null}
+      </div>
 
       {/* Two different empty pages. Somebody who has never asked us for
           anything is told what this page will hold; somebody whose filter or

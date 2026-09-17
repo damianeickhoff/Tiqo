@@ -10,7 +10,7 @@ import {
   deleteAnnouncement,
   updateAnnouncement,
 } from "@/lib/actions/portal-admin";
-import { Announcement } from "@/components/portal/portal-pieces";
+import { NoticeBand } from "@/components/portal/portal-notice";
 import { Button, Card, FieldError, FormError, Input, Select, Textarea } from "@/components/ui";
 import { SaveBar, useDraft } from "@/components/settings/draft";
 import { useMessages } from "@/components/shell/instance-context";
@@ -115,11 +115,12 @@ function NoticeRow({ notice }: { notice: Notice }) {
       {/* The preview follows the draft, not the saved row: what a notice will
           look like is the whole question, and answering it after saving is too
           late to be of use. */}
-      <Announcement
+      <NoticeBand
         title={form.title || notice.title}
         body={form.body || null}
         tone={form.tone}
         endsAt={form.endsAt ? new Date(form.endsAt) : null}
+        wrap={false}
       />
 
       <div className="flex flex-wrap items-end gap-3">

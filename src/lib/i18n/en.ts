@@ -602,16 +602,16 @@ export const en = {
       CATEGORIES: "Catalogue",
       FEATURED_FORMS: "Common requests",
       ARTICLES: "Answers",
-      MY_REQUESTS: "Their open requests",
+      MY_REQUESTS: "Your requests",
       RICH_TEXT: "A block of text",
     },
     blockHints: {
-      HERO: "A greeting and the search box",
-      ANNOUNCEMENTS: "Anything currently live",
-      CATEGORIES: "Tiles for the sections",
-      FEATURED_FORMS: "The forms you put forward",
+      HERO: "A greeting, the search box and the shelf under it",
+      ANNOUNCEMENTS: "Shown across the top of every page now, not here",
+      CATEGORIES: "The shelf when it follows the search, a list anywhere else",
+      FEATURED_FORMS: "The forms you put forward, then the rest of the catalogue",
       ARTICLES: "Most-read answers",
-      MY_REQUESTS: "What this person has open",
+      MY_REQUESTS: "Their three latest, in the column on the right",
       RICH_TEXT: "Whatever else needs saying",
     },
     sectionPlaceholder: "Workplace",
@@ -723,8 +723,6 @@ export const en = {
     portalBlurb: "Where people who are not on the desk come to ask for something.",
     openHint: "Closed, everyone goes straight to the desk instead.",
     welcomeHint: "One sentence under the greeting on the front page.",
-    deskPhoneLabel: "Phone line",
-    deskPhoneHint: "Shown on the portal for when the desk is closed. Leave empty to show nothing.",
     leadsPortal: "On the front page's shelf",
     leadsPortalOff: "Take off the shelf",
     leadsPortalOn: "Put on the shelf",
@@ -890,9 +888,6 @@ export const en = {
     exampleResolved: "Access to the HR SharePoint site",
     exampleWho: "Mila Kuipers",
     exampleQuote: "“Could you try it on battery once and tell me whether it wakes?”",
-    /* The condition comes first and carries the weight: read as a heading
-       with a number under it, this row is mistaken for the main desk line. */
-    deskPhoneRow: "Only when the desk is closed, and it will not wait",
     aboutSpan: (span: string) => `About ${span}`,
 
     /* The round-12 inner pages. */

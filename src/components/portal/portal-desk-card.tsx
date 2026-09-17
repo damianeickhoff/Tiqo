@@ -1,38 +1,19 @@
-import { Clock, MessageCircleReply, Phone } from "lucide-react";
+import { Clock, MessageCircleReply } from "lucide-react";
 import { describeHours } from "@/lib/clock";
 import { typicalReplyMinutes } from "@/lib/portal";
-import { getClock, getMessages, getSettings } from "@/lib/settings";
+import { getClock, getMessages } from "@/lib/settings";
 import { shortSpan } from "@/lib/tickets";
 
 /**
- * What the desk itself is doing: whether it is open and until when, how long
- * an answer usually takes, and — when the desk has one — the number to ring
- * when it is closed. The one card a requester reads before deciding between a
- * form and the phone.
- *
- * The phone row only exists when a number is set: a row saying "no phone"
- * would be the desk apologising for something nobody asked about.
+ * What the desk itself is doing: whether it is open and until when, and how
+ * long an answer usually takes. The one card a requester reads before deciding
+ * whether to wait.
  */
 export async function PortalDeskCard() {
-  const [settings, clock, reply, t] = await Promise.all([
-    getSettings(),
-    getClock(),
-    typicalReplyMinutes(),
-    getMessages(),
-  ]);
+  const [clock, reply, t] = await Promise.all([getClock(), typicalReplyMinutes(), getMessages()]);
   const hours = describeHours(clock.hours);
 
-  // `lead` says which of the two lines carries the weight. On every row it is
-  // the value — the hours, the usual wait. On the phone row it is the
-  // condition: a number set in the strong line under a small grey caption is
-  // read as the service desk's number, and rung at ten in the morning.
-  const rows: {
-    icon: typeof Clock;
-    label: string;
-    value: string;
-    open?: boolean;
-    lead?: "label";
-  }[] = [
+  const rows: { icon: typeof Clock; label: string; value: string; open?: boolean }[] = [
     {
       icon: Clock,
       label: t.portal.openingHours,
@@ -50,16 +31,6 @@ export async function PortalDeskCard() {
       value:
         reply === null ? t.portal.noTypicalReply : t.portal.aboutSpan(shortSpan(reply * 60_000, t)),
     },
-    ...(settings.deskPhone
-      ? [
-          {
-            icon: Phone,
-            label: t.portal.deskPhoneRow,
-            value: settings.deskPhone,
-            lead: "label" as const,
-          },
-        ]
-      : []),
   ];
 
   return (
@@ -68,7 +39,7 @@ export async function PortalDeskCard() {
         {t.portal.deskCard}
       </h2>
       <ul>
-        {rows.map(({ icon: Icon, label, value, open, lead }) => (
+        {rows.map(({ icon: Icon, label, value, open }) => (
           <li
             key={label}
             className="border-line flex items-center gap-3.5 border-t px-5 py-3 text-base last:pb-[18px]"
@@ -88,17 +59,8 @@ export async function PortalDeskCard() {
               <Icon size={16} />
             </span>
             <span className="min-w-0">
-              {lead === "label" ? (
-                <>
-                  <span className="block font-medium">{label}</span>
-                  <span className="text-text-2 mt-0.5 block truncate">{value}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-text-3 block text-xs">{label}</span>
-                  <span className="block truncate font-medium">{value}</span>
-                </>
-              )}
+              <span className="text-text-3 block text-xs">{label}</span>
+              <span className="block truncate font-medium">{value}</span>
             </span>
           </li>
         ))}

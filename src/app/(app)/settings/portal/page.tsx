@@ -64,7 +64,6 @@ export default async function PortalGeneralPage() {
           enabled={settings.portalEnabled}
           portalTitle={settings.portalTitle}
           welcome={settings.portalWelcome}
-          deskPhone={settings.deskPhone ?? ""}
         />
       </Card>
     </div>

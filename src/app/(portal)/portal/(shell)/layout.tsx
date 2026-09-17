@@ -12,7 +12,6 @@ import { getClock } from "@/lib/settings";
 import { PortalHeader } from "@/components/portal/portal-header";
 import { PortalClosed } from "@/components/portal/portal-closed";
 import { NoticeBand } from "@/components/portal/portal-notice";
-import { ApprovalBanner } from "@/components/portal/portal-approval-banner";
 import { liveAnnouncements } from "@/lib/portal";
 
 /**
@@ -51,9 +50,11 @@ export default async function PortalLayout({ children }: { children: React.React
     );
   }
 
-  // The banner rides under the bar, on every page of the portal — which is
-  // the whole difference between it and a notice on the front page.
-  const banners = await liveAnnouncements(true);
+  // Every live notice, on every page of the portal. The "show across the top"
+  // tick used to decide between a band here and a card on the front page; a
+  // notice worth writing is worth meeting wherever somebody is standing, and
+  // two places to look for the same sentence was the reason one got missed.
+  const banners = await liveAnnouncements();
 
   // Everything of theirs still running, counted once for the header. "Open"
   // here means the desk has not settled it — not the narrower set a status can
@@ -62,22 +63,18 @@ export default async function PortalLayout({ children }: { children: React.React
     where: { reporterId: user.id, status: { is: { settles: false } } },
   });
 
-  // Three questions about approvals, out of one query: how many are waiting on
-  // them, whether they have ever been asked at all — which is what decides
-  // whether the portal has an Approvals section for this person — and which one
-  // has been waiting longest, for the banner. Nobody is asked to sign off on
-  // hundreds of things, so the rows themselves are cheaper than three round
-  // trips on every page of the portal.
+  // Two questions about approvals out of one query: how many are waiting on
+  // them, and whether they have ever been asked at all — which is what decides
+  // whether the portal has an Approvals section for this person. Nobody is
+  // asked to sign off on hundreds of things, so the rows themselves are cheaper
+  // than two round trips on every page of the portal.
   const rounds = await prisma.approval.findMany({
     where: { approverId: user.id },
-    orderBy: { createdAt: "asc" },
-    select: { state: true, createdAt: true, ticket: { select: { reference: true, title: true } } },
+    select: { state: true },
   });
 
-  const pending = rounds.filter((round) => round.state === "PENDING");
-  const waitingApprovals = pending.length;
+  const waitingApprovals = rounds.filter((round) => round.state === "PENDING").length;
   const everAsked = rounds.length;
-  const oldest = pending[0] ?? null;
 
   return (
     <InstanceProvider clock={clock} locale={settings.locale} dateLocale={dateLocaleOf(settings)}>
@@ -93,10 +90,9 @@ export default async function PortalLayout({ children }: { children: React.React
         />
 
         {/* Under the bar, where a notice is read before anything else on the
-            page and is still the portal's, not the browser's. The notices
-            first, then the one thing waiting on this person: a change nobody
-            can start because somebody has not answered is not something to
-            find by wandering into a tab. */}
+            page and is still the portal's, not the browser's. What is waiting
+            on this person is not here: that is a card on the two pages where
+            they would go looking for it. */}
         {banners.map((banner) => (
           <NoticeBand
             key={banner.id}
@@ -107,13 +103,6 @@ export default async function PortalLayout({ children }: { children: React.React
             locale={dateLocaleOf(settings)}
           />
         ))}
-        {oldest ? (
-          <ApprovalBanner
-            waitingSince={oldest.createdAt}
-            title={oldest.ticket.title}
-            reference={oldest.ticket.reference}
-          />
-        ) : null}
 
         <main className="flex-1">{children}</main>
 
