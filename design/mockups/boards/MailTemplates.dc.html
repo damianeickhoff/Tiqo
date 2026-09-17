@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b; --surface-3:#232326;
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+    --hl:inset 0 1px 0 rgba(255,255,255,.05);
+    --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74;
+    --brand:#febe2e; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a;
+    --brand-tint:rgba(254,190,46,.14); --brand-glow:rgba(254,190,46,.35); --brand-wash:#1a170e;
+    --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+    --positive:#34d399; --negative:#f87171;
+    --created:#febe2e; --resolved:#34d399;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 40px -12px rgba(0,0,0,.8);
+    --paper:#121214; --seg-on:#2a2a2f;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    .shell{height:900px}
+  </style>
+</helmet>
+<div class="shell" style="height:900px">
+  <aside class="rail">
+    <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 6px;margin-bottom:8px">
+      <svg width="22" height="22" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n22"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n22)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:14px;letter-spacing:-.02em">Tiqo</span>
+      <span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg></span>
+    </div>
+    <nav class="nav" style="display:flex;flex-direction:column;gap:2px">
+      <div class="sec" style="padding-top:2px">Work</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 8.5 4 3.5h8l1.5 5v4h-11z"/><path d="M2.5 8.5h3.2l1 2h2.6l1-2h3.2"/></svg><span>Dashboard</span><kbd>G D</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg><span>Tickets</span><span class="n">23</span></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v7h-11z"/></svg><span>Projects</span><kbd>G P</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M5 9V6a3 3 0 0 1 6 0v3"/><rect x="2.5" y="9" width="11" height="3" rx="1"/><path d="M4 12v2h8v-2"/></svg><span>Approvals</span><span class="n">2</span></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="m8 2.5 5.5 3v5L8 13.5l-5.5-3v-5z"/><path d="M2.5 5.5 8 8.5l5.5-3M8 8.5v5"/></svg><span>Assets</span><kbd>G A</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 3.5a2 2 0 0 1 2-2h9v11h-9a2 2 0 0 0-2 2z"/><path d="M4.5 12.5h9"/></svg><span>Documentation</span><kbd>G W</kbd></a>
+      <div class="sec">Organisation</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13c0-2 1.6-3.5 3.5-3.5S9.5 11 9.5 13"/><path d="M10.5 3.6a2.2 2.2 0 0 1 0 3.9M11 9.6c1.5.4 2.5 1.8 2.5 3.4"/></svg><span>People</span><kbd>G U</kbd></a>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px" class="nav">
+      <a class="on"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.8M8 12.4v1.8M1.8 8h1.8M12.4 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3"/></svg><span>Settings</span><kbd>G S</kbd></a>
+      <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 6px;border-top:1px solid var(--line);margin-top:8px">
+        <span class="avatar" style="background:#6366f1;width:24px;height:24px;font-size:10px" title="Ada Admin">AA</span>
+        <div style="min-width:0;line-height:1.2"><div style="font-weight:600;font-size:12.5px">Ada Admin</div><div class="t3" style="font-size:11px">Admin · desk open</div></div>
+      </div>
+    </div>
+  </aside>
+  <header class="bar">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px"><span class="t3">Settings</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span style="color:var(--text);font-weight:500">Mail</span></div>
+    
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="input" style="width:260px;height:30px;background:var(--surface)"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search tickets, assets, pages…</span><kbd style="margin-left:auto">⌘K</kbd></div>
+      <span class="btn primary" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New<kbd style="background:transparent;border-color:rgba(0,0,0,.25);color:var(--brand-ink);opacity:.7">⌘N</kbd></span>
+      <span style="width:1px;height:20px;background:var(--line)"></span>
+      <span class="btn ghost" style="width:30px;padding:0;justify-content:center;position:relative"><svg class="i " viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3z"/><path d="M6.5 14.5h3"/></svg><i style="position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:99px;background:var(--brand);box-shadow:0 0 0 2px var(--bg)"></i></span>
+      <span class="avatar" style="background:#6366f1;width:26px;height:26px;font-size:11px" title="Ada Admin">AA</span>
+    </div>
+  </header><div class="main">
+    <div class="pagehead"><h1>Settings</h1><span class="t3" style="font-size:12.5px">How this desk behaves, for everyone who uses it</span></div>
+    <div style="display:grid;grid-template-columns:200px 1fr;height:804px">
+      <nav class="nav" style="display:flex;flex-direction:column;gap:2px;padding:16px 12px;border-right:1px solid var(--line)"><a class="" style="height:30px">General</a><a class="" style="height:30px">Tickets</a><a class="" style="height:30px">Portal</a><a class="" style="height:30px">Change templates</a><a class="" style="height:30px">Operator groups</a><a class="" style="height:30px">Asset types</a><a class="" style="height:30px">Documentation</a><a class="" style="height:30px">Tags</a><a class="" style="height:30px">Blocked words</a><a class="on" style="height:30px">Mail</a><a class="" style="height:30px">Roles</a></nav>
+      <div style="position:relative;overflow:hidden">
+  <div style="padding:20px 32px 0"><div style="display:flex;gap:12px">
+    
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;flex:1;min-width:0;overflow:hidden">
+      <span style="width:32px;height:32px;border-radius:8px;background:color-mix(in oklab,var(--positive) 14%,transparent);color:var(--positive);display:flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><path d="m2.5 8 11-5-3 11-2.5-4.5z"/><path d="m8 9.5 5.5-6.5"/></svg></span>
+      <div style="line-height:1.25;min-width:0;flex:1"><div class="t3" style="font-size:11px">Sending</div><div style="font-weight:600;font-size:13.5px;margin-top:1px;white-space:nowrap">Connected</div><div class="t3" style="font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">41 sent today · last 2 min ago</div></div>
+    </div>
+    
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;flex:1;min-width:0;overflow:hidden">
+      <span style="width:32px;height:32px;border-radius:8px;background:color-mix(in oklab,var(--positive) 14%,transparent);color:var(--positive);display:flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><path d="M2.5 8.5 4 3.5h8l1.5 5v4h-11z"/><path d="M2.5 8.5h3.2l1 2h2.6l1-2h3.2"/></svg></span>
+      <div style="line-height:1.25;min-width:0;flex:1"><div class="t3" style="font-size:11px">Collecting</div><div style="font-weight:600;font-size:13.5px;margin-top:1px;white-space:nowrap">Connected</div><div class="t3" style="font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Polled 21:19 · 3 filed, 1 raised</div></div>
+    </div>
+    
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;flex:1;min-width:0;overflow:hidden">
+      <span style="width:32px;height:32px;border-radius:8px;background:color-mix(in oklab,var(--negative) 14%,transparent);color:var(--negative);display:flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><path d="M13 8a5 5 0 0 1-8.7 3.4M3 8a5 5 0 0 1 8.7-3.4"/><path d="M11.5 2v3h-3M4.5 14v-3h3"/></svg></span>
+      <div style="line-height:1.25;min-width:0;flex:1"><div class="t3" style="font-size:11px">Queue</div><div style="font-weight:600;font-size:13.5px;margin-top:1px;white-space:nowrap">1 failed</div><div class="t3" style="font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">0 waiting · 5 tries</div></div><span class="btn outline sm" style="height:24px;flex:none"><svg class="i " viewBox="0 0 16 16"><path d="M13 8a5 5 0 0 1-8.7 3.4M3 8a5 5 0 0 1 8.7-3.4"/><path d="M11.5 2v3h-3M4.5 14v-3h3"/></svg>Retry</span>
+    </div>
+    
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;flex:1;min-width:0;overflow:hidden">
+      <span style="width:32px;height:32px;border-radius:8px;background:color-mix(in oklab,var(--brand) 14%,transparent);color:var(--brand);display:flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/></svg></span>
+      <div style="line-height:1.25;min-width:0;flex:1"><div class="t3" style="font-size:11px">Poll</div><div style="font-weight:600;font-size:13.5px;margin-top:1px;white-space:nowrap">Every minute</div><div class="t3" style="font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="mono">…/api/mail/poll</span> · token set</div></div><span class="btn ghost sm" style="height:24px;flex:none"><svg class="i " viewBox="0 0 16 16"><path d="M5 3.5v9l7-4.5z"/></svg>Now</span>
+    </div>
+  </div></div>
+  <div style="margin-top:16px"><div style="display:flex;border-bottom:1px solid var(--line);padding:0 24px"><span style="display:flex;align-items:center;gap:7px;height:38px;margin-right:22px;font-size:12.5px;font-weight:500;color:var(--text-2);border-bottom:2px solid transparent">Connection</span><span style="display:flex;align-items:center;gap:7px;height:38px;margin-right:22px;font-size:12.5px;font-weight:500;color:var(--text);border-bottom:2px solid var(--brand)">Wording<span class="mono t3" style="font-size:11px">7</span></span><span style="display:flex;align-items:center;gap:7px;height:38px;margin-right:22px;font-size:12.5px;font-weight:500;color:var(--text-2);border-bottom:2px solid transparent">Signature</span><span style="display:flex;align-items:center;gap:7px;height:38px;margin-right:22px;font-size:12.5px;font-weight:500;color:var(--text-2);border-bottom:2px solid transparent">Log<span class="mono t3" style="font-size:11px">50</span></span></div></div>
+  <div style="padding:20px 32px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px"><span class="t2" style="font-size:12.5px">Seven kinds of mail. A template left alone follows the shipped wording, so an upgrade improves it; edit one and it is yours until you go back.</span><span class="btn outline sm" style="margin-left:auto;height:28px"><svg class="i " viewBox="0 0 16 16"><path d="m2.5 8 11-5-3 11-2.5-4.5z"/><path d="m8 9.5 5.5-6.5"/></svg>Send me every kind</span></div>
+    <div class="card" style="overflow:hidden"><div class="label" style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;height:32px;align-items:center;padding:0 14px;border-bottom:1px solid var(--line);font-size:10.5px"><span>Kind</span><span>Goes to</span><span>Subject</span><span>Wording</span><span>Last edited</span><span style="text-align:right">Sent · 30 d</span><span></span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">We have your message</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Whoever writes in</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] We have your message</span>
+      <span><span class="tag" style="">Edited</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3"><span class="avatar" style="background:#6366f1;width:16px;height:16px;font-size:7px" title="Ada Admin">AA</span><span>12 Sep</span></span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">9</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Someone replied to you</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">The requester, on a public reply</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] {actor} replied</span>
+      <span><span class="tag" style="">Edited</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3"><span class="avatar" style="background:#6366f1;width:16px;height:16px;font-size:7px" title="Ada Admin">AA</span><span>12 Sep</span></span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">41</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Where a request has got to</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">The requester, on a status change</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] Now {status}</span>
+      <span><span class="t3" style="font-size:11.5px">Shipped</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3">—</span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">27</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">A decision is waiting on you</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">The person asked to approve</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] Your approval is needed</span>
+      <span><span class="t3" style="font-size:11.5px">Shipped</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3">—</span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">3</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">A decision has been made</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Whoever asked</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] {actor} {decision} your request</span>
+      <span><span class="t3" style="font-size:11.5px">Shipped</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3">—</span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">2</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Mail the desk cannot file</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">A sender with no account</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">We could not file your message</span>
+      <span><span class="t3" style="font-size:11.5px">Shipped</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3">—</span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">2</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr) 110px 130px 70px 70px;gap:12px;align-items:center;height:44px;padding:0 14px;border-top:1px solid var(--line)">
+      <span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Assigned, forwarded, mentioned</span>
+      <span class="t2" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Operators</span>
+      <span class="mono t2" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[{reference}] {title}</span>
+      <span><span class="t3" style="font-size:11.5px">Shipped</span></span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:11.5px" class="t3">—</span>
+      <span class="mono t3" style="font-size:11.5px;text-align:right">58</span>
+      <span style="display:flex;justify-content:flex-end"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span></span>
+    </div></div>
+  </div></div>
+    </div></div></div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#ffffff; --chrome:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5; --surface-3:#e9e9ec;
+    --line:rgba(9,9,11,.08); --line-strong:rgba(9,9,11,.16);
+    --hl:0 1px 2px rgba(9,9,11,.05), 0 0 0 1px rgba(9,9,11,.02);
+    --text:#09090b; --text-2:#52525b; --text-3:#9d9da6;
+    --brand:#febe2e; --brand-hover:#f5b21c; --brand-ink:#1c1300; --brand-deep:#b7790a;
+    --brand-tint:rgba(254,190,46,.18); --brand-glow:rgba(254,190,46,.4); --brand-wash:#fffbeb;
+    --p-low:#10b981; --p-medium:#6366f1; --p-high:#f97316; --p-urgent:#e11d48;
+    --positive:#10b981; --negative:#e11d48;
+    --created:#e0a422; --resolved:#10b981;
+    --shadow:0 1px 2px rgba(9,9,11,.06), 0 16px 40px -16px rgba(9,9,11,.18);
+    --paper:#ffffff; --seg-on:#ffffff;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    .shell{height:900px}
+  </style>
+</helmet>
+<div class="shell" style="height:900px">
+  <aside class="rail">
+    <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 6px;margin-bottom:8px">
+      <svg width="22" height="22" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n22"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n22)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:14px;letter-spacing:-.02em">Tiqo</span>
+      <span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg></span>
+    </div>
+    <nav class="nav" style="display:flex;flex-direction:column;gap:2px">
+      <div class="sec" style="padding-top:2px">Work</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 8.5 4 3.5h8l1.5 5v4h-11z"/><path d="M2.5 8.5h3.2l1 2h2.6l1-2h3.2"/></svg><span>Dashboard</span><kbd>G D</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg><span>Tickets</span><span class="n">23</span></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v7h-11z"/></svg><span>Projects</span><kbd>G P</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M5 9V6a3 3 0 0 1 6 0v3"/><rect x="2.5" y="9" width="11" height="3" rx="1"/><path d="M4 12v2h8v-2"/></svg><span>Approvals</span><span class="n">2</span></a>
+      <a class="on"><svg class="i " viewBox="0 0 16 16"><path d="m8 2.5 5.5 3v5L8 13.5l-5.5-3v-5z"/><path d="M2.5 5.5 8 8.5l5.5-3M8 8.5v5"/></svg><span>Assets</span><kbd>G A</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 3.5a2 2 0 0 1 2-2h9v11h-9a2 2 0 0 0-2 2z"/><path d="M4.5 12.5h9"/></svg><span>Documentation</span><kbd>G W</kbd></a>
+      <div class="sec">Organisation</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13c0-2 1.6-3.5 3.5-3.5S9.5 11 9.5 13"/><path d="M10.5 3.6a2.2 2.2 0 0 1 0 3.9M11 9.6c1.5.4 2.5 1.8 2.5 3.4"/></svg><span>People</span><kbd>G U</kbd></a>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px" class="nav">
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.8M8 12.4v1.8M1.8 8h1.8M12.4 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3"/></svg><span>Settings</span><kbd>G S</kbd></a>
+      <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 6px;border-top:1px solid var(--line);margin-top:8px">
+        <span class="avatar" style="background:#6366f1;width:24px;height:24px;font-size:10px" title="Ada Admin">AA</span>
+        <div style="min-width:0;line-height:1.2"><div style="font-weight:600;font-size:12.5px">Ada Admin</div><div class="t3" style="font-size:11px">Admin · desk open</div></div>
+      </div>
+    </div>
+  </aside>
+  <header class="bar">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px"><span style="color:var(--text);font-weight:500">Assets</span></div>
+    
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="input" style="width:260px;height:30px;background:var(--surface)"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search tickets, assets, pages…</span><kbd style="margin-left:auto">⌘K</kbd></div>
+      <span class="btn primary" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New<kbd style="background:transparent;border-color:rgba(0,0,0,.25);color:var(--brand-ink);opacity:.7">⌘N</kbd></span>
+      <span style="width:1px;height:20px;background:var(--line)"></span>
+      <span class="btn ghost" style="width:30px;padding:0;justify-content:center;position:relative"><svg class="i " viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3z"/><path d="M6.5 14.5h3"/></svg><i style="position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:99px;background:var(--brand);box-shadow:0 0 0 2px var(--bg)"></i></span>
+      <span class="avatar" style="background:#6366f1;width:26px;height:26px;font-size:11px" title="Ada Admin">AA</span>
+    </div>
+  </header><div class="main">
+  <div class="pagehead">
+    <h1>Assets</h1><span class="mono t3" style="font-size:11.5px">13 items</span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="input" style="width:250px;height:30px;background:var(--surface)"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search name, serial or attribute</span></div>
+      <span class="seg"><span class="chip" style="height:26px"><svg class="i " viewBox="0 0 16 16" style="width:12px;height:12px"><rect x="2.5" y="3" width="11" height="3.5" rx="1"/><rect x="2.5" y="9.5" width="11" height="3.5" rx="1"/></svg>List</span><span class="chip on" style="height:26px"><svg class="i " viewBox="0 0 16 16" style="width:12px;height:12px"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg>Split</span></span>
+      <span class="btn outline sm" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>Export</span>
+      <span class="btn primary sm" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New asset</span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:200px minmax(0,1fr) 400px;height:852px">
+    
+  <div class="nav" style="display:flex;flex-direction:column;gap:2px;padding:14px 10px;border-right:1px solid var(--line);background:var(--chrome)">
+    <a class="" style="height:30px;font-size:12.5px"><svg class="i " viewBox="0 0 16 16"><path d="m8 2.5 6 3-6 3-6-3z"/><path d="m2 8.5 6 3 6-3M2 11.5l6 3 6-3"/></svg><span>All types</span><span class="n">13</span></a>
+    <a class="on" style="height:30px;font-size:12.5px"><span style="width:16px;height:16px;border-radius:5px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16" style="width:10px;height:10px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span><span>Hardware</span><span class="n">7</span></a><a class="" style="height:30px;font-size:12.5px"><span style="width:16px;height:16px;border-radius:5px;background:color-mix(in oklab,#6366f1 16%,transparent);color:#6366f1;display:inline-flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16" style="width:10px;height:10px"><path d="M2 6.5a9 9 0 0 1 12 0M4.5 9a5.5 5.5 0 0 1 7 0M6.8 11.3a2 2 0 0 1 2.4 0"/><circle cx="8" cy="13" r=".6" fill="currentColor"/></svg></span><span>Network</span><span class="n">1</span></a><a class="" style="height:30px;font-size:12.5px"><span style="width:16px;height:16px;border-radius:5px;background:color-mix(in oklab,#0ea5e9 16%,transparent);color:#0ea5e9;display:inline-flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16" style="width:10px;height:10px"><path d="M8 1.8 13 3.8v4c0 3-2.2 5.2-5 6.4-2.8-1.2-5-3.4-5-6.4v-4z"/></svg></span><span>Certificate</span><span class="n">2</span></a><a class="" style="height:30px;font-size:12.5px"><span style="width:16px;height:16px;border-radius:5px;background:color-mix(in oklab,#10b981 16%,transparent);color:#10b981;display:inline-flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16" style="width:10px;height:10px"><circle cx="5.5" cy="10.5" r="2.5"/><path d="m7.3 8.7 6-6M11 4.5l1.5 1.5M9.5 6l1.5 1.5"/></svg></span><span>Licence</span><span class="n">3</span></a>
+    
+    <div class="sec" style="margin-top:8px">Saved views</div>
+    <a class="" style="height:30px;font-size:12.5px"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/></svg><span>Expiring in 30 days</span><span class="n">3</span></a>
+    <a class="" style="height:30px;font-size:12.5px"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg><span>With open tickets</span><span class="n">3</span></a>
+    <a class="" style="height:30px;font-size:12.5px"><svg class="i " viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="3" rx="1"/><path d="M3 6v7h10V6M6.5 9h3"/></svg><span>Retired</span><span class="n">2</span></a>
+    <a style="height:28px;font-size:12px;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>Save current view</a>
+    <div style="margin-top:auto;padding:10px 10px 4px" class="t3">
+      <div class="label" style="font-size:10px;margin-bottom:6px">Lifecycle</div>
+      <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px"><i style="flex:9;background:var(--positive)"></i><i style="flex:1;background:var(--brand)"></i><i style="flex:2;background:var(--text-3)"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-top:5px"><span>9 in service</span><span>1 maint</span><span>2 retired</span></div>
+    </div>
+  </div>
+    <div style="overflow:hidden;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-bottom:1px solid var(--line);flex:none">
+        <span class="chip on" style="height:26px">Hardware <svg class="i " viewBox="0 0 16 16" style="width:11px;height:11px"><path d="M4 4l8 8M12 4l-8 8"/></svg></span><span class="chip" style="height:26px">Any lifecycle <svg class="i t3" viewBox="0 0 16 16" style="width:12px;height:12px"><path d="m4 6 4 4 4-4"/></svg></span><span class="chip" style="height:26px">Any group <svg class="i t3" viewBox="0 0 16 16" style="width:12px;height:12px"><path d="m4 6 4 4 4-4"/></svg></span>
+        <span class="mono t3" style="font-size:11.5px;margin-left:auto">1–7 of 7</span>
+      </div>
+      
+  <div class="label" style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;gap:12px;height:34px;align-items:center;padding:0 20px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;font-size:10.5px">
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--brand);background:var(--brand);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"><i style="width:7px;height:2px;background:currentColor;border-radius:1px"></i></span><span></span><span style="display:flex;align-items:center;gap:4px;color:var(--text)">Name <svg class="i " viewBox="0 0 16 16" style="width:11px;height:11px"><path d="m4 10 4-4 4 4"/></svg></span><span>Type</span><span>Lifecycle</span>
+  </div>
+      
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--surface-2);opacity:1;position:relative">
+    <i style="position:absolute;left:0;top:8px;bottom:8px;width:2px;background:var(--brand);border-radius:0 2px 2px 0"></i>
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">SRV-APP-01</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">HPE ProLiant DL360 · 5CG2140XYZ</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--positive);flex:none"></i><span style="color:var(--text);font-weight:500">In service</span></span>
+    
+  </div>
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:transparent;opacity:1;position:relative">
+    
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">SRV-DB-01</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Dell PowerEdge R750 · 7HK3P2</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--positive);flex:none"></i><span style="color:var(--text);font-weight:500">In service</span></span>
+    
+  </div>
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:transparent;opacity:1;position:relative">
+    
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">LT-LOAN-02</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">ThinkPad T14 · PF3K9X</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--brand);flex:none"></i><span style="color:var(--text);font-weight:500">Maintenance</span></span>
+    
+  </div>
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:transparent;opacity:1;position:relative">
+    
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">LT-ADA</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">MacBook Pro 14 · C02XY</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--positive);flex:none"></i><span style="color:var(--text);font-weight:500">In service</span></span>
+    
+  </div>
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:transparent;opacity:1;position:relative">
+    
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PRN-2F</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Canon iR-ADV C3530</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--positive);flex:none"></i><span style="color:var(--text);font-weight:500">In service</span></span>
+    
+  </div>
+  <div style="display:grid;grid-template-columns:22px 30px minmax(0,1fr) 100px 120px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--line);background:transparent;opacity:0.6;position:relative">
+    
+    <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--brand-ink);flex:none"></span>
+    <span style="width:26px;height:26px;border-radius:7px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+    <div style="min-width:0;line-height:1.25"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">SRV-MAIL-01</div><div class="t3 mono" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">HP DL380 G9 · decommissioned</div></div>
+    <span class="t2" style="font-size:12.5px">Hardware</span>
+    <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--text-3);flex:none"></i><span style="color:var(--text);font-weight:500">Retired</span></span>
+    
+  </div>
+    </div>
+    
+  <aside style="border-left:1px solid var(--line);background:var(--chrome);display:flex;flex-direction:column;gap:12px;padding:12px;overflow:hidden">
+    <div class="card" style="overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 14px 12px">
+        <span style="width:40px;height:40px;border-radius:10px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:24px;height:24px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+        <div style="min-width:0;line-height:1.25;flex:1"><div style="font-weight:600;font-size:15px">SRV-APP-01</div><div class="t2" style="font-size:12px;margin-top:2px">Hardware · Infrastructure</div></div>
+        <span class="chip" style="height:24px;gap:7px;padding:0 9px"><i style="width:7px;height:7px;border-radius:99px;background:var(--positive);flex:none"></i><span style="color:var(--text);font-weight:500">In service</span></span>
+      </div>
+      <div style="display:flex;gap:6px;padding:0 14px 12px">
+        <span class="btn primary sm" style="flex:1;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg>Open</span>
+        <span class="btn outline sm" style="flex:1;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span>
+        <span class="btn outline sm" style="width:26px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg></span>
+      </div>
+      <div style="border-top:1px solid var(--line)"><div style="display:grid;grid-template-columns:110px 1fr;gap:7px 12px;padding:12px 14px;font-size:12.5px;align-items:center"><span class="t3" style="font-size:11.5px">Serial</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><span class="mono" style="font-size:12px">5CG2140XYZ</span></span><span class="t3" style="font-size:11.5px">Model</span><span style="min-width:0;display:flex;align-items:center;gap:6px">HPE ProLiant DL360</span><span class="t3" style="font-size:11.5px">Form factor</span><span style="min-width:0;display:flex;align-items:center;gap:6px">Server</span><span class="t3" style="font-size:11.5px">Purchased</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><span class="mono" style="font-size:12px">11 Mar 2024</span></span><span class="t3" style="font-size:11.5px">Warranty</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><span style="display:flex;flex-direction:column;gap:5px;flex:1"><span class="mono" style="font-size:12px">11 Mar 2027 <span class="t3">· 18 months left</span></span><span style="height:4px;border-radius:2px;background:var(--surface-3);overflow:hidden"><i style="display:block;height:100%;width:50%;background:var(--positive)"></i></span></span></span><span class="t3" style="font-size:11.5px">Primary user</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><span class="avatar" style="background:#10b981;width:16px;height:16px;font-size:7px" title="Mila Kuipers">MK</span> Mila Kuipers</span><span class="t3" style="font-size:11.5px">Mounted in</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><a style="display:inline-flex;align-items:center;gap:5px"><span style="width:16px;height:16px;border-radius:4px;background:color-mix(in oklab,#6366f1 16%,transparent);color:#6366f1;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:10px;height:10px"><path d="M2 6.5a9 9 0 0 1 12 0M4.5 9a5.5 5.5 0 0 1 7 0M6.8 11.3a2 2 0 0 1 2.4 0"/><circle cx="8" cy="13" r=".6" fill="currentColor"/></svg></span>SW-RACK-B</a></span><span class="t3" style="font-size:11.5px">Source</span><span style="min-width:0;display:flex;align-items:center;gap:6px"><span class="mono t3" style="font-size:11px">seed · srv-app-01</span></span></div></div>
+    </div>
+    <div class="card" style="overflow:hidden;flex:none;display:flex;flex-direction:column;"><div style="display:flex;align-items:center;justify-content:space-between;height:34px;padding:0 14px;border-bottom:1px solid var(--line);flex:none"><span class="label">Connected to</span><a style="font-size:11.5px;display:inline-flex;align-items:center;gap:4px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>Add</a></div><div style="padding:6px 0"><div style="display:flex;align-items:center;gap:8px;padding:6px 14px;font-size:12.5px"><span style="width:18px;height:18px;border-radius:5px;background:color-mix(in oklab,#febe2e 16%,transparent);color:#febe2e;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:11px;height:11px"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span><span style="display:flex;flex-direction:column;line-height:1.2"><span class="t3" style="font-size:10.5px">Depends on</span><span style="font-weight:500">SRV-DB-01</span></span></div><div style="display:flex;align-items:center;gap:8px;padding:6px 14px;font-size:12.5px"><span style="width:18px;height:18px;border-radius:5px;background:color-mix(in oklab,#0ea5e9 16%,transparent);color:#0ea5e9;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:11px;height:11px"><path d="M8 1.8 13 3.8v4c0 3-2.2 5.2-5 6.4-2.8-1.2-5-3.4-5-6.4v-4z"/></svg></span><span style="display:flex;flex-direction:column;line-height:1.2"><span class="t3" style="font-size:10.5px">Runs</span><span style="font-weight:500">*.tiqo.it</span></span></div><div style="display:flex;align-items:center;gap:8px;padding:6px 14px;font-size:12.5px"><span style="width:18px;height:18px;border-radius:5px;background:color-mix(in oklab,#6366f1 16%,transparent);color:#6366f1;display:inline-flex;align-items:center;justify-content:center;flex:none"><svg class="i " viewBox="0 0 16 16" style="width:11px;height:11px"><path d="M2 6.5a9 9 0 0 1 12 0M4.5 9a5.5 5.5 0 0 1 7 0M6.8 11.3a2 2 0 0 1 2.4 0"/><circle cx="8" cy="13" r=".6" fill="currentColor"/></svg></span><span style="display:flex;flex-direction:column;line-height:1.2"><span class="t3" style="font-size:10.5px">Mounted in</span><span style="font-weight:500">SW-RACK-B</span></span></div></div></div>
+    <div class="card" style="overflow:hidden;flex:none;display:flex;flex-direction:column;"><div style="display:flex;align-items:center;justify-content:space-between;height:34px;padding:0 14px;border-bottom:1px solid var(--line);flex:none"><span class="label">Open tickets</span><span class="mono t3" style="font-size:11px">2 of 5</span></div><div style="padding:4px 0"><div style="display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="2.2" stroke-dasharray="17.28 31.42" transform="rotate(-90 7 7)"/></svg><span style="min-width:0;display:flex;flex-direction:column;line-height:1.2"><span class="ref inc"><b>INC</b>-2609 0017</span><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Rack B switch running hot</span></span><span style="margin-left:auto"><span class="bars" style="--c: var(--p-urgent)" title="urgent"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></span></div><div style="display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--brand)" stroke-width="1.4" opacity="0.35"/></svg><span style="min-width:0;display:flex;flex-direction:column;line-height:1.2"><span class="ref qst"><b>QST</b>-2609 0002</span><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Laptop will not charge</span></span><span style="margin-left:auto"><span class="bars" style="--c: var(--p-medium)" title="medium"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 14px 10px;padding:8px 10px;border-radius:8px;background:var(--brand-tint);font-size:11.5px;color:var(--brand-deep)"><svg class="i " viewBox="0 0 16 16" style="width:13px;height:13px"><path d="M8 2.5 14 13H2z"/><path d="M8 6.5v3M8 11.2v.1"/></svg><span>Also open nearby: <b>INC-2609 0014</b> on SW-RACK-B, which this depends on.</span></div></div></div>
+  </aside>
+  </div></div></div>
+</x-dc>
+</body>
+</html>

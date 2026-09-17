@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b; --surface-3:#232326;
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+    --hl:inset 0 1px 0 rgba(255,255,255,.05);
+    --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74;
+    --brand:#febe2e; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a;
+    --brand-tint:rgba(254,190,46,.14); --brand-glow:rgba(254,190,46,.35); --brand-wash:#1a170e;
+    --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+    --positive:#34d399; --negative:#f87171;
+    --created:#febe2e; --resolved:#34d399;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 40px -12px rgba(0,0,0,.8);
+    --paper:#121214; --seg-on:#2a2a2f;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .field span:not(.mono) { transform-origin: bottom; animation: grow 1100ms cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i, 0) * 16ms); }
+  @media (prefers-reduced-motion: reduce) { .field span { animation: none; } }
+
+  </style>
+</helmet>
+
+  <div style="width:1440px;height:900px;display:grid;grid-template-columns:800px 1fr;overflow:hidden;background:var(--bg)">
+    <div style="background:#09090b;color:#ecebe6;padding:44px 56px;display:flex;flex-direction:column;position:relative;overflow:hidden;--brand:#febe2e;--p-low:#34d399;--p-medium:#818cf8;--p-high:#fb923c;--p-urgent:#fb7185">
+      <div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 100%,rgba(254,190,46,.16),transparent 70%)"></div>
+      <div style="display:flex;align-items:center;gap:10px;position:relative"><svg width="30" height="30" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n30"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n30)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:17px;letter-spacing:-.02em">Tiqo</span></div>
+      <div style="position:relative;margin-top:56px">
+        <h2 style="font-size:56px;font-weight:600;letter-spacing:-.035em;line-height:1.02;margin:0;max-width:560px">Work the queue.<br><span style="color:var(--brand)">See what's burning.</span></h2>
+        <p style="color:#a09a90;margin:20px 0 0;font-size:15px;max-width:440px;line-height:1.55">Every ticket rises toward its response target. Colour is priority, height is time burned, and anything over the line is on fire.</p>
+      </div>
+      <div style="position:absolute;left:56px;right:0;bottom:0"><div class="field" style="position:relative;width:744px;height:360px"><span style="position:absolute;left:0.0px;bottom:0;width:8.3px;height:256px;border-radius:3px 3px 0 0;background:var(--p-urgent);opacity:1.00;box-shadow:0 0 14px 1px var(--p-urgent);--i:0"></span><span style="position:absolute;left:14.3px;bottom:0;width:8.3px;height:272px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:1"></span><span style="position:absolute;left:28.6px;bottom:0;width:8.3px;height:276px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:2"></span><span style="position:absolute;left:42.9px;bottom:0;width:8.3px;height:264px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:3"></span><span style="position:absolute;left:57.2px;bottom:0;width:8.3px;height:238px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:4"></span><span style="position:absolute;left:71.5px;bottom:0;width:8.3px;height:204px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.56;--i:5"></span><span style="position:absolute;left:85.8px;bottom:0;width:8.3px;height:167px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.51;--i:6"></span><span style="position:absolute;left:100.2px;bottom:0;width:8.3px;height:135px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.47;--i:7"></span><span style="position:absolute;left:114.5px;bottom:0;width:8.3px;height:114px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.44;--i:8"></span><span style="position:absolute;left:128.8px;bottom:0;width:8.3px;height:107px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.43;--i:9"></span><span style="position:absolute;left:143.1px;bottom:0;width:8.3px;height:115px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.44;--i:10"></span><span style="position:absolute;left:157.4px;bottom:0;width:8.3px;height:133px;border-radius:3px 3px 0 0;background:var(--p-low);opacity:0.47;--i:11"></span><span style="position:absolute;left:171.7px;bottom:0;width:8.3px;height:157px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.50;--i:12"></span><span style="position:absolute;left:186.0px;bottom:0;width:8.3px;height:179px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.53;--i:13"></span><span style="position:absolute;left:200.3px;bottom:0;width:8.3px;height:194px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.55;--i:14"></span><span style="position:absolute;left:214.6px;bottom:0;width:8.3px;height:198px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.55;--i:15"></span><span style="position:absolute;left:228.9px;bottom:0;width:8.3px;height:191px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.54;--i:16"></span><span style="position:absolute;left:243.2px;bottom:0;width:8.3px;height:175px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.52;--i:17"></span><span style="position:absolute;left:257.5px;bottom:0;width:8.3px;height:156px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.50;--i:18"></span><span style="position:absolute;left:271.8px;bottom:0;width:8.3px;height:139px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.47;--i:19"></span><span style="position:absolute;left:286.2px;bottom:0;width:8.3px;height:127px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:20"></span><span style="position:absolute;left:300.5px;bottom:0;width:8.3px;height:123px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.45;--i:21"></span><span style="position:absolute;left:314.8px;bottom:0;width:8.3px;height:125px;border-radius:3px 3px 0 0;background:var(--p-medium);opacity:0.45;--i:22"></span><span style="position:absolute;left:329.1px;bottom:0;width:8.3px;height:130px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:23"></span><span style="position:absolute;left:343.4px;bottom:0;width:8.3px;height:133px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:24"></span><span style="position:absolute;left:357.7px;bottom:0;width:8.3px;height:127px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:25"></span><span style="position:absolute;left:372.0px;bottom:0;width:8.3px;height:110px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.43;--i:26"></span><span style="position:absolute;left:386.3px;bottom:0;width:8.3px;height:80px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.39;--i:27"></span><span style="position:absolute;left:400.6px;bottom:0;width:8.3px;height:41px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.34;--i:28"></span><span style="position:absolute;left:414.9px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:29"></span><span style="position:absolute;left:429.2px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:30"></span><span style="position:absolute;left:443.5px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:31"></span><span style="position:absolute;left:457.8px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:32"></span><span style="position:absolute;left:472.2px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--p-high);opacity:0.31;--i:33"></span><span style="position:absolute;left:486.5px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:34"></span><span style="position:absolute;left:500.8px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:35"></span><span style="position:absolute;left:515.1px;bottom:0;width:8.3px;height:22px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:36"></span><span style="position:absolute;left:529.4px;bottom:0;width:8.3px;height:32px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.32;--i:37"></span><span style="position:absolute;left:543.7px;bottom:0;width:8.3px;height:61px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.36;--i:38"></span><span style="position:absolute;left:558.0px;bottom:0;width:8.3px;height:80px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.39;--i:39"></span><span style="position:absolute;left:572.3px;bottom:0;width:8.3px;height:89px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.40;--i:40"></span><span style="position:absolute;left:586.6px;bottom:0;width:8.3px;height:93px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.41;--i:41"></span><span style="position:absolute;left:600.9px;bottom:0;width:8.3px;height:95px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.41;--i:42"></span><span style="position:absolute;left:615.2px;bottom:0;width:8.3px;height:101px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.42;--i:43"></span><span style="position:absolute;left:629.5px;bottom:0;width:8.3px;height:113px;border-radius:3px 3px 0 0;background:var(--p-urgent);opacity:0.44;--i:44"></span><span style="position:absolute;left:643.8px;bottom:0;width:8.3px;height:133px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.47;--i:45"></span><span style="position:absolute;left:658.2px;bottom:0;width:8.3px;height:159px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.50;--i:46"></span><span style="position:absolute;left:672.5px;bottom:0;width:8.3px;height:185px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.54;--i:47"></span><span style="position:absolute;left:686.8px;bottom:0;width:8.3px;height:207px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.57;--i:48"></span><span style="position:absolute;left:701.1px;bottom:0;width:8.3px;height:219px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.58;--i:49"></span><span style="position:absolute;left:715.4px;bottom:0;width:8.3px;height:218px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.58;--i:50"></span><span style="position:absolute;left:729.7px;bottom:0;width:8.3px;height:203px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.56;--i:51"></span>
+    <span style="position:absolute;left:0;right:0;bottom:238px;border-top:1px dashed rgba(255,255,255,.28)"></span>
+    <span class="mono" style="position:absolute;right:0;bottom:246px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.5)">RESPONSE TARGET</span>
+  </div></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,transparent,#09090b)"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative">
+      <div style="position:absolute;top:32px;right:40px;display:flex;gap:4px"><span class="chip " style="height:26px;border:0;background:transparent"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></span><span class="chip on" style="height:26px;border:0;"><svg class="i " viewBox="0 0 16 16"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5z"/></svg></span></div>
+      <div style="width:360px">
+        <h1 style="font-size:26px;font-weight:600;letter-spacing:-.025em;margin:0">Welcome back</h1>
+        <p class="t2" style="margin:6px 0 28px;font-size:14px">Sign in to pick up where you left off.</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <label style="display:flex;flex-direction:column;gap:6px"><span class="label">Email</span><div class="input" style="height:40px;font-size:14px"><span>ada@tiqo.local</span></div></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span class="label" style="display:flex;justify-content:space-between">Password<a style="text-transform:none;letter-spacing:0;font-weight:500">Forgot it?</a></span><div class="input" style="height:40px;font-size:14px;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)"><span>••••••••••••</span><span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg></span></div></label>
+          <span class="btn primary" style="height:42px;justify-content:center;font-size:14px;margin-top:4px;border-radius:8px">Sign in<kbd style="background:transparent;border-color:rgba(0,0,0,.25);color:var(--brand-ink);opacity:.7">↵</kbd></span>
+          <div class="t3" style="font-size:12.5px;text-align:center">New here? <a style="font-weight:500">Create an account</a> · <a style="font-weight:500">Requester portal</a></div>
+        </div>
+      </div>
+      <div class="t3 mono" style="position:absolute;bottom:28px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.06em">TIQO · SELF-HOSTED · v0.4</div>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>

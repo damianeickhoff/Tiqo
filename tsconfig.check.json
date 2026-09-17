@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/lib/i18n/index.ts", "src/lib/i18n/en.ts", "src/lib/i18n/nl.ts"]
+}

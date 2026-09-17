@@ -1,0 +1,518 @@
+<title>Tiqo Sign-in Concepts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* ------------------------------------------------------------ page chrome */
+:root{
+  --bg:#ffffff; --chrome:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5;
+  --line:rgba(9,9,11,.08); --line-strong:rgba(9,9,11,.16);
+  --text:#09090b; --text-2:#52525b; --text-3:#9d9da6;
+  --brand:#febe2e; --brand-ink:#1c1300; --brand-deep:#936e1b; --brand-tint:rgba(254,190,46,.18);
+  --seg-on:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b;
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+    --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74; --brand-deep:#fcc94a; --seg-on:#232326;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b;
+  --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+  --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74; --brand-deep:#fcc94a; --seg-on:#232326;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Geist,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 24px 80px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:8px}
+.head h1{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:0}
+.head p{margin:4px 0 0;color:var(--text-2);max-width:66ch}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.controls .cl{font-size:12px;color:var(--text-3);margin-right:2px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--text-2);font:inherit;font-size:13px;font-weight:500;height:28px;padding:0 12px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--text);box-shadow:0 1px 2px rgba(9,9,11,.12)}
+.seg button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.concept{margin-top:44px;border-top:1px solid var(--line);padding-top:22px}
+.concept .meta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 32px;align-items:start;margin-bottom:14px}
+.concept h2{font-size:17px;font-weight:600;letter-spacing:-.015em;margin:0}
+.concept .note{margin:4px 0 0;color:var(--text-2);max-width:70ch}
+.concept .note b{color:var(--text);font-weight:600}
+.concept .credit{margin:6px 0 0;color:var(--text-3);font-size:12px}
+.replay{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:500;height:32px;padding:0 12px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.replay:hover{border-color:var(--line-strong)}
+.replay:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.stage{position:relative;width:100%;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#09090b;box-shadow:0 1px 3px rgba(9,9,11,.05),0 18px 40px -20px rgba(9,9,11,.24)}
+.frame{position:absolute;left:0;top:0;width:1440px;height:860px;transform-origin:0 0;overflow:hidden}
+
+/* --------------------------------------------------- frame token sets */
+.frame[data-theme="light"]{
+  --bg:#ffffff; --chrome:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5; --surface-3:#e9e9ec;
+  --line:rgba(9,9,11,.08); --line-strong:rgba(9,9,11,.16);
+  --text:#09090b; --text-2:#52525b; --text-3:#9d9da6;
+  --brand:#febe2e; --brand-hover:#f5b21c; --brand-ink:#1c1300; --brand-deep:#936e1b; --brand-tint:rgba(254,190,46,.18);
+  --open:#10b981; --soon:#f97316; --shut:#e11d48;
+  --p-low:#10b981; --p-medium:#6366f1; --p-high:#f97316; --p-urgent:#e11d48;
+  --hl:0 1px 2px rgba(9,9,11,.05),0 0 0 1px rgba(9,9,11,.02);
+  --shadow-lg:0 1px 3px rgba(9,9,11,.05),0 18px 40px -20px rgba(9,9,11,.24);
+  --dot:rgba(9,9,11,.16); --aura:.55; --field:.7;
+}
+.frame[data-theme="dark"]{
+  --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b; --surface-3:#232326;
+  --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+  --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74;
+  --brand:#febe2e; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a; --brand-tint:rgba(254,190,46,.14);
+  --open:#34d399; --soon:#fb923c; --shut:#fb7185;
+  --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+  --hl:0 1px 2px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.03);
+  --shadow-lg:0 1px 3px rgba(0,0,0,.4),0 24px 60px -24px rgba(0,0,0,.7);
+  --dot:rgba(255,255,255,.13); --aura:.4; --field:.55;
+}
+.frame{background:var(--bg);color:var(--text);font-size:14px}
+
+/* --------------------------------------------------- shared vocabulary */
+.frame .lockup{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.03em;font-size:16px;color:var(--text)}
+.frame .lockup svg{flex:none}
+.frame .form{display:grid;gap:18px}
+.frame .lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);line-height:1;display:block;margin-bottom:8px}
+.frame .lblrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.frame .lblrow .lbl{margin:0}
+.frame .lblrow a{font-size:13px;color:var(--brand-deep);font-weight:500;text-decoration:none}
+.frame .in{position:relative}
+.frame .in input{width:100%;height:36px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:8px;padding:0 12px;font:inherit;font-size:14px;box-shadow:var(--hl);outline:0}
+.frame .in input::placeholder{color:var(--text-3)}
+.frame .in input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+.frame .in.pw input{padding-right:40px}
+.frame .in .eye{position:absolute;right:2px;top:2px;width:32px;height:32px;display:grid;place-items:center;color:var(--text-2);border-radius:6px}
+.frame .primary{height:36px;border:0;border-radius:8px;background:var(--brand);color:var(--brand-ink);font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 1px 2px rgba(9,9,11,.12);transition:background .15s;width:100%}
+.frame .primary:hover{background:var(--brand-hover)}
+.frame .primary svg{transition:transform .2s}
+.frame .primary:hover svg{transform:translateX(2px)}
+.frame .sso{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frame .sso .b{height:36px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:14px;font-weight:500;box-shadow:var(--hl);cursor:pointer;width:100%}
+.frame .sso .b:hover{border-color:var(--line-strong)}
+.frame .or{display:flex;align-items:center;gap:12px;color:var(--text-3);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.frame .or::before,.frame .or::after{content:"";flex:1;border-top:1px solid var(--line)}
+.frame .foot{color:var(--text-2);font-size:14px}
+.frame .foot a{color:var(--brand-deep);font-weight:600;text-decoration:none}
+.frame .foot .sep{color:var(--text-3);margin:0 8px}
+.frame h1{font-size:24px;font-weight:600;letter-spacing:-.025em;line-height:1.2;margin:0}
+.frame .blurb{color:var(--text-2);font-size:15px;line-height:1.55;margin:6px 0 0}
+.frame .mono{font-family:"Geist Mono",ui-monospace,"Cascadia Mono",monospace;font-variant-numeric:tabular-nums}
+.frame .top{position:absolute;left:40px;top:32px;z-index:2}
+.frame .tr{position:absolute;right:40px;top:32px;display:flex;gap:10px;align-items:center;z-index:2}
+.frame .legal{position:absolute;left:40px;right:40px;bottom:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-3);z-index:2}
+.frame .legal a{color:inherit;text-decoration:none;margin-right:16px}
+.frame .legal a:hover{color:var(--text)}
+.frame .trust{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-3)}
+.frame .trust svg{color:var(--text-3)}
+.frame .stack{display:grid;gap:20px}
+.frame .col{width:380px}
+.frame .col .mark{display:flex;justify-content:center;margin-bottom:22px}
+.frame .col h1,.frame .col .blurb{text-align:center}
+.frame .col .foot{text-align:center;padding-top:18px;border-top:1px solid var(--line)}
+.frame .col .trust{justify-content:center}
+
+/* The desk light: green open, orange closing soon, red closed. */
+.frame .pill{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px 0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12px;font-weight:500;color:var(--text-2);box-shadow:var(--hl);white-space:nowrap}
+.frame .pill .dot,.frame .desk .dot{width:8px;height:8px;border-radius:50%;background:var(--open);box-shadow:0 0 0 3px color-mix(in oklab,var(--open) 22%,transparent);flex:none}
+.frame.soon .pill .dot,.frame.soon .desk .dot{background:var(--soon);box-shadow:0 0 0 3px color-mix(in oklab,var(--soon) 22%,transparent)}
+.frame.shut .pill .dot,.frame.shut .desk .dot{background:var(--shut);box-shadow:0 0 0 3px color-mix(in oklab,var(--shut) 22%,transparent)}
+.frame .pill b{color:var(--text);font-weight:600}
+.frame .pill .next{color:var(--text-3)}
+.frame .grid{position:absolute;inset:0;background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:24px 24px;-webkit-mask-image:radial-gradient(60% 60% at 50% 45%,#000 20%,transparent 100%);mask-image:radial-gradient(60% 60% at 50% 45%,#000 20%,transparent 100%)}
+.frame .aura{position:absolute;left:50%;bottom:-260px;width:1100px;height:600px;margin-left:-550px;border-radius:50%;background:radial-gradient(closest-side,var(--brand),transparent 70%);filter:blur(70px);opacity:var(--aura);pointer-events:none}
+.frame.play .aura{animation:aura 14s ease-in-out infinite alternate}
+@keyframes aura{from{transform:translateX(-60px) scale(1)}to{transform:translateX(60px) scale(1.12)}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.frame.play .stack > *{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.frame.play .stack > :nth-child(1){animation-delay:.05s}
+.frame.play .stack > :nth-child(2){animation-delay:.12s}
+.frame.play .stack > :nth-child(3){animation-delay:.19s}
+.frame.play .stack > :nth-child(4){animation-delay:.26s}
+.frame.play .stack > :nth-child(5){animation-delay:.33s}
+.frame.play .stack > :nth-child(6){animation-delay:.40s}
+.frame.play .stack > :nth-child(7){animation-delay:.47s}
+.frame.play .stack > :nth-child(8){animation-delay:.54s}
+.frame.play .legal,.frame.play .tr{animation:fade .8s ease both .6s}
+
+/* ------------------------------------------------- shared photo treatment */
+.ph{position:absolute;inset:0;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.72) contrast(1.05)}
+.ph.warm img{filter:saturate(.85) contrast(1.05)}
+.ph.mono img{filter:grayscale(1) contrast(1.1)}
+.frame.play .ph.kb img{animation:kb 40s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.1)}}
+.grain{position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");opacity:.1;mix-blend-mode:overlay;pointer-events:none}
+.frame .cap{position:absolute;font-size:12px;letter-spacing:.04em;color:rgba(250,250,250,.75);z-index:2}
+.frame .cap b{display:block;font-size:22px;font-weight:600;letter-spacing:-.03em;color:#fafafa;margin-bottom:6px;line-height:1.15}
+.frame .cap b i{font-style:normal;color:var(--brand)}
+.frame .credit{position:absolute;font-size:11px;color:rgba(250,250,250,.55);letter-spacing:.02em;z-index:2}
+.frame .glass{background:color-mix(in oklab,var(--surface) 72%,transparent);border:1px solid var(--line);backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2)}
+
+/* --------------------------------------------------------------- A · Window */
+.cA{display:grid;grid-template-columns:minmax(0,1fr) 640px}
+.cA .side{position:relative;display:grid;place-items:center}
+.cA .side .col{position:static;translate:none}
+.cA .win{position:absolute;right:32px;top:32px;bottom:32px;left:0;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--line)}
+.cA .win .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,9,11,.05) 40%,rgba(9,9,11,.7))}
+.cA .win .cap{left:32px;bottom:30px;right:32px}
+.cA .win .credit{right:20px;bottom:14px}
+.cA .pane{position:relative}
+.cA.play .win{animation:rise .8s cubic-bezier(.2,.8,.2,1) both .2s}
+
+/* ------------------------------------------------------------- B · Skyline */
+.cB .ph img{filter:saturate(.8) contrast(1.05) blur(3px);transform:scale(1.04)}
+.cB.play .ph img{animation:kbblur 40s ease-in-out infinite alternate}
+@keyframes kbblur{from{transform:scale(1.04)}to{transform:scale(1.12)}}
+.cB .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,9,11,.35),rgba(9,9,11,.8))}
+.cB[data-theme="light"] .veil{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.7))}
+.cB .slab{position:absolute;left:50%;top:50%;translate:-50% -52%;width:460px;padding:36px 40px 32px;border-radius:20px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);z-index:2}
+.cB .slab .col{position:static;translate:none;width:100%}
+.cB.play .slab{animation:rise .7s cubic-bezier(.2,.8,.2,1) both .1s}
+.cB .top .lockup{color:#fafafa}
+.cB[data-theme="light"] .top .lockup{color:#09090b}
+.cB .legal{color:rgba(250,250,250,.6)}
+.cB[data-theme="light"] .legal{color:#52525b}
+.cB .credit{left:auto;right:40px;bottom:24px;display:none}
+
+/* --------------------------------------------------------------- C · Lobby */
+.cC{display:grid;grid-template-columns:400px minmax(0,1fr)}
+.cC .strip{position:relative;overflow:hidden;background:#09090b}
+.cC .strip .ph img{object-position:50% 50%;filter:saturate(.9) contrast(1.08)}
+.cC.play .strip .ph img{animation:pan 60s ease-in-out infinite alternate}
+@keyframes pan{from{object-position:50% 100%}to{object-position:50% 0%}}
+.cC .strip .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,9,11,.5),rgba(9,9,11,.1) 30%,rgba(9,9,11,.2) 70%,rgba(9,9,11,.85))}
+.cC .strip .top{left:32px}
+.cC .strip .lockup{color:#fafafa}
+.cC .strip .cap{left:32px;right:32px;bottom:36px}
+.cC .strip .credit{left:32px;bottom:16px}
+.cC .side{position:relative;display:grid;place-items:center}
+.cC .side .col{position:static;translate:none}
+.cC .side .legal{left:40px}
+
+/* --------------------------------------------------------------- D · Cover */
+.cD{background:var(--chrome)}
+.cD .sheet{position:absolute;left:50%;top:50%;translate:-50% -50%;width:460px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-lg);overflow:hidden;z-index:2}
+.cD .sheet .cover{position:relative;height:200px;overflow:hidden}
+.cD .sheet .cover .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,9,11,.2),rgba(9,9,11,.55))}
+.cD .sheet .cover .top{left:20px;top:18px}
+.cD .sheet .cover .lockup{color:#fafafa}
+.cD .sheet .cover .tr{right:16px;top:16px}
+.cD .sheet .cover .cap{left:20px;bottom:18px}
+.cD .sheet .bd{padding:28px 40px 30px}
+.cD .sheet .col{width:100%;position:static;translate:none}
+.cD.play .sheet{animation:rise .6s cubic-bezier(.2,.8,.2,1) both .1s}
+
+/* ------------------------------------------------------------ E · Triptych */
+.cE{display:grid;grid-template-columns:minmax(0,1fr) 620px}
+.cE .side{position:relative;display:grid;place-items:center}
+.cE .side .col{position:static;translate:none}
+.cE .wall{position:relative;overflow:hidden}
+.cE .tile{position:absolute;width:300px;height:300px;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--line)}
+.cE .tile .lab{position:absolute;left:16px;bottom:14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(250,250,250,.85);z-index:2}
+.cE .tile .veil{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(9,9,11,.6))}
+.cE .t1{left:40px;top:60px}
+.cE .t2{left:300px;top:240px}
+.cE .t3{left:40px;top:520px}
+.cE.play .t1{animation:float 9s ease-in-out infinite alternate,rise .8s cubic-bezier(.2,.8,.2,1) both .2s}
+.cE.play .t2{animation:float 11s ease-in-out infinite alternate-reverse,rise .8s cubic-bezier(.2,.8,.2,1) both .35s}
+.cE.play .t3{animation:float 13s ease-in-out infinite alternate,rise .8s cubic-bezier(.2,.8,.2,1) both .5s}
+@keyframes float{from{translate:0 0}to{translate:0 -14px}}
+
+@media (prefers-reduced-motion: reduce){
+  .frame *,.frame *::before,.frame *::after{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+</style></style>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Sign-in concepts</h1>
+      <p>The Ledger column, five times, each with a photograph that belongs to a desk: a workstation, a company skyline, a lobby, an office, and the three things a desk is about. Photos are muted or drained so the amber stays the one warm light. The desk light in the corner still reads the clock, and there is still no theme selector on the door; the toggle here only previews both.</p>
+    </div>
+    <div class="controls">
+      <span class="cl">Clock</span>
+      <div class="seg" role="group" aria-label="Clock">
+        <button type="button" data-clock="real" aria-pressed="true">Real</button>
+        <button type="button" data-clock="open" aria-pressed="false">Tue 14:32</button>
+        <button type="button" data-clock="soon" aria-pressed="false">Tue 17:22</button>
+        <button type="button" data-clock="fri" aria-pressed="false">Fri 19:05</button>
+      </div>
+      <span class="cl">Theme</span>
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-t="dark" aria-pressed="true">Dark</button>
+        <button type="button" data-t="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ A -->
+  <section class="concept" id="cA">
+    <div class="meta">
+      <div>
+        <h2>Window</h2>
+        <p class="note"><b>The Ledger column, and beside it a window onto a desk.</b> The photo sits in its own rounded panel on the right, inset from the edges like a card, with a slow zoom and a caption low in the frame. It is a workstation seen from above: monitor, keyboard, tablet, the tools of someone who answers things. The column keeps everything it had, desk light in the corner included.</p>
+        <p class="credit">Moves: the photo zooms slowly, the window and the column rise in. Photo: Vadim Sherbakov on Unsplash, via <a href="https://picsum.photos/id/60/info">Lorem Picsum</a>.</p>
+      </div>
+      <button class="replay" type="button" data-replay="cA">Replay</button>
+    </div>
+    <div class="stage" data-stage>
+      <div class="frame cA" data-theme="dark" data-frame="cA">
+        <div class="side">
+          <div class="grid"></div>
+          <div class="top">{{LOCKUP}}</div>
+          <div class="col stack">
+            <div class="mark">{{MARK40}}</div>
+            <div><h1>Sign in to Tiqo</h1><p class="blurb">Pick up where you left off.</p></div>
+            {{SSO}}
+            <div class="or">or with email</div>
+            {{FORM}}
+            <div class="trust">{{LOCK}} Encrypted sign-in. Passkeys and SSO supported.</div>
+            <div class="foot">No account yet? <a>Create one</a><span class="sep">·</span><a>Requester portal</a></div>
+          </div>
+          <div class="legal"><span><a>Privacy</a><a>Terms</a><a>Status</a><a>Help</a></span><span class="mono">© 2026 Tiqo</span></div>
+        </div>
+        <div class="pane">
+          <div class="win">
+            <div class="ph kb"><img src="{{P60}}" alt=""></div>
+            <div class="veil"></div>
+            <div class="grain"></div>
+            <div class="tr">{{PILL}}</div>
+            <div class="cap"><b>Every request, <i>answered.</i></b>One desk for tickets, changes and the questions in between.</div>
+            <div class="credit">Photo · Vadim Sherbakov</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ B -->
+  <section class="concept" id="cB">
+    <div class="meta">
+      <div>
+        <h2>Skyline</h2>
+        <p class="note"><b>The company's own city behind frosted glass.</b> A skyline at golden hour, which happens to be amber, blurred and darkened so it reads as a place rather than a picture, and the Ledger column on a glass slab in the middle. The photo drifts. It is the most "corporate" of the five and the one that would take a customer's own photo best: any office, any city.</p>
+        <p class="credit">Moves: the skyline zooms slowly behind the glass, the slab rises in. Photo: Kevin Young on Unsplash, via <a href="https://picsum.photos/id/1067/info">Lorem Picsum</a>.</p>
+      </div>
+      <button class="replay" type="button" data-replay="cB">Replay</button>
+    </div>
+    <div class="stage" data-stage>
+      <div class="frame cB" data-theme="dark" data-frame="cB">
+        <div class="ph"><img src="{{P1067}}" alt=""></div>
+        <div class="veil"></div>
+        <div class="grain"></div>
+        <div class="top">{{LOCKUP}}</div>
+        <div class="tr">{{PILL}}</div>
+        <div class="slab glass">
+          <div class="col stack">
+            <div class="mark">{{MARK40}}</div>
+            <div><h1>Sign in to Tiqo</h1><p class="blurb">Pick up where you left off.</p></div>
+            {{SSO}}
+            <div class="or">or with email</div>
+            {{FORM}}
+            <div class="trust">{{LOCK}} Encrypted sign-in. Passkeys and SSO supported.</div>
+            <div class="foot">No account yet? <a>Create one</a><span class="sep">·</span><a>Requester portal</a></div>
+          </div>
+        </div>
+        <div class="legal"><span><a>Privacy</a><a>Terms</a><a>Status</a><a>Help</a></span><span class="mono">Photo · Kevin Young · © 2026 Tiqo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ C -->
+  <section class="concept" id="cC">
+    <div class="meta">
+      <div>
+        <h2>Lobby</h2>
+        <p class="note"><b>A tall strip of building on the left, the Ledger column in the room to the right.</b> An escalator in a lit lobby, the way into an office, panning slowly from bottom to top over a minute so the strip is never quite still. The mark and a tagline live on the strip; the column and the desk light live on the plain ground. The strip is the only colour on the page besides the amber button.</p>
+        <p class="credit">Moves: the strip pans upward, the column staggers in. Photo: Sam X on Unsplash, via <a href="https://picsum.photos/id/396/info">Lorem Picsum</a>.</p>
+      </div>
+      <button class="replay" type="button" data-replay="cC">Replay</button>
+    </div>
+    <div class="stage" data-stage>
+      <div class="frame cC" data-theme="dark" data-frame="cC">
+        <div class="strip">
+          <div class="ph"><img src="{{P396}}" alt=""></div>
+          <div class="veil"></div>
+          <div class="grain"></div>
+          <div class="top">{{LOCKUP}}</div>
+          <div class="cap"><b>The way in, <i>in order.</i></b>Tickets, changes and answers on one desk.</div>
+          <div class="credit">Photo · Sam X</div>
+        </div>
+        <div class="side">
+          <div class="grid"></div>
+          <div class="tr">{{PILL}}</div>
+          <div class="col stack">
+            <div><h1>Sign in to Tiqo</h1><p class="blurb">Pick up where you left off.</p></div>
+            {{SSO}}
+            <div class="or">or with email</div>
+            {{FORM}}
+            <div class="trust">{{LOCK}} Encrypted sign-in. Passkeys and SSO supported.</div>
+            <div class="foot">No account yet? <a>Create one</a><span class="sep">·</span><a>Requester portal</a></div>
+          </div>
+          <div class="legal"><span><a>Privacy</a><a>Terms</a><a>Status</a><a>Help</a></span><span class="mono">© 2026 Tiqo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ D -->
+  <section class="concept" id="cD">
+    <div class="meta">
+      <div>
+        <h2>Cover</h2>
+        <p class="note"><b>The contained card with a photo for a cover, like a company profile.</b> A warm desk with an orange chair across the top of the card, the mark and the desk light over it, the Ledger column underneath. The chair's orange is close enough to the amber to feel chosen. The smallest photo of the five, so the page stays mostly quiet ground, and the one that would swap for a customer's own cover most easily.</p>
+        <p class="credit">Moves: the cover zooms slowly, the card rises in. Photo: Jeff Sheldon on Unsplash, via <a href="https://picsum.photos/id/534/info">Lorem Picsum</a>.</p>
+      </div>
+      <button class="replay" type="button" data-replay="cD">Replay</button>
+    </div>
+    <div class="stage" data-stage>
+      <div class="frame cD" data-theme="dark" data-frame="cD">
+        <div class="grid"></div>
+        <div class="aura"></div>
+        <div class="sheet">
+          <div class="cover">
+            <div class="ph kb warm"><img src="{{P534}}" alt=""></div>
+            <div class="veil"></div>
+            <div class="top">{{LOCKUP}}</div>
+            <div class="tr">{{PILL}}</div>
+            <div class="cap"><b>Every request, <i>answered.</i></b></div>
+          </div>
+          <div class="bd">
+            <div class="col stack">
+              <div><h1>Sign in to Tiqo</h1><p class="blurb">Pick up where you left off.</p></div>
+              {{SSO}}
+              <div class="or">or with email</div>
+              {{FORM}}
+              <div class="trust">{{LOCK}} Encrypted sign-in. Passkeys and SSO supported.</div>
+              <div class="foot">No account yet? <a>Create one</a><span class="sep">·</span><a>Requester portal</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="legal"><span><a>Privacy</a><a>Terms</a><a>Status</a><a>Help</a></span><span class="mono">Photo · Jeff Sheldon · © 2026 Tiqo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ E -->
+  <section class="concept" id="cE">
+    <div class="meta">
+      <div>
+        <h2>Triptych</h2>
+        <p class="note"><b>Three small pictures for the three things a desk is about.</b> Someone at a laptop for the work, a clock for the response time, typewriter keys for the tickets, each a rounded tile floating at its own pace on the right, each labelled in one word. The clock is black and white, the other two are muted so they sit in the palette. The Ledger column takes the left.</p>
+        <p class="credit">Moves: the tiles float at three speeds and rise in one after another, the column staggers in. Photos: Alejandro Escamilla, petradr, Sergey Zolkin on Unsplash, via <a href="https://picsum.photos/">Lorem Picsum</a>.</p>
+      </div>
+      <button class="replay" type="button" data-replay="cE">Replay</button>
+    </div>
+    <div class="stage" data-stage>
+      <div class="frame cE" data-theme="dark" data-frame="cE">
+        <div class="side">
+          <div class="grid"></div>
+          <div class="top">{{LOCKUP}}</div>
+          <div class="col stack">
+            <div class="mark">{{MARK40}}</div>
+            <div><h1>Sign in to Tiqo</h1><p class="blurb">Pick up where you left off.</p></div>
+            {{SSO}}
+            <div class="or">or with email</div>
+            {{FORM}}
+            <div class="trust">{{LOCK}} Encrypted sign-in. Passkeys and SSO supported.</div>
+            <div class="foot">No account yet? <a>Create one</a><span class="sep">·</span><a>Requester portal</a></div>
+          </div>
+          <div class="legal"><span><a>Privacy</a><a>Terms</a><a>Status</a><a>Help</a></span><span class="mono">© 2026 Tiqo</span></div>
+        </div>
+        <div class="wall">
+          <div class="tr">{{PILL}}</div>
+          <div class="tile t1"><div class="ph"><img src="{{P3}}" alt=""></div><div class="veil"></div><span class="lab mono">The work</span></div>
+          <div class="tile t2"><div class="ph mono"><img src="{{P175}}" alt=""></div><div class="veil"></div><span class="lab mono">The clock</span></div>
+          <div class="tile t3"><div class="ph"><img src="{{P403}}" alt=""></div><div class="veil"></div><span class="lab mono">The tickets</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fit(){
+    document.querySelectorAll('[data-stage]').forEach(function(st){
+      var s = st.clientWidth / 1440;
+      st.style.height = Math.round(860 * s) + 'px';
+      st.querySelector('.frame').style.transform = 'scale(' + s + ')';
+    });
+  }
+  addEventListener('resize', fit); fit();
+
+  var segs = document.querySelectorAll('.seg button[data-t]');
+  segs.forEach(function(b){
+    b.addEventListener('click', function(){
+      segs.forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      document.querySelectorAll('.frame').forEach(function(f){ f.dataset.theme = b.dataset.t; });
+    });
+  });
+
+  function play(id){
+    var f = document.querySelector('[data-frame="' + id + '"]');
+    f.classList.remove('play'); void f.offsetWidth; f.classList.add('play');
+  }
+  document.querySelectorAll('[data-replay]').forEach(function(b){ b.addEventListener('click', function(){ play(b.dataset.replay); }); });
+  ['cA','cB','cC','cD','cE'].forEach(play);
+
+  // --- the signal field: a fixed curve, decoration only
+  var field = document.querySelector('[data-field]'), N = 96; if (field)
+  for (var i = 0; i < N; i++){
+    var t = i / (N - 1);
+    var w = 0.32 + 0.28 * Math.sin(t * 6.1 + 0.8) + 0.18 * Math.sin(t * 13.7 + 2.1) + 0.12 * Math.sin(t * 27 + 0.3);
+    var fill = Math.max(0.06, Math.min(0.98, w)), hot = fill > 0.66;
+    var el = document.createElement('i'); el.style.setProperty('--i', i);
+    el.style.height = Math.round(fill * 100) + '%';
+    el.style.opacity = hot ? 1 : (0.25 + fill * 0.4);
+    if (hot) el.className = 'hot';
+    field.appendChild(el);
+  }
+
+  // --- the clock: real, or presets that show the three desk states
+  var OPEN = 8, CLOSE = 18, SOON = 60; // minutes before close that count as closing soon
+  var presets = { open: new Date(2026, 8, 8, 14, 32, 7), soon: new Date(2026, 8, 8, 17, 22, 40), fri: new Date(2026, 8, 11, 19, 5, 0) };
+  var mode = 'real', simStart = Date.now();
+  function now(){ return mode === 'real' ? new Date() : new Date(presets[mode].getTime() + (Date.now() - simStart)); }
+  var clockBtns = document.querySelectorAll('.seg button[data-clock]');
+  clockBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      clockBtns.forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      mode = b.dataset.clock; simStart = Date.now(); tick();
+    });
+  });
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function desk(d){
+    var h = d.getHours(), m = d.getMinutes(), wd = d.getDay(), weekday = wd >= 1 && wd <= 5;
+    var mins = h * 60 + m, open = weekday && mins >= OPEN * 60 && mins < CLOSE * 60;
+    var left = CLOSE * 60 - mins, soon = open && left <= SOON;
+    // When does it open next? Today (before opening on a weekday), tomorrow
+    // (Mon–Thu once it has closed or is about to), otherwise Monday.
+    var next;
+    if (weekday && mins < OPEN * 60) next = 'today ' + pad(OPEN) + ':00';
+    else if (wd >= 1 && wd <= 4) next = 'tomorrow ' + pad(OPEN) + ':00';
+    else next = 'Mon ' + pad(OPEN) + ':00';
+    var state = soon ? 'soon' : open ? 'open' : 'shut';
+    var label = state === 'open' ? 'Desk open' : state === 'soon' ? 'Desk closes in ' + left + ' min' : 'Desk closed';
+    var detail = state === 'open' ? 'closes ' + pad(CLOSE) + ':00' : 'opens ' + next;
+    return { state: state, label: label, detail: detail, frac: mins / 1440 };
+  }
+  function tick(){
+    var ds = desk(now());
+    document.querySelectorAll('.frame').forEach(function(f){
+      f.classList.toggle('soon', ds.state === 'soon');
+      f.classList.toggle('shut', ds.state === 'shut');
+    });
+    document.querySelectorAll('[data-deskstate]').forEach(function(e){ e.textContent = ds.label; });
+    document.querySelectorAll('[data-desknext]').forEach(function(e){ e.textContent = ds.detail; });
+    document.querySelectorAll('[data-now]').forEach(function(e){ e.style.left = (ds.frac * 100) + '%'; });
+  }
+  tick(); setInterval(tick, 1000);
+})();
+</script>

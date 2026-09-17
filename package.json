@@ -3,24 +3,54 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "docker compose up -d --wait",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "7.10.0",
+    "@tiptap/core": "^3.31.2",
+    "@tiptap/extension-highlight": "^3.31.2",
+    "@tiptap/extension-table": "3.31.2",
+    "@tiptap/pm": "^3.31.2",
+    "@tiptap/react": "^3.31.2",
+    "@tiptap/starter-kit": "^3.31.2",
+    "@tiptap/suggestion": "^3.31.2",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "imapflow": "^2.0.3",
+    "lucide-react": "^1.38.0",
+    "mailparser": "^3.9.26",
     "next": "16.3.4",
+    "nodemailer": "^10.0.9",
+    "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/mailparser": "^3.4.6",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "prisma": "7.10.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

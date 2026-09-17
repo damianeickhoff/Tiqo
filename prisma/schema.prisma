@@ -1,0 +1,1891 @@
+// Tiqo — ticket system schema
+// Postgres, because concurrent multi-user writes are a hard requirement.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// What kind of work the ticket is, which is a different axis from priority:
+/// an incident can be low priority and a change can be urgent.
+enum TicketType {
+  QUESTION
+  INCIDENT
+  CHANGE
+}
+
+/// How a project is going, as the person running it would say it. Set by hand
+/// rather than computed from dates: a plan that is behind but under control and
+/// one that is on time but about to fall over are different things, and only a
+/// person knows which is which.
+enum ProjectHealth {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  PAUSED
+  DELIVERED
+}
+
+enum ActivityType {
+  CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNED
+  UNASSIGNED
+  TITLE_CHANGED
+  DESCRIPTION_CHANGED
+  LABEL_ADDED
+  LABEL_REMOVED
+  DUE_DATE_CHANGED
+  COMMENTED
+  FORWARDED
+  MERGED
+  TYPE_CHANGED
+  REPORTER_CHANGED
+  PROJECT_CHANGED
+  TEAM_CHANGED
+  COMMENT_DELETED
+  COMMENT_EDITED
+  ATTACHMENT_REMOVED
+  STEP_ADDED
+  STEP_REMOVED
+  STEP_DONE
+  STEP_REOPENED
+  PLAN_APPLIED
+  REFERENCED
+  LINKED
+  UNLINKED
+  CI_ADDED
+  CI_REMOVED
+  CI_CREATED
+  CI_UPDATED
+  CI_RELATED
+  CI_UNRELATED
+  CI_IMPORTED
+  APPROVAL_REQUESTED
+  APPROVAL_GRANTED
+  APPROVAL_REFUSED
+  APPROVAL_CANCELLED
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  /// The handle people are known by. Unique, and shown wherever an account has
+  /// to be named exactly; signing in still goes by email.
+  username String @unique
+
+  /// The name is stored, not derived on read: every list orders by it and every
+  /// avatar falls back to it. It is rewritten whenever either half changes.
+  name      String
+  firstName String
+  lastName  String
+
+  /// Directory details. All optional — a new account has none of them, and
+  /// nothing in the app depends on them being filled in.
+  phone      String?
+  company    String?
+  department String?
+  jobTitle   String?
+
+  /// When this person is normally at work, in the instance time zone. An empty
+  /// day list means they have not said, and the desk own opening hours are
+  /// shown in their place — which is what the whole app did before anyone
+  /// could answer this.
+  workDays  Int[] @default([])
+  /// Minutes from midnight.
+  workStart Int   @default(540)
+  workEnd   Int   @default(1020)
+
+  /// Which dashboard widgets this person keeps, in the order they keep them —
+  /// a comma-separated list of widget ids. Null means they have never changed
+  /// it and get the default set. A string rather than a table because it is one
+  /// ordered list nobody queries across, and rather than a cookie because a
+  /// dashboard someone arranged should follow the account, not the browser.
+  dashboard String?
+
+  /// Which columns this person keeps on the register, per asset type, as JSON:
+  /// the choice only means anything inside a type, because a serial number is
+  /// not a column a licence has. A string for the same reason `dashboard` is
+  /// one — it is a preference nobody queries across — and JSON rather than a
+  /// comma list because it is a map, not an order.
+  ciColumns String?
+
+  /// The register views this person has saved: a name and the query string that
+  /// produced them. JSON rather than a table because a view is a bookmark, not
+  /// a thing anything joins to — and rather than `ciColumns`' string because
+  /// this one is a list of objects, which is exactly what Json is for.
+  ciViews Json?
+
+  /// How this person likes the documentation drawn, as JSON: whether a shelf
+  /// reads as cards or as rows, and whether a page opens in reading mode. A
+  /// string for the same reason `ciColumns` is one — two small preferences
+  /// nobody queries across — and on the account rather than in the browser,
+  /// because somebody who reads runbooks at a desk and on a phone means it
+  /// both times.
+  docPrefs String?
+
+  passwordHash  String
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  /// Which illustrated avatar this person picked. An index into AVATARS.
+  avatarVariant Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  /// The language this person reads the portal in. Null follows the instance,
+  /// which is what almost everyone wants and nobody has to set.
+  locale        String?
+  lastSeenAt    DateTime?
+
+  sessions        Session[]
+  reportedTickets Ticket[]              @relation("TicketReporter")
+  createdTickets  Ticket[]              @relation("TicketCreator")
+  assignedTickets Ticket[]              @relation("TicketAssignee")
+  comments        Comment[]
+  reactions       CommentReaction[]
+  activities      Activity[]
+  stars           TicketStar[]
+  projectStars    ProjectStar[]
+  teams           Team[]                @relation("TeamMembers")
+  projectsLed     Project[]             @relation("ProjectLead")
+  projectComments ProjectComment[]
+  articleVotes    PortalArticleVote[]
+  articlesWritten PortalArticle[]       @relation("ArticleAuthor")
+  articlesEdited  PortalArticle[]       @relation("ArticleEditor")
+  projects        Project[]             @relation("ProjectMembers")
+  notifications   Notification[]        @relation("NotificationRecipient")
+  notified        Notification[]        @relation("NotificationActor")
+  uploads         Attachment[]
+  changeSteps     ChangeStep[]          @relation("StepAssignee")
+  templateSteps   ChangeTemplateStep[]  @relation("TemplateStepAssignee")
+  completedSteps  ChangeStep[]          @relation("StepCompleter")
+  ticketLinks     TicketLink[]
+  approvalsAsked  Approval[]            @relation("ApprovalRequester")
+  approvals       Approval[]            @relation("ApprovalApprover")
+  templatesSigned ChangeTemplate[]      @relation("TemplateApprover")
+  templatesOwned  ChangeTemplate[]      @relation("TemplateDefaultAssignee")
+  phasesSigned    ChangeTemplatePhase[] @relation("TemplatePhaseApprover")
+  docsOwned       Doc[]                 @relation("DocOwner")
+  docsWritten     Doc[]                 @relation("DocAuthor")
+  docsEdited      Doc[]                 @relation("DocEditor")
+  docStars        DocStar[]
+  docRevisions    DocRevision[]
+
+  @@index([roleId])
+}
+
+/// Server-side sessions. The cookie holds a random token; only its SHA-256
+/// hash is stored, so a database leak does not hand out live sessions.
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userAgent String?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Instance-wide counters. Ticket numbering lives here rather than on Project,
+/// because a ticket does not need a project to exist and therefore cannot
+/// borrow its numbering from one.
+model Counter {
+  id    String @id
+  value Int    @default(0)
+}
+
+/// Instance-wide settings. Exactly one row, keyed by a constant id — a table
+/// rather than a config file because an admin edits these at runtime, and a
+/// single row rather than key/value pairs because every setting here has a
+/// type worth having the database enforce.
+model Instance {
+  id String @id @default("instance")
+
+  /// Every accent in the app is derived from this one colour.
+  brandColor String @default("#febe2e")
+  /// BCP-47 tag. Drives dates, times and numbers today; the interface language
+  /// once the message catalogues land.
+  locale     String @default("en-GB")
+
+  /// Whether the public register page may still create accounts. Off means
+  /// accounts come only from the People page.
+  selfRegistration Boolean @default(true)
+
+  /// The self-service portal: whether it is open, and what it says on the front
+  /// page. Separate from the desk itself, which operators use regardless.
+  portalEnabled Boolean @default(true)
+  portalTitle   String  @default("Service portal")
+  portalWelcome String  @default("Tell us what you need and we will pick it up.")
+
+  /// Why the portal is shut, shown on it. Required to close it: a door with no
+  /// notice on it sends people to the phone.
+  portalClosedReason String?
+
+  /// Opening hours. With these on, the response clock only runs while the desk
+  /// is open — a ticket raised on Friday evening is not late by Monday.
+  businessHours Boolean @default(false)
+  /// ISO weekdays the desk is open, 1 = Monday.
+  businessDays  Int[]   @default([1, 2, 3, 4, 5])
+  /// Minutes from midnight, in the instance time zone.
+  businessStart Int     @default(540)
+  businessEnd   Int     @default(1020)
+  timeZone      String  @default("Europe/Amsterdam")
+
+  /// Which locale dates and numbers are written in, when that should not be the
+  /// one the interface speaks. Null follows the language, which is what an
+  /// instance that has never been asked wants.
+  dateLocale String?
+
+  /// What a new ticket starts as, before anyone touches the form.
+  defaultType      TicketType @default(QUESTION)
+  defaultPriority  Priority   @default(MEDIUM)
+  defaultProjectId String?
+  defaultProject   Project?   @relation(fields: [defaultProjectId], references: [id], onDelete: SetNull)
+
+  /// How the desk chases a review. The owner hears once before the date, then
+  /// on a rhythm until they answer — the first is the useful one and the rest
+  /// are what stops a page drifting a year past its date. Zero on either turns
+  /// that half off.
+  docRemindDays         Int     @default(7)
+  docRemindEveryDays    Int     @default(14)
+  /// After the second reminder went unanswered, the team that answers for the
+  /// shelf hears too. Off by default: an owner who is on holiday is a normal
+  /// week, and telling four people on the Tuesday is how a desk learns to
+  /// ignore the notice.
+  docEscalateToTeam     Boolean @default(false)
+  /// Whether the tick in the editor's footer starts on. Somebody who has just
+  /// rewritten a page has read it; somebody who fixed a typo has not, which is
+  /// why it is a default rather than a rule.
+  docEditCountsAsReview Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
+}
+
+/// How long a ticket of each priority may sit before it counts as overdue. The
+/// priorities themselves are fixed — low through urgent is the scale — but what
+/// each one promises is the desk's own business.
+model PriorityTarget {
+  priority    Priority @id
+  targetHours Int
+}
+
+/// Words the desk will not accept in a message. Stored folded to lower case;
+/// matching is case-insensitive and on whole words.
+model BlockedWord {
+  id        String   @id @default(cuid())
+  word      String   @unique
+  createdAt DateTime @default(now())
+}
+
+/// What a role may do. The master role is the one exception: it is never
+/// edited, never deleted, and every check against it passes — an instance that
+/// can lock itself out of its own settings is a support call waiting to happen.
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isMaster    Boolean  @default(false)
+  /// Permission keys, from the catalogue in src/lib/permissions.ts. Empty on
+  /// the master role, which does not consult them.
+  permissions String[] @default([])
+  /// Where a new account lands. Exactly one role carries this.
+  isDefault   Boolean  @default(false)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  users User[]
+}
+
+/// A desk, not a tier. A ticket belongs to the team that owns the work, and
+/// "escalating" is handing it to another team — which keeps the level a fact
+/// about the work rather than a rank attached to a person.
+/// The stages a ticket moves through. Fully the desk's own: rename them, add
+/// them, delete them. `settles` is the only thing the app reads behaviour from
+/// — everything else about a status is presentation.
+model Status {
+  id    String @id @default(cuid())
+  name  String @unique
+  color String @default("#9a9287")
+
+  /// A ticket in this status is off the queue: the response clock stops and it
+  /// counts as settled in the numbers.
+  settles         Boolean  @default(false)
+  /// Where the Close action sends a ticket. At most one status holds this.
+  isClosing       Boolean  @default(false)
+  /// Where a refused change goes. At most one status holds this, and it is
+  /// deliberately not the closing one: a change somebody said no to did not
+  /// run and then finish, it never ran, and a desk that cannot tell those
+  /// apart cannot answer "how many changes were rejected this quarter".
+  isCancelling    Boolean  @default(false)
+  /// Where a new ticket starts. At most one status holds this.
+  isDefault       Boolean  @default(false)
+  /// Whether a ticket in this status is worth showing on the requester's own
+  /// portal home. A desk decides which of its states are news to the person
+  /// who asked, and which are its own bookkeeping.
+  showOnPortal    Boolean  @default(false)
+  /// Whether the response clock stops here. A ticket parked waiting on the
+  /// person who raised it is not a ticket the desk is being slow about, and a
+  /// target that keeps running through it measures the requester, not the desk.
+  pausesClock     Boolean  @default(false)
+  /// Where a ticket in this status goes when the requester answers. Null leaves
+  /// it where it is. This is what turns "waiting on user" back into something
+  /// on the desk's plate the moment they reply.
+  onReplyStatusId String?
+  onReplyStatus   Status?  @relation("StatusOnReply", fields: [onReplyStatusId], references: [id], onDelete: SetNull)
+  precededBy      Status[] @relation("StatusOnReply")
+  position        Int      @default(0)
+
+  tickets Ticket[]
+}
+
+model Team {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  color       String  @default("#febe2e")
+  position    Int     @default(0)
+
+  members     User[]               @relation("TeamMembers")
+  forms       PortalForm[]
+  tickets     Ticket[]
+  /// Plan steps handed to the group rather than to a person, in a template and
+  /// on the changes that template was laid down on.
+  planSteps   ChangeTemplateStep[]
+  changeSteps ChangeStep[]
+  projects    Project[]
+  items       ConfigurationItem[]
+  docs        DocSpace[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  key         String   @unique // short code, e.g. "SUP"
+  name        String
+  description String?
+  color       String   @default("#6366f1")
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  /// The one-line answer to "how is it going".
+  health   ProjectHealth @default(ON_TRACK)
+  startsOn DateTime?
+  dueOn    DateTime?
+
+  /// The desk that owns it, when a group answers for it rather than a person.
+  /// Independent of the lead: a project can be a team's without anybody having
+  /// put their name to it yet.
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  /// Who answers for it. Everyone else on it is a member; the lead is the one
+  /// name on the card.
+  leadId String?
+  lead   User?   @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
+
+  members       User[]           @relation("ProjectMembers")
+  stars         ProjectStar[]
+  activities    Activity[]
+  comments      ProjectComment[]
+  notifications Notification[]
+  milestones    Milestone[]
+  tickets       Ticket[]
+  forms         PortalForm[]
+
+  /// Set when this project is the one new tickets start in.
+  defaultFor Instance[]
+
+  @@index([isArchived])
+  @@index([leadId])
+  @@index([teamId])
+}
+
+/// A dated point in a project that tickets are filed against.
+///
+/// Deliberately not a sprint: a service desk plans around the date something
+/// has to be true by — a migration weekend, an audit, a go-live — not around a
+/// fixed-length box that work is poured into.
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  dueOn       DateTime?
+  /// Set when someone declares it reached. Its tickets may still be open —
+  /// that is the desk's call to make, not a rule to enforce.
+  reachedAt   DateTime?
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  tickets Ticket[]
+
+  @@index([projectId, position])
+}
+
+/// A project's own conversation.
+///
+/// Separate from ticket comments on purpose: making `Comment.ticketId` nullable
+/// would put "and it really does have a ticket" into every query that reads a
+/// ticket's thread, which is a cost paid on every read to save one table.
+model ProjectComment {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  editedAt  DateTime?
+
+  @@index([projectId, createdAt])
+}
+
+/// Tags are instance-wide. They used to hang off a project, which stopped
+/// working the moment a ticket was allowed to exist without one.
+model Label {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#febe2e")
+  createdAt DateTime @default(now())
+
+  tickets Ticket[] @relation("TicketLabels")
+}
+
+model Ticket {
+  id String @id @default(cuid())
+
+  /// Internal sequence. Stable, compact, and what the URL uses.
+  number Int @unique
+
+  /// The human reference, e.g. "INC-2709 0001": type prefix, year and month of
+  /// filing, then a per-type-per-month sequence. Assigned once at creation and
+  /// never rewritten — a reference people have quoted has to keep meaning the
+  /// same ticket, even if its type later changes.
+  reference   String     @unique
+  title       String
+  description String     @default("")
+  /// Null when the status a ticket held was deleted: the work is still there,
+  /// it simply has no stage any more, and the queue shows it as unset.
+  statusId    String?
+  status      Status?    @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  priority    Priority   @default(MEDIUM)
+  type        TicketType @default(QUESTION)
+
+  /// Optional. A ticket may belong to a project, but most never do — a project
+  /// groups related work, it is not a container every ticket must sit in.
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  /// Who the ticket is *about*. An agent raising one on someone's behalf sets
+  /// this to that person, which is why it is separate from `createdBy`.
+  reporterId String
+  reporter   User     @relation("TicketReporter", fields: [reporterId], references: [id])
+
+  /// Who actually filed it. Null only for rows that predate the column.
+  createdById String?
+  createdBy   User?   @relation("TicketCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  assigneeId  String?
+  assignee    User?   @relation("TicketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  dueDate    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
+  closedAt   DateTime?
+
+  /// Working minutes this ticket has spent in a status that stops the clock,
+  /// accumulated as it leaves each one. Stored rather than derived from the
+  /// activity trail: every queue row reads it, and walking a ticket's history
+  /// to draw one bar is a query nobody should pay for.
+  pausedMinutes Int       @default(0)
+  /// When the current pause began, if it is paused now.
+  pausedSince   DateTime?
+
+  /// The portal form that raised this, when one did. Kept so the desk can see
+  /// how a request was made, and so a form can be judged by how much it is used.
+  portalFormId String?
+  portalForm   PortalForm? @relation(fields: [portalFormId], references: [id], onDelete: SetNull)
+
+  /// The change template this ticket's plan was laid down from, when one was.
+  /// Provenance only — the steps themselves are copies and stay the ticket's own
+  /// — but without it the designer cannot answer "where is this plan in use",
+  /// which is the question that decides whether an edit is safe to make.
+  templateId String?
+  template   ChangeTemplate? @relation("TicketTemplate", fields: [templateId], references: [id], onDelete: SetNull)
+
+  /// Reserved for the TOPdesk (and other external system) sync: which system a
+  /// ticket came from and its id over there. Unique pair prevents double-import.
+  externalSource String?
+  externalId     String?
+
+  /// Set when this ticket has been merged into another: its conversation moves
+  /// to the target and the ticket itself is closed, but the row stays so the
+  /// old number keeps resolving.
+  mergedIntoId String?
+  mergedInto   Ticket?  @relation("TicketMerge", fields: [mergedIntoId], references: [id], onDelete: SetNull)
+  mergedFrom   Ticket[] @relation("TicketMerge")
+
+  labels        Label[]        @relation("TicketLabels")
+  linksOut      TicketLink[]   @relation("LinkSource")
+  linksIn       TicketLink[]   @relation("LinkTarget")
+  items         TicketCi[]
+  comments      Comment[]
+  attachments   Attachment[]
+  activities    Activity[]
+  stars         TicketStar[]
+  notifications Notification[]
+  steps         ChangeStep[]
+  approvals     Approval[]
+  mails         MailMessage[]
+  team          Team?          @relation(fields: [teamId], references: [id])
+  teamId        String?
+  /// Which dated point in the project this is filed against, if any. Losing the
+  /// milestone must never take the ticket with it.
+  milestoneId   String?
+  milestone     Milestone?     @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+
+  @@unique([externalSource, externalId])
+  @@index([templateId])
+  @@index([statusId])
+  @@index([priority])
+  @@index([assigneeId])
+  @@index([reporterId])
+  @@index([projectId, statusId])
+  @@index([createdAt])
+}
+
+/// What one ticket has to do with another. Directed: the row is written from
+/// the ticket somebody was looking at, and the far end reads it backwards —
+/// "blocks" one way is "blocked by" the other, and one row cannot contradict
+/// itself the way a stored pair can.
+enum TicketLinkKind {
+  RELATES_TO
+  DUPLICATES
+  BLOCKS
+  CAUSED_BY
+  PARENT_OF
+}
+
+model TicketLink {
+  id   String         @id @default(cuid())
+  kind TicketLinkKind
+
+  sourceId String
+  source   Ticket @relation("LinkSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetId String
+  target   Ticket @relation("LinkTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  /// One statement per pair per kind. Saying the same thing twice is a slip,
+  /// not an opinion held more strongly.
+  @@unique([sourceId, targetId, kind])
+  @@index([targetId])
+}
+
+/// A star is personal — it marks a ticket as one *you* are watching, so it is a
+/// join row rather than a flag on the ticket.
+/// A project somebody keeps an eye on. Same shape as a starred ticket, and
+/// for the same reason: "mine" is not the same question as "interesting".
+model ProjectStar {
+  userId    String
+  projectId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, projectId])
+  @@index([userId])
+}
+
+model TicketStar {
+  userId    String
+  ticketId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, ticketId])
+  @@index([userId])
+}
+
+model Comment {
+  id       String @id @default(cuid())
+  body     String
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  /// Internal notes are visible to agents and admins only, never to requesters.
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  /// Set the first time the body is changed, so the UI can say "edited" without
+  /// mistaking a reaction or any other write for an edit.
+  editedAt DateTime?
+
+  /// Set when the comment belongs to one step of a change rather than to the
+  /// change itself. A step conversation is still a conversation: same author
+  /// rules, same blocked words, same editing.
+  stepId String?
+  step   ChangeStep? @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  /// Set when someone raised this comment above the rest of the thread. A
+  /// timestamp rather than a flag so the pinned strip has an order of its own.
+  pinnedAt DateTime?
+
+  /// A reply to another comment. Deleting a parent takes its replies with it.
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  reactions   CommentReaction[]
+  attachments Attachment[]
+
+  @@index([ticketId, createdAt])
+  @@index([stepId, createdAt])
+  @@index([parentId])
+  @@index([ticketId, pinnedAt])
+}
+
+/// A file somebody attached.
+///
+/// Always anchored to a ticket, even when it arrived with a reply: "the files
+/// on this ticket" is then one indexed read rather than a walk through the
+/// conversation, which is what lets the queue say a ticket has any at all. The
+/// comment is the second half of the address, and the half that governs who may
+/// read it. The rows cascade with their parent; the bytes do not, which is why
+/// every deletion goes through `src/lib/files.ts` rather than through Prisma
+/// alone.
+model Attachment {
+  id String @id @default(cuid())
+
+  /// What it was called on the machine it came from. Shown, and sent back in
+  /// the download header — never used as a path. The file on disk is named
+  /// `id`, because a filename is user input and user input is not a path.
+  filename String
+  /// What the browser said it was. Trusted for display and for deciding
+  /// whether a preview is worth drawing, never for anything else.
+  mimeType String
+  /// Bytes. Stored so a list of attachments can be drawn without stat-ing the
+  /// disk once per row.
+  size     Int
+
+  /// What the file hangs from. Exactly one of the two is set: a file is part of
+  /// a conversation or part of a page, and the one it belongs to is what
+  /// decides who may read it. Nullable rather than two tables because the bytes
+  /// are stored, served and deleted identically either way, and a second table
+  /// would be a second copy of `src/lib/files.ts` to keep in step.
+  ticketId  String?
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  docId     String?
+  doc       Doc?     @relation(fields: [docId], references: [id], onDelete: Cascade)
+  /// Set when the file came in with a comment rather than with the ticket
+  /// itself. The comment's visibility then governs the file's: an attachment on
+  /// an internal note is internal, and a file with no comment is part of the
+  /// request as it was raised.
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  uploadedById String?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([docId, createdAt])
+  @@index([commentId])
+}
+
+/// One row per person per emoji per comment, so a reaction is a toggle rather
+/// than a counter that can drift.
+model CommentReaction {
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String
+  createdAt DateTime @default(now())
+
+  @@id([commentId, userId, emoji])
+  @@index([commentId])
+}
+
+/// Append-only audit trail. Every mutation to a ticket writes one row.
+model Activity {
+  id   String       @id @default(cuid())
+  type ActivityType
+
+  /// Almost every event is about a ticket. The exception is a reference
+  /// written somewhere else that points *at* a project — that belongs in the
+  /// project's history, and has no ticket to hang from.
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  /// And the third: a reference written at a document from somewhere else. A
+  /// document keeps its own history as revisions, so this is only ever the
+  /// incoming half of a reference — the half that answers "who is relying on
+  /// this runbook", which the revisions cannot.
+  docId     String?
+  doc       Doc?     @relation(fields: [docId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  /// Set when the event is about one step of a change rather than the change as
+  /// a whole, so the step's own page can show its history. Cleared rather than
+  /// cascaded when the step goes: "removed step X" is exactly the row that has
+  /// to survive the step it describes.
+  stepId String?
+  step   ChangeStep? @relation(fields: [stepId], references: [id], onDelete: SetNull)
+
+  /// Set when the event is about a configuration item. Cascaded rather than
+  /// cleared, unlike a step: an asset's history is about the asset, and once it
+  /// is gone there is no page left to read those rows on. A record that has to
+  /// outlive the thing it describes belongs in the audit log, not here.
+  itemId String?
+  item   ConfigurationItem? @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  field    String?
+  oldValue String?
+  newValue String?
+
+  /// Where the thing this entry names can be found, for the entries that name
+  /// something openable. Stored rather than looked up, for the same reason a
+  /// reference is stored as a link: a history of forty rows should not become
+  /// forty queries to render.
+  link String?
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([docId, createdAt])
+  @@index([stepId, createdAt])
+  @@index([itemId, createdAt])
+}
+
+/// What happened that someone needs to know about. Deliberately narrow: a
+/// notification is an interruption, so it is only written for the two things
+/// that change what an operator does next — work landing on their name, and
+/// someone answering on work they hold.
+/// Where a step stands. More than done-or-not, because "someone is on it" and
+/// "we decided not to" are different answers, and a plan that cannot say either
+/// gets them written in the notes instead.
+enum StepStatus {
+  OPEN
+  IN_PROGRESS
+  /// Someone is waiting on something the plan cannot express: a decision, a
+  /// supplier, an approval. Distinct from the gates, which the plan works out
+  /// for itself — this one a person sets, and it needs a person to clear.
+  BLOCKED
+  DONE
+  SKIPPED
+}
+
+enum NotificationKind {
+  ASSIGNED
+  /// A ticket the desk did not raise itself: it arrived by mail. Nobody is
+  /// assigned yet, so it is told to whoever works the queue rather than to one
+  /// person — a mailbox that fills up unnoticed is the failure this feature has.
+  RAISED
+  FORWARDED
+  COMMENTED
+  MENTIONED
+  APPROVAL_REQUESTED
+  APPROVAL_DECIDED
+  /// Somebody has put a ticket in front of the one you are working on. Its own
+  /// kind rather than a comment, because nothing was said — the work simply
+  /// stopped being yours to finish.
+  BLOCKED
+  /// A page you answer for, changed by somebody else — or left untouched for
+  /// as long as its owner said it may be.
+  DOC_EDITED
+  DOC_STALE
+}
+
+/// One row per person per event. Nobody is notified of their own doing, so the
+/// actor is never the recipient.
+model Notification {
+  id     String           @id @default(cuid())
+  userId String
+  user   User             @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  kind   NotificationKind
+
+  /// A notice points at one thing. Which of the two it is depends on where the
+  /// event happened — a mention in a project's conversation has no ticket to
+  /// point at, and inventing one would send people somewhere they never were.
+  ticketId  String?
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  /// The third thing a notice can be about. A page has no ticket and no
+  /// project behind it — a space is not a project — so it points at itself.
+  docId     String?
+  doc       Doc?     @relation(fields: [docId], references: [id], onDelete: Cascade)
+
+  /// Who did it. Nullable so deleting an account leaves the notice readable.
+  actorId String?
+  actor   User?   @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+  @@index([ticketId])
+  @@index([projectId])
+  @@index([docId])
+}
+
+/// A step in a change's plan.
+///
+/// Deliberately *not* a ticket: no reference, no response target, and never
+/// counted in a queue. A change is one piece of work with an order of doing —
+/// the moment a step becomes a ticket, "six open" stops meaning six pieces of
+/// work, and every count on the dashboard starts lying.
+model ChangeStep {
+  id       String @id @default(cuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  title         String
+  /// What the step actually involves. Copied from the plan, then the ticket's
+  /// own — the person doing it may know more than the plan did.
+  description   String?
+  status        StepStatus @default(OPEN)
+  /// Why the step is stuck, written by whoever set it to BLOCKED. Kept on the
+  /// step rather than in a comment so the plan can say it in one line wherever
+  /// the step is drawn, and cleared the moment the block is solved.
+  blockedReason String?
+  position      Int
+
+  /// The phase this step belongs to, copied from the plan by name: once applied
+  /// the steps are the ticket's own, and a phase renamed in settings must not
+  /// rewrite the history of a change already under way.
+  phase      String?
+  phaseOrder Int     @default(0)
+
+  /// When this step is due. Absolute here, relative in the plan it came from.
+  dueAt DateTime?
+
+  /// How long the step is expected to take, in minutes. Copied from the plan and
+  /// then the ticket's own. Minutes rather than a free-text "2 h" so the plan can
+  /// add them up and say how long the whole change is.
+  estimateMinutes Int?
+
+  /// Whether the phase is finished while this step is not. Off, the step is a
+  /// nicety the next phase does not wait for; on — which is what every step was
+  /// before the flag existed — it holds the gate.
+  blocksPhase Boolean @default(true)
+
+  /// Whether deciding not to do this step has to be justified. Set in the plan:
+  /// some steps are optional, and some are the ones an auditor asks about.
+  skipNeedsReason Boolean @default(false)
+  /// Why it was skipped, when one was asked for.
+  skipReason      String?
+
+  /// The one step that must be finished first. A single predecessor rather than
+  /// a graph: it covers "not before X" without becoming a workflow engine, and
+  /// it cannot cycle because it may only point at an earlier step.
+  dependsOnId String?
+  dependsOn   ChangeStep?  @relation("StepDependency", fields: [dependsOnId], references: [id], onDelete: SetNull)
+  dependents  ChangeStep[] @relation("StepDependency")
+
+  comments   Comment[]
+  activities Activity[]
+
+  /// Steps in one change are often owned by different people — that is most of
+  /// the reason a plan exists rather than a checklist in the description.
+  assigneeId String?
+  assignee   User?   @relation("StepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  /// The group the step went to, when the plan named one rather than a person.
+  /// Kept beside the assignee rather than instead of it: the group is who it was
+  /// handed to, the person is who picked it up.
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  doneAt   DateTime?
+  doneById String?
+  doneBy   User?     @relation("StepCompleter", fields: [doneById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, position])
+  @@index([assigneeId])
+}
+
+/// A named plan that can be laid down on a change in one go. The standard
+/// changes a desk repeats — onboarding, a server move — are the whole point:
+/// without templates a plan is retyped every time and quietly drifts.
+model ChangeTemplate {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  position    Int     @default(0)
+
+  /// Who signs the change off as a whole. Set here, the plan opens a request
+  /// against the whole ticket the moment it is applied, so a change that always
+  /// needs the same person's name on it stops depending on somebody remembering
+  /// to ask. One person rather than a list: a standing rule is a standing rule,
+  /// and a round that needs more names can be widened on the ticket.
+  approverId String?
+  approver   User?   @relation("TemplateApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+  /// Who the steps go to when the plan does not say. Without it every step of a
+  /// plan written for one team has to name the same person, and the day that
+  /// person leaves the plan has to be edited a dozen times.
+  defaultAssigneeId String?
+  defaultAssignee   User?   @relation("TemplateDefaultAssignee", fields: [defaultAssigneeId], references: [id], onDelete: SetNull)
+
+  steps     ChangeTemplateStep[]
+  phases    ChangeTemplatePhase[]
+  forms     PortalForm[]
+  /// The changes this plan has been laid down on, for "where it is used".
+  tickets   Ticket[]              @relation("TicketTemplate")
+  createdAt DateTime              @default(now())
+}
+
+/// A phase groups the steps that can be worked at the same time. The gate
+/// between phases is the whole point: nothing in a later phase may start while
+/// anything in an earlier one is unfinished.
+model ChangeTemplatePhase {
+  id         String         @id @default(cuid())
+  templateId String
+  template   ChangeTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  name       String
+  position   Int
+
+  /// Who signs this phase off. The gate between phases is already the point of
+  /// having them, so the sign-off belongs on the phase rather than only on the
+  /// change: "nothing in Develop starts until the change manager has said yes"
+  /// is the rule most desks actually run.
+  approverId String?
+  approver   User?   @relation("TemplatePhaseApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+  steps ChangeTemplateStep[]
+
+  @@index([templateId, position])
+}
+
+model ChangeTemplateStep {
+  id          String               @id @default(cuid())
+  templateId  String
+  template    ChangeTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  phaseId     String?
+  phase       ChangeTemplatePhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  title       String
+  /// What this step involves, written once in the plan so nobody has to explain
+  /// it again on every change that uses it.
+  description String?
+  position    Int
+
+  /// Days after the plan is applied. Relative, because a plan does not know
+  /// when it will be used.
+  dueDays Int?
+
+  /// Who usually does this step. Optional, and only a starting point — the
+  /// change decides who actually has it.
+  assigneeId String?
+  assignee   User?   @relation("TemplateStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  /// Or the group it goes to, when the plan is written in terms of who does the
+  /// work rather than who happens to be free. One or the other, never both.
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  /// How long the step usually takes, in minutes. Minutes rather than "2 h" so
+  /// the header can add the plan up.
+  estimateMinutes Int?
+
+  /// Whether the phase is finished while this step is not — see `ChangeStep`,
+  /// which is where the copy of it does the work.
+  blocksPhase     Boolean @default(true)
+  /// Whether deciding not to do this step has to be justified.
+  skipNeedsReason Boolean @default(false)
+
+  dependsOnId String?
+  dependsOn   ChangeTemplateStep?  @relation("TemplateStepDependency", fields: [dependsOnId], references: [id], onDelete: SetNull)
+  dependents  ChangeTemplateStep[] @relation("TemplateStepDependency")
+
+  @@index([templateId, position])
+  @@index([phaseId])
+}
+
+enum ApprovalState {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+/// A decision the work is waiting on. Not a step: a step is something somebody
+/// does, and this is something somebody permits — plans express the first and
+/// were never meant to express the second.
+model Approval {
+  id       String        @id @default(cuid())
+  ticketId String
+  ticket   Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  /// The plan phase this gates, by name, matching `ChangeStep.phase`. Null
+  /// gates the ticket as a whole. By name for the same reason a step carries
+  /// its phase by name: once asked, the question is the ticket's own, and a
+  /// phase reworded in a template must not rewrite it.
+  phase    String?
+  state    ApprovalState @default(PENDING)
+  /// What is being asked, in the requester's words. A name and a due date are
+  /// not enough for somebody to answer with.
+  question String?
+  dueAt    DateTime?
+
+  /// The one person being asked. One rather than a list: a decision somebody
+  /// has to be accountable for is one person's to make, and a round split
+  /// across three names is three people each assuming one of the others will
+  /// answer. Changing who is asked means asking again — the old request is
+  /// withdrawn rather than left standing beside the new one.
+  ///
+  /// Nullable only so deleting an account leaves the decision it made readable.
+  approverId String?
+  approver   User?   @relation("ApprovalApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+  /// Why, in their words. Required on a refusal: "no" with no reason produces
+  /// the same request again.
+  comment String?
+
+  requestedById String?
+  requestedBy   User?     @relation("ApprovalRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  decidedAt     DateTime?
+
+  @@index([ticketId, state])
+  @@index([approverId, state])
+}
+
+/**
+ * ------------------------------------------------------- self-service --
+ */
+
+/// A shelf on the portal's front page. Categories are how a person who does not
+/// think in ticket types finds the right form: "my laptop" rather than
+/// "incident".
+model PortalCategory {
+  id          String  @id @default(cuid())
+  /// Stable in the URL, so a link someone pinned keeps working when the title
+  /// is reworded.
+  slug        String  @unique
+  name        String
+  description String?
+
+  /// Sections nest one level: a catalogue that nests further is one nobody
+  /// finishes browsing.
+  parentId String?
+  parent   PortalCategory?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children PortalCategory[] @relation("CategoryTree")
+  /// A lucide icon name, or null for the default. Kept as a name rather than an
+  /// upload so a category costs nothing to add.
+  icon     String?
+  /// An image behind the tile, as a URL. Optional, and never required — a
+  /// portal with no artwork must still look deliberate.
+  image    String?
+  color    String           @default("#febe2e")
+  position Int              @default(0)
+  isActive Boolean          @default(true)
+
+  forms     PortalForm[]
+  articles  PortalArticle[]
+  blocks    PortalBlock[]
+  docSpaces DocSpace[]
+  createdAt DateTime        @default(now())
+
+  @@index([parentId, position])
+}
+
+/// A form a requester fills in. It decides what the resulting ticket is: its
+/// type, and optionally where it lands.
+model PortalForm {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String?
+  /// What the catalogue card says. Shorter than the description, which is the
+  /// help text at the top of the form itself.
+  summary      String?
+  /// Extra words that should find this form in search — the names people
+  /// actually use for it, which are rarely the ones on the label.
+  keywords     String[] @default([])
+  isFeatured   Boolean  @default(false)
+  /// Shown after sending. A form that ends in silence is one people fill in
+  /// twice.
+  confirmation String?
+  icon         String?
+  color        String   @default("#febe2e")
+  position     Int      @default(0)
+  isActive     Boolean  @default(true)
+
+  categoryId String?
+  category   PortalCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  /// What is raised when this form is sent.
+  type     TicketType @default(QUESTION)
+  priority Priority   @default(MEDIUM)
+
+  /// Where it lands, if the desk routes this kind of request somewhere fixed.
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  /// The plan a change raised through this form follows.
+  planId String?
+  plan   ChangeTemplate? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  sections     PortalFormSection[]
+  fields       PortalFormField[]
+  translations PortalFormTranslation[]
+  tickets      Ticket[]
+  createdAt    DateTime                @default(now())
+
+  @@index([categoryId, position])
+}
+
+/// A group of questions with a heading. Long forms are answered in chunks or
+/// not at all.
+model PortalFormSection {
+  id     String     @id @default(cuid())
+  formId String
+  form   PortalForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  position    Int
+
+  fields PortalFormField[]
+
+  @@index([formId, position])
+}
+
+enum PortalFieldKind {
+  TEXT
+  TEXTAREA
+  SELECT
+  RADIO
+  CHECKBOX
+  NUMBER
+  EMAIL
+  PHONE
+  DATE
+}
+
+/// Where a field's answer ends up on the ticket. Anything not mapped is
+/// appended to the description as a labelled line, so no answer is ever lost.
+enum PortalFieldTarget {
+  NONE
+  TITLE
+  DESCRIPTION
+}
+
+model PortalFormField {
+  id     String     @id @default(cuid())
+  formId String
+  form   PortalForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  sectionId String?
+  section   PortalFormSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  label       String
+  hint        String?
+  placeholder String?
+  kind        PortalFieldKind   @default(TEXT)
+  target      PortalFieldTarget @default(NONE)
+  required    Boolean           @default(false)
+  /// Half-width fields sit two to a row, which is what stops a form of short
+  /// answers reading as a column of boxes.
+  halfWidth   Boolean           @default(false)
+
+  /// Shown only when another answer matches. One condition, not a rule engine:
+  /// it covers "only if yes" without anyone having to debug a form.
+  showWhenFieldId String?
+  showWhenField   PortalFormField?             @relation("FieldCondition", fields: [showWhenFieldId], references: [id], onDelete: SetNull)
+  conditionFor    PortalFormField[]            @relation("FieldCondition")
+  translations    PortalFormFieldTranslation[]
+  showWhenValue   String?
+  /// Choices, for a select. Empty for every other kind.
+  options         String[]                     @default([])
+  position        Int
+
+  @@index([formId, position])
+  @@index([sectionId, position])
+}
+
+/// A self-help article. The half of self-service that is not a form: most of
+/// what a desk is asked is something it has already answered.
+model PortalArticle {
+  id       String   @id @default(cuid())
+  slug     String   @unique
+  title    String
+  /// A sentence for the card, so a list of articles reads without opening them.
+  summary  String?
+  body     String
+  /// The words people search with, which are rarely the words in the title.
+  keywords String[] @default([])
+
+  categoryId String?
+  category   PortalCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  isPublished Boolean @default(false)
+  isFeatured  Boolean @default(false)
+  position    Int     @default(0)
+
+  /// Opened this many times. The only number that says which answers are
+  /// actually wanted.
+  views Int @default(0)
+
+  votes        PortalArticleVote[]
+  translations PortalArticleTranslation[]
+  /// Set when this answer was published from a document rather than written
+  /// here. The two are then free to diverge — what you tell a requester is
+  /// shorter than what you tell an engineer — and the admin page says so.
+  doc          Doc?
+
+  /// Who wrote it, and who touched it last. Both are shown: an answer is worth
+  /// as much as the person standing behind it, and "who changed this" is the
+  /// first question asked when one goes stale.
+  createdById String?
+  createdBy   User?   @relation("ArticleAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   User?   @relation("ArticleEditor", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId, position])
+}
+
+/// Whether one person found one answer useful.
+///
+/// A row per person rather than two counters on the article: a counter cannot
+/// tell a second opinion from a second person, and "helped n people this month"
+/// needs a date on the vote to be answerable at all. Voting again replaces the
+/// row, so changing your mind corrects the tally instead of adding to it.
+model PortalArticleVote {
+  id        String        @id @default(cuid())
+  articleId String
+  article   PortalArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  helpful   Boolean
+  createdAt DateTime      @default(now())
+
+  @@unique([articleId, userId])
+  @@index([articleId, createdAt])
+}
+
+enum AnnouncementTone {
+  INFO
+  WARNING
+  OUTAGE
+}
+
+/// Something everyone should see before they raise a ticket about it. A desk
+/// with a known outage and no banner spends its morning saying so by hand.
+model PortalAnnouncement {
+  id       String           @id @default(cuid())
+  title    String
+  body     String?
+  tone     AnnouncementTone @default(INFO)
+  isActive Boolean          @default(true)
+  /// The window it is live in. Both open by default: a notice with no dates is
+  /// on until somebody turns it off.
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  /// Pinned to the top of every portal page rather than sitting in the notices
+  /// band on the front page. One at a time: a page with two banners has none.
+  isBanner Boolean @default(false)
+
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+/// What the portal's front page is made of.
+enum PortalBlockKind {
+  HERO
+  ANNOUNCEMENTS
+  CATEGORIES
+  FEATURED_FORMS
+  ARTICLES
+  MY_REQUESTS
+  RICH_TEXT
+}
+
+/// One band of the front page. The page is a list of these rather than a fixed
+/// layout, so a desk can lead with search, with its catalogue or with a notice
+/// without anyone editing a template.
+model PortalBlock {
+  id       String          @id @default(cuid())
+  kind     PortalBlockKind
+  position Int
+  isActive Boolean         @default(true)
+  /// How many of the front page own six columns this band takes. Two is a
+  /// third of the page and the narrowest anything stays readable at; six is
+  /// the whole row.
+  span     Int             @default(6)
+
+  title    String?
+  subtitle String?
+  /// How many items the band shows, where that means anything.
+  limit    Int?    @default(6)
+
+  /// Narrows a band to one section of the catalogue.
+  categoryId String?
+  category   PortalCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([position])
+}
+
+/// One answer in one language.
+///
+/// The article itself carries what is true in every language — where it sits,
+/// how often it is opened, who wrote it. The words live here, so a second
+/// language is a row rather than a second article with its own views and votes
+/// to reconcile. A locale nobody has written yet falls back to the instance's.
+model PortalArticleTranslation {
+  id        String        @id @default(cuid())
+  articleId String
+  article   PortalArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  /// BCP-47, matching the instance and user locales.
+  locale    String
+  title     String
+  summary   String?
+  body      String
+
+  @@unique([articleId, locale])
+}
+
+/// A form's own words, per language.
+model PortalFormTranslation {
+  id          String     @id @default(cuid())
+  formId      String
+  form        PortalForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String
+  description String?
+  summary     String?
+
+  @@unique([formId, locale])
+}
+
+/// One question's words, per language. The kind, the target and whether it is
+/// required are the same in every language — only what it says changes.
+model PortalFormFieldTranslation {
+  id          String          @id @default(cuid())
+  fieldId     String
+  field       PortalFormField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  locale      String
+  label       String
+  hint        String?
+  placeholder String?
+  /// Choices in this language, in the same order as the field's own.
+  options     String[]        @default([])
+
+  @@unique([fieldId, locale])
+}
+
+/**
+ * ---------------------------------------------------------------- mail --
+ */
+
+/// How this instance talks to a mail server. One row, like `Instance`.
+///
+/// In the database rather than in the environment, because the settings screen
+/// owns it: a desk whose admin cannot fix a wrong password without a shell is a
+/// desk that stays silent. The cost is that the mailbox password is readable to
+/// anyone holding the database, which is the same trust boundary the session
+/// table already sits inside.
+model MailSettings {
+  id String @id @default("mail")
+
+  /// Sending. Off until a host is set — an instance with no mail server
+  /// configured must behave exactly as it does today, not fail loudly.
+  smtpHost   String?
+  smtpPort   Int     @default(587)
+  smtpSecure Boolean @default(false)
+  smtpUser   String?
+  smtpPass   String?
+  /// What the desk signs its mail as. Separate from the mailbox it collects
+  /// from: plenty of desks send as `support@` and collect from somewhere else.
+  fromName   String  @default("Service desk")
+  fromEmail  String?
+
+  /// Collecting.
+  imapHost      String?
+  imapPort      Int     @default(993)
+  imapSecure    Boolean @default(true)
+  imapUser      String?
+  imapPass      String?
+  /// Where drained mail goes. Deleting it outright leaves no way to work out
+  /// why something was filed the way it was.
+  imapFolder    String  @default("INBOX")
+  archiveFolder String? @default("Processed")
+
+  /// What the desk signs off with, under every message. Here rather than in a
+  /// template because it belongs to all ten of them: opening hours typed into
+  /// each one separately is nine places to forget when the hours change.
+  signature String?
+
+  /// When sending and collecting last actually worked — a passing test or a
+  /// drain that got through. The settings screen has no other way to tell a
+  /// mailbox that is quiet from one that is broken: both look like a form with
+  /// a host in it.
+  lastSentAt      DateTime?
+  lastPolledAt    DateTime?
+  /// What the last drain did, as counts. Json because it is a report to read
+  /// rather than data to query, and a column per count is four migrations
+  /// waiting to happen the first time a drain learns to do something else.
+  lastPollSummary Json?
+
+  updatedAt DateTime @updatedAt
+}
+
+enum MailStatus {
+  PENDING
+  /// Claimed by a drain and handed to SMTP. A row parked here is one whose
+  /// drain died mid-send; without it two drains that overlap both send the
+  /// same batch, which is the one failure a queue must not have.
+  SENDING
+  SENT
+  FAILED
+  /// Not a state a send passes through: what an inbound message is, once it has
+  /// been filed.
+  RECEIVED
+}
+
+/// Which way a message went. Inbound rows are kept for the same reason the
+/// outbox is a table: so a message that was already filed cannot be filed a
+/// second time when a poll overlaps or a mailbox is restored from backup.
+enum MailDirection {
+  IN
+  OUT
+}
+
+/// One message, in or out. A queue rather than a direct send: an action that
+/// waits on a remote handshake is an action that times out, and a mail that
+/// fails on the first attempt is usually one that succeeds on the second.
+model MailMessage {
+  id        String        @id @default(cuid())
+  direction MailDirection @default(OUT)
+  /// The other end of the message: who it was sent to, or — on an inbound row —
+  /// who sent it. One column rather than two, because a message only ever has
+  /// one end that is not the desk itself.
+  to        String
+  subject   String
+  /// The plain-text half, and the half that is never optional: a client that
+  /// will not render HTML still has to be able to read the message.
+  body      String
+  /// The laid-out half, built when the message is queued rather than when it is
+  /// sent — by then the ticket it was filled in from may have moved on, and a
+  /// mail waiting in the queue should be the mail that actually goes out.
+  html      String?
+  status    MailStatus    @default(PENDING)
+  /// The header of the message as sent, so a reply that quotes it can be
+  /// threaded back onto the right ticket. On an inbound row it is the id the
+  /// sender's client gave it — unique, so filing the same message twice is a
+  /// write the database refuses rather than a duplicate comment.
+  messageId String?       @unique
+  attempts  Int           @default(0)
+  lastError String?
+  /// Which template wrote this message, so the wording table can say how often
+  /// each kind actually goes out. A plain string rather than the enum: the
+  /// column is a record of what was sent, and a kind that is later retired must
+  /// not make the rows that used it unreadable.
+  kind      String?
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  sentAt    DateTime?
+  /// When a drain took this row to send it. Only ever set alongside `SENDING`,
+  /// and only read to put a row back that a drain died holding — without it a
+  /// process killed mid-send takes its whole batch out of the queue for good.
+  claimedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([direction, createdAt])
+}
+
+/// When the desk last told an address it would not file its mail.
+///
+/// Its own table rather than a flag on the message, because the thing being
+/// remembered is the address and not any one message from it: a sender whose
+/// mail bounces writes back, and a desk that answers every one of those with
+/// another bounce is a desk in a loop with somebody's autoresponder.
+model MailBounce {
+  address   String   @id
+  bouncedAt DateTime
+}
+
+/// Which message this is the wording of.
+enum MailTemplateKind {
+  ASSIGNED
+  FORWARDED
+  COMMENTED
+  MENTIONED
+  ANSWERED
+  STATUS
+  BOUNCE
+  RECEIVED
+  APPROVAL_REQUESTED
+  APPROVAL_DECIDED
+}
+
+/// What the desk writes, where it has decided not to use the words Tiqo ships
+/// with.
+///
+/// One row per kind, and a missing row means the shipped wording — so putting a
+/// template back to the default is a delete rather than a copy of the default
+/// text into the row. That matters on an upgrade: a desk that never edited a
+/// message gets the improved one, and a desk that did keeps its own.
+model MailTemplate {
+  kind    MailTemplateKind @id
+  subject String
+  body    String
+
+  /// The whole HTML document this message goes out as, where the desk has taken
+  /// the layout over as well as the words. Null means the layout Tiqo ships,
+  /// for the same reason a missing row means the shipped wording: a desk that
+  /// never opened the layout keeps getting the improved one. Kept per kind
+  /// rather than once for the instance because a bounce and an approval are not
+  /// the same document — one has no ticket to draw.
+  html String?
+
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * ----------------------------------------------------------------- cmdb --
+ */
+
+enum CiFieldKind {
+  TEXT
+  NUMBER
+  DATE
+  BOOLEAN
+  CHOICE
+  USER
+  ITEM
+}
+
+/// A kind of thing the desk looks after, and what is worth recording about it.
+/// Configurable because a desk that cannot add "licence" will keep its licences
+/// in a spreadsheet, which is the failure this is meant to prevent. The shape is
+/// PortalForm / PortalFormField deliberately: that problem is solved in this
+/// codebase already, and a second, different answer to it is a cost.
+model CiType {
+  id       String  @id @default(cuid())
+  key      String  @unique
+  name     String
+  icon     String?
+  color    String  @default("#febe2e")
+  position Int     @default(0)
+
+  /// Which register columns somebody who has never touched the column picker
+  /// sees for this type. Empty means the shared default — the register worked
+  /// that way before a type could say otherwise, and a desk that never opens
+  /// this screen should not notice the field exists.
+  defaultColumns String[] @default([])
+
+  /// An optional regex every name of this type is checked against on save, so a
+  /// laptop filed as "dell 2" is caught while somebody is still looking at it.
+  /// A refusal rather than a rename: the pattern is a naming convention, and
+  /// guessing what somebody meant by a name is how a register loses one.
+  namePattern String?
+
+  fields CiTypeField[]
+  items  ConfigurationItem[]
+}
+
+model CiTypeField {
+  id       String      @id @default(cuid())
+  typeId   String
+  type     CiType      @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  key      String
+  label    String
+  kind     CiFieldKind @default(TEXT)
+  required Boolean     @default(false)
+  /// Options for CHOICE; the type key for ITEM. Empty otherwise.
+  options  String[]    @default([])
+  /// Whether this date is something that runs out. Only a DATE can be one, and
+  /// it is what the "expiring soon" view and the dashboard widget read: without
+  /// it they have to guess from the label, which gets "Purchased" wrong.
+  isExpiry Boolean     @default(false)
+  position Int         @default(0)
+
+  @@unique([typeId, key])
+  @@index([typeId, position])
+}
+
+/// In service, retired, on order. Deliberately a small fixed set rather than
+/// another configurable status list: this one is about the asset's life, and the
+/// desk's own stages already exist for tickets.
+enum CiLifecycle {
+  PLANNED
+  IN_SERVICE
+  MAINTENANCE
+  RETIRED
+}
+
+model ConfigurationItem {
+  id     String @id @default(cuid())
+  /// What people call it out loud. Indexed, because every search starts here.
+  name   String
+  typeId String
+  /// Restricted rather than cascaded: deleting a type that still has items would
+  /// take the estate with it, and the register is the thing being protected.
+  type   CiType @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  /// Values keyed by `CiTypeField.key`. JSON rather than a row per attribute: a
+  /// register of a few thousand items is read as lists far more often than it is
+  /// queried by one attribute, and a join per column makes every list slow to
+  /// save a query nobody runs.
+  attributes Json @default("{}")
+
+  /// Where it came from, when it came from somewhere. The unique pair is what
+  /// makes an import re-runnable instead of duplicating the estate.
+  externalSource String?
+  externalId     String?
+
+  /// Which team carries it. A person was tried here too and taken out again:
+  /// an individual owner goes stale the week they change desks, and the group
+  /// is the answer to "who do I ask" that stays true.
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  lifecycle CiLifecycle @default(IN_SERVICE)
+
+  outgoing   CiRelation[] @relation("CiSource")
+  incoming   CiRelation[] @relation("CiTarget")
+  tickets    TicketCi[]
+  activities Activity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([externalSource, externalId])
+  @@index([typeId, name])
+  @@index([name])
+  @@index([lifecycle])
+}
+
+/// What one item has to do with another. The same directed-row shape as
+/// `TicketLink` and for the same reason, but a separate table: "depends on"
+/// between two servers and "blocks" between two tickets are different graphs
+/// with different verbs, and one table covering both answers neither.
+enum CiRelationKind {
+  DEPENDS_ON
+  CONNECTS_TO
+  RUNS_ON
+  PART_OF
+}
+
+model CiRelation {
+  id       String            @id @default(cuid())
+  kind     CiRelationKind
+  sourceId String
+  source   ConfigurationItem @relation("CiSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetId String
+  target   ConfigurationItem @relation("CiTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([sourceId, targetId, kind])
+  @@index([targetId])
+}
+
+/// Which items a ticket is about. A join rather than a column, because one
+/// incident routinely touches several.
+model TicketCi {
+  ticketId String
+  ticket   Ticket            @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  itemId   String
+  item     ConfigurationItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  addedAt  DateTime          @default(now())
+
+  @@id([ticketId, itemId])
+  @@index([itemId])
+}
+
+/// A shelf. Documents need somewhere to belong before they need a hierarchy,
+/// and "whose is this" is the question a flat wiki can never answer.
+model DocSpace {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  name        String
+  description String?
+  color       String  @default("#febe2e")
+  position    Int     @default(0)
+
+  /// The team that answers for what is written here. Null means the whole
+  /// desk, which is the right default for the handful of pages everybody needs.
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  /// How long a new page on this shelf may go unconfirmed. On the space rather
+  /// than only on the page because the interval is a property of the writing,
+  /// not of the writer: security notes go stale in a quarter and a supplier
+  /// arrangement does not. Each page may still differ.
+  reviewDays Int @default(180)
+
+  /// Where Publish proposes to put an answer made from a page here. A proposal
+  /// only — the category is still chosen at publish time, because one shelf can
+  /// feed two sections and the wrong default is worse than none.
+  portalCategoryId String?
+  portalCategory   PortalCategory? @relation(fields: [portalCategoryId], references: [id], onDelete: SetNull)
+
+  docs      Doc[]
+  createdAt DateTime @default(now())
+
+  @@index([position])
+}
+
+/// One page of documentation, read by an operator, repeatedly, usually under
+/// pressure. Deliberately not a `PortalArticle`: that one exists so a requester
+/// finds an answer instead of raising a ticket, and everything on it — votes,
+/// views, featuring — is in service of deflection. This one is owned, reviewed
+/// on a date, and nested.
+model Doc {
+  id        String   @id @default(cuid())
+  slug      String
+  /// The addresses this page used to answer to. Renaming a page rewrites its
+  /// slug — a title people have fixed and an address that still says the old
+  /// thing is a link that lies — so every slug it has worn is kept here and
+  /// redirected from. The alternative, freezing the slug at creation, left the
+  /// address permanently wrong instead.
+  pastSlugs String[] @default([])
+  title     String
+  /// A sentence for the list and for search results, so a tree of thirty
+  /// documents can be read without opening any of them.
+  summary   String?
+  body      String   @default("")
+
+  spaceId  String
+  space    DocSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  /// The tree. Deleting a parent takes its children: a runbook's sub-pages are
+  /// not documents that happen to sit nearby.
+  parentId String?
+  parent   Doc?     @relation("DocTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children Doc[]    @relation("DocTree")
+  position Int      @default(0)
+
+  /// Who answers for it, and how long it may go untouched before it is
+  /// suspect. Zero means "does not go stale", for the pages that genuinely
+  /// do not.
+  ownerId         String?
+  owner           User?     @relation("DocOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  reviewDays      Int       @default(180)
+  /// Set when somebody says the content is still right — which is not the same
+  /// as somebody editing it, and not the same as `updatedAt`.
+  reviewedAt      DateTime?
+  /// When the owner was last told this page is past its review date. One
+  /// notice per lapse: a sweep that runs hourly and says so hourly is a sweep
+  /// that gets muted, and then the page is stale and nobody is watching.
+  staleNotifiedAt DateTime?
+  /// How many reminders this lapse has produced. Kept because escalation is
+  /// worded as "after the second one went unanswered", and counting rows in a
+  /// notification table to answer that would make the sweep read the whole
+  /// table once per page.
+  staleReminders  Int       @default(0)
+  /// "Remind me later", pressed by somebody who knows the page is due and
+  /// cannot read it today. The sweep stays quiet until then, which is the
+  /// difference between a reminder and a nag.
+  staleSnoozedTo  DateTime?
+
+  /// Archived rather than deleted. A procedure that was replaced is the first
+  /// thing wanted when the replacement turns out to be wrong.
+  archivedAt DateTime?
+
+  /// The portal answer this was published as, if it was. Kept so the two can
+  /// be told apart and so re-publishing updates rather than duplicates.
+  articleId String?        @unique
+  article   PortalArticle? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  revisions     DocRevision[]
+  /// The people who keep coming back to this page. Personal, like a starred
+  /// ticket: it says nothing about the page and everything about the reader.
+  stars         DocStar[]
+  /// Files that belong to the page rather than to a conversation — a diagram,
+  /// a config sample, the vendor's own PDF.
+  attachments   Attachment[]
+  /// Only ever references written *at* this document from somewhere else. A
+  /// document's own history is its revisions; this is the other half of the
+  /// reference pair, which has nowhere else to live.
+  activities    Activity[]
+  /// Notices written about this page: edited by somebody else, or gone stale.
+  notifications Notification[]
+
+  createdById String?
+  createdBy   User?    @relation("DocAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   User?    @relation("DocEditor", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([spaceId, slug])
+  @@index([spaceId, parentId, position])
+  @@index([ownerId])
+}
+
+/// What the document said before this save. Written on every save, never
+/// edited. The note is optional and usually empty — most edits explain
+/// themselves, and a required one produces "update".
+model DocRevision {
+  id       String  @id @default(cuid())
+  docId    String
+  doc      Doc     @relation(fields: [docId], references: [id], onDelete: Cascade)
+  title    String
+  body     String
+  note     String?
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([docId, createdAt])
+}
+
+/// A page somebody keeps coming back to. The shape of `TicketStar`, and for the
+/// same reason: what one operator reads every week is not a fact about the page
+/// and must not become one, so it is a row per person rather than a flag on the
+/// document.
+model DocStar {
+  userId    String
+  docId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doc       Doc      @relation(fields: [docId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, docId])
+  @@index([userId])
+}

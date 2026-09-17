@@ -1,0 +1,178 @@
+[
+  {
+    "file": "Portal11Home.dc.html",
+    "title": "Home · dark",
+    "h": 1500,
+    "theme": "dark",
+    "screen": "Home",
+    "note": "The front page. Announcement strip above the bar; ink hero with greeting, one search, four quick starts and the desk light; the six catalogue sections as a shelf over the band's edge; then the page-builder bands in a 2:1 grid — the waiting-for-your-reply nudge, common requests, answers; your requests and the desk card on the right."
+  },
+  {
+    "file": "Portal11HomeLight.dc.html",
+    "title": "Home · light",
+    "h": 1500,
+    "theme": "light",
+    "screen": "Home",
+    "note": "The front page. Announcement strip above the bar; ink hero with greeting, one search, four quick starts and the desk light; the six catalogue sections as a shelf over the band's edge; then the page-builder bands in a 2:1 grid — the waiting-for-your-reply nudge, common requests, answers; your requests and the desk card on the right."
+  },
+  {
+    "file": "Portal11HomeSearch.dc.html",
+    "title": "Home · search and menu · dark",
+    "h": 1250,
+    "theme": "dark",
+    "screen": "Home · search and menu",
+    "note": "Two open states on the same page: the live search under the hero (forms and answers mixed, ↵ opens the highlighted one, See all results at the foot) and the user menu (name, e-mail, theme, sign out)."
+  },
+  {
+    "file": "Portal11HomeSearchLight.dc.html",
+    "title": "Home · search and menu · light",
+    "h": 1250,
+    "theme": "light",
+    "screen": "Home · search and menu",
+    "note": "Two open states on the same page: the live search under the hero (forms and answers mixed, ↵ opens the highlighted one, See all results at the foot) and the user menu (name, e-mail, theme, sign out)."
+  },
+  {
+    "file": "Portal11Category.dc.html",
+    "title": "Category · dark",
+    "h": 900,
+    "theme": "dark",
+    "screen": "Category",
+    "note": "One shelf of the catalogue. Breadcrumb, coloured tile, name and description, a search scoped to the section; its requests in four columns, its answers in three."
+  },
+  {
+    "file": "Portal11CategoryLight.dc.html",
+    "title": "Category · light",
+    "h": 900,
+    "theme": "light",
+    "screen": "Category",
+    "note": "One shelf of the catalogue. Breadcrumb, coloured tile, name and description, a search scoped to the section; its requests in four columns, its answers in three."
+  },
+  {
+    "file": "Portal11Form.dc.html",
+    "title": "Request form · dark",
+    "h": 1240,
+    "theme": "dark",
+    "screen": "Request form",
+    "note": "Raising a request. Sections as ruled groups, half-width fields side by side, the this-might-already-answer-it panel under the subject, radio rows, attachments, and the footer that says what it is raised as and where updates go. Before-you-ask and the desk card on the right."
+  },
+  {
+    "file": "Portal11FormLight.dc.html",
+    "title": "Request form · light",
+    "h": 1240,
+    "theme": "light",
+    "screen": "Request form",
+    "note": "Raising a request. Sections as ruled groups, half-width fields side by side, the this-might-already-answer-it panel under the subject, radio rows, attachments, and the footer that says what it is raised as and where updates go. Before-you-ask and the desk card on the right."
+  },
+  {
+    "file": "Portal11Request.dc.html",
+    "title": "Request · dark",
+    "h": 1400,
+    "theme": "dark",
+    "screen": "Request",
+    "note": "One request. Everything the current page shows: approval prompt, just-raised confirmation, reference and status, the two facts (who, due), what you asked with attachments, related requests, the conversation with desk replies on the brand wash, the composer. New on the right: a where-it-stands ladder."
+  },
+  {
+    "file": "Portal11RequestLight.dc.html",
+    "title": "Request · light",
+    "h": 1400,
+    "theme": "light",
+    "screen": "Request",
+    "note": "One request. Everything the current page shows: approval prompt, just-raised confirmation, reference and status, the two facts (who, due), what you asked with attachments, related requests, the conversation with desk replies on the brand wash, the composer. New on the right: a where-it-stands ladder."
+  },
+  {
+    "file": "Portal11Requests.dc.html",
+    "title": "My requests · dark",
+    "h": 980,
+    "theme": "dark",
+    "screen": "My requests",
+    "note": "The approval strip rides above the bar. All / Open / Settled with counts, search, Make a request; the waiting nudge; open and settled groups with the heat spine, reference, form, age, replies, last reply, status and assignee."
+  },
+  {
+    "file": "Portal11RequestsLight.dc.html",
+    "title": "My requests · light",
+    "h": 980,
+    "theme": "light",
+    "screen": "My requests",
+    "note": "The approval strip rides above the bar. All / Open / Settled with counts, search, Make a request; the waiting nudge; open and settled groups with the heat spine, reference, form, age, replies, last reply, status and assignee."
+  },
+  {
+    "file": "Portal11Answers.dc.html",
+    "title": "Answers · dark",
+    "h": 1080,
+    "theme": "dark",
+    "screen": "Answers",
+    "note": "The knowledge base: one search, the often-read chips, then every section as a three-column group."
+  },
+  {
+    "file": "Portal11AnswersLight.dc.html",
+    "title": "Answers · light",
+    "h": 1080,
+    "theme": "light",
+    "screen": "Answers",
+    "note": "The knowledge base: one search, the often-read chips, then every section as a three-column group."
+  },
+  {
+    "file": "Portal11Article.dc.html",
+    "title": "Answer · dark",
+    "h": 900,
+    "theme": "dark",
+    "screen": "Answer",
+    "note": "One answer: byline with author, editor and reading time; body; did-this-solve-it with this month's tally; related answers and still-stuck requests on the right."
+  },
+  {
+    "file": "Portal11ArticleLight.dc.html",
+    "title": "Answer · light",
+    "h": 900,
+    "theme": "light",
+    "screen": "Answer",
+    "note": "One answer: byline with author, editor and reading time; body; did-this-solve-it with this month's tally; related answers and still-stuck requests on the right."
+  },
+  {
+    "file": "Portal11Search.dc.html",
+    "title": "Search results · dark",
+    "h": 900,
+    "theme": "dark",
+    "screen": "Search results",
+    "note": "Results split into requests and answers, the query kept in the box."
+  },
+  {
+    "file": "Portal11SearchLight.dc.html",
+    "title": "Search results · light",
+    "h": 900,
+    "theme": "light",
+    "screen": "Search results",
+    "note": "Results split into requests and answers, the query kept in the box."
+  },
+  {
+    "file": "Portal11Approvals.dc.html",
+    "title": "Approvals · dark",
+    "h": 900,
+    "theme": "dark",
+    "screen": "Approvals",
+    "note": "Decisions waiting on you: reference, title, phase gate, who asked, overdue; what was asked for; the question; Approve / Refuse; what you already answered underneath."
+  },
+  {
+    "file": "Portal11ApprovalsLight.dc.html",
+    "title": "Approvals · light",
+    "h": 900,
+    "theme": "light",
+    "screen": "Approvals",
+    "note": "Decisions waiting on you: reference, title, phase gate, who asked, overdue; what was asked for; the question; Approve / Refuse; what you already answered underneath."
+  },
+  {
+    "file": "Portal11Closed.dc.html",
+    "title": "Closed · dark",
+    "h": 900,
+    "theme": "dark",
+    "screen": "Closed",
+    "note": "The portal switched off by the desk, with the reason it gave. Only staff see the way to the desk."
+  },
+  {
+    "file": "Portal11ClosedLight.dc.html",
+    "title": "Closed · light",
+    "h": 900,
+    "theme": "light",
+    "screen": "Closed",
+    "note": "The portal switched off by the desk, with the reason it gave. Only staff see the way to the desk."
+  }
+]

@@ -1,0 +1,366 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"><style>:root{
+    --bg:#ffffff; --chrome:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5; --surface-3:#e9e9ec;
+    --line:rgba(9,9,11,.08); --line-strong:rgba(9,9,11,.16);
+    --hl:0 1px 2px rgba(9,9,11,.05), 0 0 0 1px rgba(9,9,11,.02);
+    --text:#09090b; --text-2:#52525b; --text-3:#9d9da6;
+    --brand:#febe2e; --brand-hover:#f5b21c; --brand-ink:#1c1300; --brand-deep:#b7790a;
+    --brand-tint:rgba(254,190,46,.18); --brand-glow:rgba(254,190,46,.4); --brand-wash:#fffbeb;
+    --p-low:#10b981; --p-medium:#6366f1; --p-high:#f97316; --p-urgent:#e11d48;
+    --positive:#10b981; --negative:#e11d48;
+    --created:#e0a422; --resolved:#10b981;
+    --shadow:0 1px 2px rgba(9,9,11,.06), 0 16px 40px -16px rgba(9,9,11,.18);
+    --paper:#ffffff; --seg-on:#ffffff;
+  } html,body{height:1400px;overflow:hidden} 
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .t2 { color: var(--text-2); } .t3 { color: var(--text-3); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  svg.i { stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1.3; background: var(--surface-2); }
+  .ring { display: inline-block; width: 14px; height: 14px; flex: none; }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-weight: 600; color: #fff; letter-spacing: .02em; flex: none; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); flex: none; }
+
+  .portal { width: 1440px; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  .wrap { width: 1200px; margin: 0 auto; }
+
+  /* strips above the bar: announcements and the approval nudge */
+  .strip { height: 40px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); border-bottom: 1px solid var(--line); background: var(--chrome); }
+  .strip .wrap { display: flex; align-items: center; gap: 10px; }
+  .strip b { color: var(--text); font-weight: 600; }
+  .strip .until { margin-left: auto; font-size: 12px; color: var(--text-3); }
+  .strip a.act { margin-left: auto; font-weight: 600; color: var(--brand-deep); display: inline-flex; align-items: center; gap: 4px; }
+  .strip.warn { color: var(--brand-deep); } .strip.warn b { color: inherit; }
+  .strip.outage { color: var(--negative); } .strip.outage b { color: inherit; }
+  .strip.approve { background: var(--brand-wash); border-bottom-color: color-mix(in oklab, var(--brand) 30%, transparent); color: var(--brand-deep); }
+
+  /* the bar */
+  .top { height: 64px; border-bottom: 1px solid var(--line); background: var(--bg); position: relative; z-index: 2; }
+  .top .wrap { height: 100%; display: flex; align-items: center; gap: 28px; }
+  .lockup { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .nav { display: flex; align-items: center; gap: 4px; height: 100%; margin-left: 12px; }
+  .nav a { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 100%; padding: 0 12px; font-size: 14px; font-weight: 500; color: var(--text-2); }
+  .nav a.on { color: var(--text); }
+  .nav a.on::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--brand); border-radius: 2px 2px 0 0; }
+  .nav .n { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-family: "Geist Mono", monospace; }
+  .top .right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .ibtn { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); }
+  .ibtn:hover { background: var(--surface-2); color: var(--text); }
+  .switch { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text-2); box-shadow: var(--hl); }
+  .vsep { width: 1px; height: 22px; background: var(--line); margin: 0 6px; }
+
+  /* the hero band: ink in both themes, so the page has one dark moment */
+  .hero { position: relative; background: #0c0c0e; color: #fafafa; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .hero .wrap { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 64px 0 96px; }
+  .hero h1 { font-size: 36px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 0; }
+  .hero .welcome { margin: 10px 0 0; font-size: 16px; color: #a1a1aa; max-width: 60ch; }
+  .hero .search { margin-top: 28px; width: 720px; height: 56px; border-radius: 999px; background: #18181b; border: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; gap: 12px; padding: 0 12px 0 20px; box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 20px 50px -20px rgba(0,0,0,.8); }
+  .hero .search .ph { flex: 1; text-align: left; font-size: 15px; color: #6b6b74; }
+  .hero .search kbd { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); color: #a1a1aa; }
+  .hero .search .go { width: 40px; height: 40px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); display: inline-flex; align-items: center; justify-content: center; }
+  .hero .starts { margin-top: 16px; display: flex; gap: 8px; }
+  .hero .starts span { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); font-size: 13px; font-weight: 500; color: #d4d4d8; }
+  .hero .desk { margin-top: 26px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #a1a1aa; }
+  .hero .desk .dot { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.22); }
+  .hero .desk b { color: #fafafa; font-weight: 500; }
+  .hero .deco { position: absolute; inset: 0; overflow: hidden; }
+  .hero .aura { position: absolute; left: 50%; bottom: -320px; width: 1200px; height: 600px; margin-left: -600px; border-radius: 50%; background: radial-gradient(closest-side, var(--brand), transparent 70%); filter: blur(80px); opacity: .28; }
+  .hero .grid { position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1.2px); background-size: 24px 24px; -webkit-mask-image: radial-gradient(55% 60% at 50% 40%, #000 10%, transparent 100%); mask-image: radial-gradient(55% 60% at 50% 40%, #000 10%, transparent 100%); }
+  .hero .field { position: absolute; right: 0; bottom: 0; width: 620px; height: 260px; opacity: .55; -webkit-mask-image: linear-gradient(90deg, transparent, #000 45%); mask-image: linear-gradient(90deg, transparent, #000 45%); }
+  .hero .field i { position: absolute; bottom: 0; border-radius: 3px 3px 0 0; }
+
+  /* the category strip that overlaps the band */
+  .shelf { position: relative; z-index: 1; margin-top: -48px; display: grid; grid-template-columns: repeat(6, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .shelf a { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 26px 16px 22px; border-right: 1px solid var(--line); text-align: center; position: relative; }
+  .shelf a:last-child { border-right: 0; }
+  .shelf a:hover { background: var(--surface-2); }
+  .shelf a.hover::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--brand); }
+  .shelf .tile { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+  .shelf .name { font-weight: 600; font-size: 14px; letter-spacing: -.01em; }
+  .shelf .cnt { font-size: 12px; color: var(--text-3); margin-top: -8px; }
+
+  /* content */
+  .content { padding: 40px 0 56px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; }
+  .sec { margin-bottom: 40px; }
+  .sec:last-child { margin-bottom: 0; }
+  .sechead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  .sechead h2 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; margin: 0; }
+  .sechead .sub { color: var(--text-3); font-size: 13.5px; }
+  .sechead a.more { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--brand-deep); display: inline-flex; align-items: center; gap: 4px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--hl); }
+  .cardhead { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+  .cardhead a { font-size: 12.5px; font-weight: 500; color: var(--brand-deep); }
+  .cardfoot { padding: 12px 18px; border-top: 1px solid var(--line); font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--brand-deep); font-weight: 500; }
+
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .svc { display: flex; flex-direction: column; gap: 12px; padding: 18px 18px 16px; min-height: 148px; position: relative; transition: transform .15s; }
+  .svc .tile { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
+  .svc .n { font-weight: 600; font-size: 14.5px; letter-spacing: -.01em; line-height: 1.25; }
+  .svc .s { font-size: 13px; color: var(--text-2); line-height: 1.45; margin-top: -6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .svc .m { margin-top: auto; font-size: 12px; color: var(--text-3); display: flex; align-items: center; }
+  .svc .m .arr { margin-left: auto; color: var(--text-3); opacity: 0; }
+  .svc.hover { border-color: var(--line-strong); box-shadow: var(--shadow); transform: translateY(-2px); }
+  .svc.hover .m .arr { opacity: 1; color: var(--brand-deep); }
+
+  .answers { display: grid; grid-template-columns: 1fr 1fr; }
+  .answers a { display: flex; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .answers a:nth-child(odd) { border-right: 1px solid var(--line); }
+  .answers a:nth-last-child(-n+2) { border-bottom: 0; }
+  .answers .bk { width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); color: var(--text-2); display: flex; align-items: center; justify-content: center; flex: none; }
+  .answers .n { font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .answers .s { font-size: 12.5px; color: var(--text-2); margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .answers .c { font-size: 11.5px; color: var(--text-3); margin-top: 5px; }
+
+  .req { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+  .req:last-child { border-bottom: 0; }
+  .req .ref { font-family: "Geist Mono", monospace; font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+  .req .ref b { font-weight: 600; }
+  .req .ref.inc b { color: var(--p-urgent); } .req .ref.chg b { color: var(--brand-deep); } .req .ref.qst b { color: var(--p-medium); }
+  .req .t { font-weight: 500; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .req .sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+  .req .st { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .tag.you { background: var(--brand-tint); color: var(--brand-deep); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+
+  .deskcard .row { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .deskcard .row:last-child { border-bottom: 0; }
+  .deskcard .ico { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); color: var(--text-2); flex: none; }
+  .deskcard .row .l { font-size: 11.5px; color: var(--text-3); }
+
+  .waiting { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: var(--brand-wash); border: 1px solid color-mix(in oklab, var(--brand) 32%, transparent); grid-column: 1 / -1; font-size: 14px; }
+  .waiting .ico { width: 36px; height: 36px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); display: flex; align-items: center; justify-content: center; flex: none; }
+  .waiting .ref { font-family: "Geist Mono", monospace; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; }
+  .waiting .since { margin-left: auto; font-family: "Geist Mono", monospace; font-size: 12px; color: var(--brand-deep); }
+  .waiting .go { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--brand-deep); }
+
+  .footer { margin-top: auto; border-top: 1px solid var(--line); }
+  .footer .wrap { height: 64px; display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-3); }
+  .footer a { color: var(--text-2); }
+
+  /* inner pages */
+  .pagehead { padding: 40px 0 28px; }
+  .crumbs { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); margin-bottom: 14px; }
+  .crumbs .cur { color: var(--text-2); }
+  .pagehead h1 { font-size: 30px; font-weight: 600; letter-spacing: -.03em; margin: 0; line-height: 1.15; }
+  .pagehead .blurb { color: var(--text-2); font-size: 15px; margin: 8px 0 0; max-width: 60ch; }
+  .headrow { display: flex; align-items: flex-end; gap: 24px; }
+  .headrow .tools { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .input { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 13.5px; box-shadow: var(--hl); white-space: nowrap; }
+  .input .ph { color: var(--text-3); flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 10px; font-size: 14px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); box-shadow: 0 1px 2px rgba(9,9,11,.12); }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); font-weight: 500; }
+  .btn.ghost { color: var(--text-2); font-weight: 500; }
+  .btn.sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+  .seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface-2); height: 40px; }
+  .seg span { display: inline-flex; align-items: center; gap: 7px; padding: 0 12px; border-radius: 8px; font-size: 13.5px; font-weight: 500; color: var(--text-2); }
+  .seg span.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .seg span .k { font-family: "Geist Mono", monospace; font-size: 11.5px; color: var(--text-3); }
+  .grouphead { display: flex; align-items: baseline; gap: 10px; margin: 28px 0 12px; font-weight: 600; font-size: 15px; }
+  .grouphead .k { font-family: "Geist Mono", monospace; font-size: 12px; color: var(--text-3); font-weight: 500; }
+  .rrow { display: grid; grid-template-columns: 4px 128px minmax(0, 1fr) 220px 16px; align-items: center; gap: 16px; padding: 14px 18px 14px 0; border-bottom: 1px solid var(--line); }
+  .rrow:last-child { border-bottom: 0; }
+  .rrow.done { opacity: .7; }
+  .rrow .spine { width: 4px; height: 36px; border-radius: 2px; background: color-mix(in oklab, var(--c) 18%, transparent); position: relative; overflow: visible; }
+  .rrow .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); border-radius: 2px; }
+  .rrow .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .rrow .ref { font-family: "Geist Mono", monospace; font-size: 12px; color: var(--text-3); }
+  .rrow .ref b { font-weight: 600; }
+  .rrow .ref.inc b { color: var(--p-urgent); } .rrow .ref.chg b { color: var(--brand-deep); } .rrow .ref.qst b { color: var(--p-medium); }
+  .rrow .t { font-weight: 600; font-size: 14.5px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .rrow .t span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rrow .meta { font-size: 12.5px; color: var(--text-3); margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+  .rrow .meta .mono { font-size: 12px; }
+  .rrow .st { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .rrow .st .who { margin-left: auto; }
+
+  .detail { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; padding-bottom: 56px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); margin: 28px 0 18px; }
+  .detail h1 { font-size: 26px; font-weight: 600; letter-spacing: -.025em; margin: 10px 0 0; line-height: 1.2; }
+  .detail .meta { font-size: 13px; color: var(--text-3); margin-top: 8px; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .facts > div { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .facts > div:nth-child(odd) { border-right: 1px solid var(--line); }
+  .facts > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .facts .l { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+  .facts .v { margin-top: 6px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .prose { font-size: 14.5px; line-height: 1.6; color: var(--text); }
+  .prose p { margin: 0 0 12px; } .prose p:last-child { margin: 0; }
+  .prose ul { margin: 0 0 12px; padding-left: 20px; } .prose li { margin: 3px 0; }
+  .prose h2 { font-size: 17px; font-weight: 600; letter-spacing: -.015em; margin: 22px 0 8px; }
+  .prose code { font-family: "Geist Mono", monospace; font-size: 12.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  .attach { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 10px 0 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 12.5px; color: var(--text-2); }
+  .attach .mono { font-size: 11px; color: var(--text-3); }
+  .msg { padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .msg:last-child { border-bottom: 0; }
+  .msg .who { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .msg .who b { font-weight: 600; }
+  .msg .who .when { color: var(--text-3); margin-left: auto; font-size: 12px; }
+  .msg .body { margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--text); }
+  .msg.desk { background: var(--brand-wash); }
+  .composer { padding: 16px 18px; }
+  .composer .area { height: 104px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); padding: 10px 12px; font-size: 14px; color: var(--text-3); }
+  .composer .foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .callout { padding: 16px 18px; border-radius: 14px; background: var(--brand-wash); border: 1px solid color-mix(in oklab, var(--brand) 32%, transparent); display: flex; gap: 14px; align-items: flex-start; }
+  .callout .ico { width: 36px; height: 36px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); display: flex; align-items: center; justify-content: center; flex: none; }
+  .callout .h { font-weight: 600; font-size: 14.5px; }
+  .callout .s { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+  .ok { padding: 14px 18px; border-radius: 14px; background: color-mix(in oklab, var(--positive) 10%, transparent); border: 1px solid color-mix(in oklab, var(--positive) 35%, transparent); display: flex; gap: 12px; align-items: center; font-size: 14px; }
+  .ok .ico { color: var(--positive); display: flex; }
+  .side .card { margin-bottom: 20px; }
+  .side .lbl { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+
+  /* form */
+  .form { padding: 8px 0 0; }
+  .fs { padding: 22px 24px; border-bottom: 1px solid var(--line); }
+  .fs:last-of-type { border-bottom: 0; }
+  .fs legend, .fs .lg { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .fs .ld { font-size: 13px; color: var(--text-3); margin: 3px 0 16px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+  .f { display: flex; flex-direction: column; gap: 6px; }
+  .f.full { grid-column: 1 / -1; }
+  .f .fl { font-size: 13.5px; font-weight: 500; }
+  .f .fl i { color: var(--negative); font-style: normal; margin-left: 2px; }
+  .f .fi { height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); display: flex; align-items: center; padding: 0 12px; font-size: 14px; color: var(--text-3); box-shadow: var(--hl); }
+  .f .fi.filled { color: var(--text); }
+  .f .fi.ta { height: 96px; align-items: flex-start; padding-top: 10px; }
+  .f .fi.sel { justify-content: space-between; }
+  .f .hint { font-size: 12.5px; color: var(--text-3); }
+  .radio { display: flex; flex-direction: column; gap: 8px; }
+  .radio span { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); font-size: 14px; }
+  .radio span.on { border-color: var(--brand); background: var(--brand-tint); }
+  .radio .dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; }
+  .radio .on .dot { border-color: var(--brand); } .radio .on .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+  .suggest { margin: 0 24px 4px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  .suggest .h { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; }
+  .suggest .h a { margin-left: auto; font-size: 12.5px; font-weight: 500; color: var(--text-3); }
+  .suggest .it { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; margin-top: 8px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; }
+  .suggest .it .s { color: var(--text-2); font-size: 12.5px; margin-top: 2px; }
+  .formfoot { padding: 18px 24px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 18px; }
+  .formfoot .lines { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .formfoot .lines b { color: var(--text); font-weight: 500; }
+  .formfoot .btn { margin-left: auto; height: 44px; padding: 0 22px; font-size: 15px; }
+
+  /* answers hub */
+  .often { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .often span { display: inline-flex; align-items: center; height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text-2); box-shadow: var(--hl); }
+  .agrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .acard { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+  .acard .n { font-weight: 600; font-size: 14.5px; line-height: 1.3; letter-spacing: -.01em; }
+  .acard .s { font-size: 13px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .acard .m { margin-top: auto; font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
+
+  /* article */
+  .article { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 48px; padding-bottom: 56px; }
+  .byline { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-3); margin-top: 14px; }
+  .feedback { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--line); font-size: 14px; }
+  .feedback .vote { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; }
+  .feedback .vote.on { background: var(--brand-tint); border-color: var(--brand); color: var(--brand-deep); }
+  .feedback .tally { margin-left: auto; font-size: 12.5px; color: var(--text-3); }
+  .rel a { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .rel a:last-child { border-bottom: 0; }
+  .rel a > span:not(.tile) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .rel .s { display: block; font-size: 12px; color: var(--text-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* search dropdown & menus */
+  .dd { position: absolute; left: 50%; width: 720px; margin-left: -360px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; z-index: 5; color: var(--text); text-align: left; }
+  .dd .hit { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  .dd .hit.on { background: var(--surface-2); }
+  .dd .hit .tile { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .dd .hit .n { font-weight: 600; font-size: 14px; }
+  .dd .hit .s { font-size: 12.5px; color: var(--text-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dd .foot { display: flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 12.5px; color: var(--brand-deep); font-weight: 500; }
+  .menu { position: absolute; right: 0; top: 60px; width: 260px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 8px; z-index: 5; }
+  .menu .me { display: flex; align-items: center; gap: 10px; padding: 8px 10px 12px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+  .menu .me b { font-weight: 600; font-size: 14px; display: block; }
+  .menu .me span { font-size: 12px; color: var(--text-3); }
+  .menu .mi { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); }
+  .menu .lbl { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); padding: 8px 10px 6px; }
+  .menu .theme { display: inline-flex; gap: 2px; padding: 3px; border-radius: 8px; background: var(--surface-2); margin: 0 10px 8px; }
+  .menu .theme span { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px; font-size: 12.5px; color: var(--text-2); flex: 1; }
+  .menu .theme span.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+
+  .closed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; padding-bottom: 80px; }
+  .closed .tile { width: 64px; height: 64px; border-radius: 18px; background: var(--brand-tint); color: var(--brand-deep); display: flex; align-items: center; justify-content: center; }
+  .closed h1 { font-size: 26px; font-weight: 600; letter-spacing: -.025em; margin: 6px 0 0; }
+  .closed p { color: var(--text-2); font-size: 15px; margin: 0; max-width: 46ch; }
+
+  .empty { padding: 48px 24px; text-align: center; border: 1px dashed var(--line-strong); border-radius: 14px; color: var(--text-2); font-size: 14px; }
+  .empty b { display: block; color: var(--text); font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+</style></head><body>
+  <div class="portal">
+    
+  <div class="top"><div class="wrap" style="position:relative">
+    <span class="lockup"><svg width="26" height="26" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n26"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n26)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg>Service portal</span>
+    <nav class="nav"><a class="">Home</a><a class="">Answers</a><a class="on">My requests<span class="n">4</span></a><a class="">Approvals<span class="n">1</span></a></nav>
+    <div class="right">
+      <span class="ibtn" title="Search"><svg class="i " viewBox="0 0 16 16" style="width:18px;height:18px"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span>
+      <span class="vsep"></span><span class="switch"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg>Service desk</span>
+      <span class="vsep"></span>
+      <span class="avatar" style="background:#0ea5e9;width:32px;height:32px;font-size:13px" title="Sanne Lin">SL</span>
+    </div>
+    
+  </div></div>
+    <div class="wrap">
+      <a class="back"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><path d="M13 8H3M7 4 3 8l4 4"/></svg>My requests</a>
+      <div class="detail">
+        <div>
+          <div class="callout" style="margin-bottom:22px"><span class="ico"><svg class="i " viewBox="0 0 16 16" style="width:17px;height:17px"><path d="M6 8.5V5.5a2 2 0 1 1 4 0v3h2.5v3h-9v-3z"/><path d="M4 13.5h8"/></svg></span><div style="flex:1"><div class="h">Your approval is needed</div><div class="s">Replace the laptop rather than repair it? · Whole ticket · due 19 Sep</div></div><div style="display:flex;gap:8px"><span class="btn primary sm"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><path d="m3 8.5 3 3 7-7"/></svg>Approve</span><span class="btn outline sm"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><path d="M4 4l8 8M12 4l-8 8"/></svg>Refuse</span></div></div>
+          <div class="ok" style="margin-bottom:22px"><span class="ico"><svg class="i " viewBox="0 0 16 16" style="width:18px;height:18px"><path d="m3 8.5 3 3 7-7"/></svg></span><span><b style="font-weight:600">Your request has been raised.</b> We have it. You can follow it here and reply at any time.</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="mono t3" style="font-size:13px"><span class="ref inc"><b>INC</b>-2609 0119</span></span><span class="pill" style="background:color-mix(in oklab,var(--text-3) 14%,transparent);color:var(--text-3)"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="2.2" stroke-dasharray="9.42 31.42" transform="rotate(-90 7 7)"/></svg>Waiting on you</span></div>
+          <h1>Laptop will not wake from sleep after Monday's patch</h1>
+          <div class="meta">Raised 16 Sep 09:12 · through <b style="color:var(--text-2);font-weight:500">Report something broken</b></div>
+
+          <div class="card facts" style="margin-top:22px">
+            <div><div class="l">Looking after it</div><div class="v"><span class="avatar" style="background:#10b981;width:22px;height:22px;font-size:9px" title="Mila Kuipers">MK</span>Mila Kuipers</div></div>
+            <div><div class="l">Due date</div><div class="v"><svg class="i t3" viewBox="0 0 16 16" style="width:15px;height:15px"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 7h11M5.5 2v3M10.5 2v3"/></svg>Thu 18 Sep, 17:30</div></div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="cardhead">What you asked</div>
+            <div class="prose" style="padding:18px">
+              <p>Since Monday's patch the laptop will not wake from sleep. Closing the lid and opening it again shows a black screen with the fan on; only a long press on the power button brings it back.</p>
+              <p>It happened four times today. Nothing else changed.</p>
+              <div style="display:flex;gap:8px;margin-top:14px"><span class="attach"><svg class="i " viewBox="0 0 16 16" style="width:13px;height:13px"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>IMG_4412.jpg<span class="mono">2.1 MB</span></span><span class="attach"><svg class="i " viewBox="0 0 16 16" style="width:13px;height:13px"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>system-report.txt<span class="mono">14 KB</span></span></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="cardhead">Related requests</div>
+            <div class="rel"><a><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--positive)" stroke-width="1.4" opacity="1"/><path d="M4.6 7.3 6.6 9.3 9.6 5.2" stroke="var(--positive)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="min-width:0"><span class="t3" style="font-size:12px">relates to</span> <span style="font-weight:500">Battery drains fast after the same update</span></span><span style="margin-left:auto" class="t3">Resolved</span></a></div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="msg desk"><div class="who"><span class="avatar" style="background:#10b981;width:24px;height:24px;font-size:10px" title="Mila Kuipers">MK</span><b>Mila Kuipers</b><span class="tag" style="background:var(--surface-3);color:var(--text-2)">Service desk</span><span class="when">16 Sep 10:40</span></div><div class="body">Thanks Sanne — that patch has a known wake bug on this model. Two questions so I can pick the right fix: is the laptop on the dock when it happens, and does it also fail on battery?</div></div>
+            <div class="msg"><div class="who"><span class="avatar" style="background:#0ea5e9;width:24px;height:24px;font-size:10px" title="Sanne Lin">SL</span><b>You</b><span class="when">16 Sep 11:05</span></div><div class="body">On the dock every time. I have not tried on battery yet, will do this afternoon.</div></div>
+            <div class="msg desk"><div class="who"><span class="avatar" style="background:#10b981;width:24px;height:24px;font-size:10px" title="Mila Kuipers">MK</span><b>Mila Kuipers</b><span class="tag" style="background:var(--surface-3);color:var(--text-2)">Service desk</span><span class="when">Today 08:52</span></div><div class="body">Perfect. Could you try it on battery once and tell me whether it wakes? If it does, the dock firmware is the culprit and I can push the update remotely.</div></div>
+            <div class="composer" style="border-top:1px solid var(--line)">
+              <div class="lbl" style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px">Add a reply</div>
+              <div class="area">Anything you want to add…</div>
+              <div class="foot"><span class="btn ghost sm"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><path d="m11.5 7.5-4.6 4.6a2.5 2.5 0 0 1-3.5-3.5l5.3-5.3a1.7 1.7 0 0 1 2.4 2.4L6 10.8a.8.8 0 0 1-1.2-1.2l4.2-4.2"/></svg>Attach</span><span class="t3" style="font-size:12px">or drop a file here</span><span class="btn primary sm" style="margin-left:auto"><svg class="i " viewBox="0 0 16 16" style="width:14px;height:14px"><path d="m2.5 8 11-5-3 11-2.5-4.5z"/><path d="m8 9.5 5.5-6.5"/></svg>Send</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="side" style="padding-top:8px">
+          <div class="card">
+            <div class="cardhead">Where it stands</div>
+            <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px;font-size:13.5px">
+              <div style="display:flex;align-items:center;gap:10px;"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--positive)" stroke-width="1.4" opacity="1"/><path d="M4.6 7.3 6.6 9.3 9.6 5.2" stroke="var(--positive)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-weight:500">Raised</span><span class="t3 mono" style="margin-left:auto;font-size:12px">16 Sep 09:12</span></div><div style="display:flex;align-items:center;gap:10px;"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--positive)" stroke-width="1.4" opacity="1"/><path d="M4.6 7.3 6.6 9.3 9.6 5.2" stroke="var(--positive)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-weight:500">Picked up by Mila</span><span class="t3 mono" style="margin-left:auto;font-size:12px">16 Sep 09:30</span></div><div style="display:flex;align-items:center;gap:10px;"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="2.2" stroke-dasharray="9.42 31.42" transform="rotate(-90 7 7)"/></svg><span style="font-weight:500">Waiting for your reply</span><span class="t3 mono" style="margin-left:auto;font-size:12px">since 08:52 today</span></div><div style="display:flex;align-items:center;gap:10px;opacity:.45"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--brand)" stroke-width="1.4" opacity="0.35"/></svg><span style="font-weight:500">Resolved</span><span class="t3 mono" style="margin-left:auto;font-size:12px">—</span></div>
+            </div>
+          </div>
+          
+  <div class="card deskcard">
+    <div class="cardhead">The service desk</div>
+    <div class="row"><span class="ico" style="background:color-mix(in oklab,var(--positive) 14%,transparent);color:var(--positive)"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/></svg></span><div><div class="l">Opening hours</div><div style="font-weight:500">Open until 17:30 · Mon–Fri 08:30–17:30</div></div></div>
+    <div class="row"><span class="ico"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><path d="M6.5 3.5 2.5 7l4 3.5"/><path d="M2.5 7h6a5 5 0 0 1 5 5v.5"/></svg></span><div><div class="l">Usually answered in</div><div style="font-weight:500">About 4 hours</div></div></div>
+    <div class="row"><span class="ico"><svg class="i " viewBox="0 0 16 16" style="width:16px;height:16px"><path d="M3.5 2.5h2.5l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2.5a1 1 0 0 1-1 1A11 11 0 0 1 2.5 3.5a1 1 0 0 1 1-1z"/></svg></span><div><div class="l">Urgent and the desk is closed</div><div style="font-weight:500">+31 30 123 4567</div></div></div>
+  </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><div class="wrap"><span>Service portal</span><span>·</span><a>Service desk</a><span style="margin-left:auto" class="mono">Tiqo</span></div></div>
+  </div></body></html>

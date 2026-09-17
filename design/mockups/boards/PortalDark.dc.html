@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b; --surface-3:#232326;
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+    --hl:inset 0 1px 0 rgba(255,255,255,.05);
+    --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74;
+    --brand:#febe2e; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a;
+    --brand-tint:rgba(254,190,46,.14); --brand-glow:rgba(254,190,46,.35); --brand-wash:#1a170e;
+    --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+    --positive:#34d399; --negative:#f87171;
+    --created:#febe2e; --resolved:#34d399;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 40px -12px rgba(0,0,0,.8);
+    --paper:#121214; --seg-on:#2a2a2f;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .field span:not(.mono) { transform-origin: bottom; animation: grow 1100ms cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i, 0) * 16ms); }
+  @media (prefers-reduced-motion: reduce) { .field span { animation: none; } }
+
+  </style>
+</helmet>
+
+  <div style="width:1440px;height:900px;background:var(--bg);overflow:hidden;position:relative">
+    <header style="height:60px;display:flex;align-items:center;padding:0 48px;gap:14px;position:relative;z-index:2">
+      <svg width="28" height="28" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n28"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n28)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:16px;letter-spacing:-.02em">Tiqo</span><span class="t3" style="font-size:13px;padding-left:12px;border-left:1px solid var(--line-strong)">Service portal</span>
+      <nav style="margin-left:auto;display:flex;gap:2px;align-items:center;font-size:13.5px;font-weight:500">
+        <span class="chip on" style="height:32px;padding:0 14px;border:0;border-radius:999px">Home</span><span class="chip" style="height:32px;padding:0 14px;border:0;background:transparent;border-radius:999px">Answers</span><span class="chip" style="height:32px;padding:0 14px;border:0;background:transparent;border-radius:999px">My requests <span class="mono" style="font-size:11px;background:var(--surface-3);padding:1px 6px;border-radius:99px">2</span></span>
+        <span style="width:1px;height:18px;background:var(--line-strong);margin:0 10px"></span>
+        <span class="btn ghost" style="width:32px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></span>
+        <span class="avatar" style="background:#0ea5e9;width:30px;height:30px;font-size:13px" title="Sanne Lin">SL</span>
+      </nav>
+    </header>
+
+    <section style="position:relative;margin:12px 48px 0;border-radius:16px;background:var(--brand-wash);overflow:hidden;height:300px;border:1px solid color-mix(in oklab,var(--brand) 22%,transparent)">
+      <div style="position:absolute;right:0;bottom:0;opacity:.85;-webkit-mask-image:linear-gradient(90deg,transparent,#000 35%);mask-image:linear-gradient(90deg,transparent,#000 35%)"><div class="field" style="position:relative;width:720px;height:300px"><span style="position:absolute;left:0.0px;bottom:0;width:9.0px;height:214px;border-radius:3px 3px 0 0;background:var(--p-urgent);opacity:1.00;box-shadow:0 0 14px 1px var(--p-urgent);--i:0"></span><span style="position:absolute;left:15.0px;bottom:0;width:9.0px;height:228px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:1"></span><span style="position:absolute;left:30.0px;bottom:0;width:9.0px;height:229px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:2"></span><span style="position:absolute;left:45.0px;bottom:0;width:9.0px;height:215px;border-radius:3px 3px 0 0;background:var(--brand);opacity:1.00;box-shadow:0 0 14px 1px var(--brand);--i:3"></span><span style="position:absolute;left:60.0px;bottom:0;width:9.0px;height:189px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.60;--i:4"></span><span style="position:absolute;left:75.0px;bottom:0;width:9.0px;height:156px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.54;--i:5"></span><span style="position:absolute;left:90.0px;bottom:0;width:9.0px;height:124px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.49;--i:6"></span><span style="position:absolute;left:105.0px;bottom:0;width:9.0px;height:101px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.45;--i:7"></span><span style="position:absolute;left:120.0px;bottom:0;width:9.0px;height:90px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.43;--i:8"></span><span style="position:absolute;left:135.0px;bottom:0;width:9.0px;height:93px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.44;--i:9"></span><span style="position:absolute;left:150.0px;bottom:0;width:9.0px;height:109px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:10"></span><span style="position:absolute;left:165.0px;bottom:0;width:9.0px;height:130px;border-radius:3px 3px 0 0;background:var(--p-low);opacity:0.50;--i:11"></span><span style="position:absolute;left:180.0px;bottom:0;width:9.0px;height:150px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.53;--i:12"></span><span style="position:absolute;left:195.0px;bottom:0;width:9.0px;height:162px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.55;--i:13"></span><span style="position:absolute;left:210.0px;bottom:0;width:9.0px;height:164px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.55;--i:14"></span><span style="position:absolute;left:225.0px;bottom:0;width:9.0px;height:156px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.54;--i:15"></span><span style="position:absolute;left:240.0px;bottom:0;width:9.0px;height:141px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.51;--i:16"></span><span style="position:absolute;left:255.0px;bottom:0;width:9.0px;height:123px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.49;--i:17"></span><span style="position:absolute;left:270.0px;bottom:0;width:9.0px;height:110px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:18"></span><span style="position:absolute;left:285.0px;bottom:0;width:9.0px;height:103px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.45;--i:19"></span><span style="position:absolute;left:300.0px;bottom:0;width:9.0px;height:103px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.45;--i:20"></span><span style="position:absolute;left:315.0px;bottom:0;width:9.0px;height:108px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:21"></span><span style="position:absolute;left:330.0px;bottom:0;width:9.0px;height:111px;border-radius:3px 3px 0 0;background:var(--p-medium);opacity:0.46;--i:22"></span><span style="position:absolute;left:345.0px;bottom:0;width:9.0px;height:106px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.46;--i:23"></span><span style="position:absolute;left:360.0px;bottom:0;width:9.0px;height:91px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.43;--i:24"></span><span style="position:absolute;left:375.0px;bottom:0;width:9.0px;height:63px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.39;--i:25"></span><span style="position:absolute;left:390.0px;bottom:0;width:9.0px;height:27px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.32;--i:26"></span><span style="position:absolute;left:405.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:27"></span><span style="position:absolute;left:420.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:28"></span><span style="position:absolute;left:435.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:29"></span><span style="position:absolute;left:450.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:30"></span><span style="position:absolute;left:465.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:31"></span><span style="position:absolute;left:480.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.31;--i:32"></span><span style="position:absolute;left:495.0px;bottom:0;width:9.0px;height:18px;border-radius:3px 3px 0 0;background:var(--p-high);opacity:0.31;--i:33"></span><span style="position:absolute;left:510.0px;bottom:0;width:9.0px;height:24px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.32;--i:34"></span><span style="position:absolute;left:525.0px;bottom:0;width:9.0px;height:50px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.36;--i:35"></span><span style="position:absolute;left:540.0px;bottom:0;width:9.0px;height:67px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.39;--i:36"></span><span style="position:absolute;left:555.0px;bottom:0;width:9.0px;height:75px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.41;--i:37"></span><span style="position:absolute;left:570.0px;bottom:0;width:9.0px;height:78px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.41;--i:38"></span><span style="position:absolute;left:585.0px;bottom:0;width:9.0px;height:80px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.41;--i:39"></span><span style="position:absolute;left:600.0px;bottom:0;width:9.0px;height:87px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.43;--i:40"></span><span style="position:absolute;left:615.0px;bottom:0;width:9.0px;height:102px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.45;--i:41"></span><span style="position:absolute;left:630.0px;bottom:0;width:9.0px;height:123px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.48;--i:42"></span><span style="position:absolute;left:645.0px;bottom:0;width:9.0px;height:147px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.52;--i:43"></span><span style="position:absolute;left:660.0px;bottom:0;width:9.0px;height:168px;border-radius:3px 3px 0 0;background:var(--p-urgent);opacity:0.56;--i:44"></span><span style="position:absolute;left:675.0px;bottom:0;width:9.0px;height:181px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.58;--i:45"></span><span style="position:absolute;left:690.0px;bottom:0;width:9.0px;height:182px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.58;--i:46"></span><span style="position:absolute;left:705.0px;bottom:0;width:9.0px;height:169px;border-radius:3px 3px 0 0;background:var(--brand);opacity:0.56;--i:47"></span>
+    <span style="position:absolute;left:0;right:0;bottom:204px;border-top:1px dashed rgba(255,255,255,.28)"></span>
+    <span class="mono" style="position:absolute;right:0;bottom:212px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.5)">RESPONSE TARGET</span>
+  </div></div>
+      <div style="position:relative;padding:44px 48px;max-width:640px">
+        <h1 style="font-size:36px;font-weight:600;letter-spacing:-.03em;margin:0;line-height:1.1">Hi Sanne.<br>What do you need?</h1>
+        <div class="input" style="margin-top:22px;height:52px;border-radius:12px;padding:0 18px;font-size:15px;box-shadow:var(--shadow);border-color:var(--line-strong);background:var(--surface);width:560px"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search answers, or describe the problem</span><kbd style="margin-left:auto">/</kbd></div>
+        <div style="display:flex;gap:8px;margin-top:14px"><span class="btn outline" style="height:36px;padding:0 14px;font-size:13.5px;border-radius:999px;gap:8px"><svg class="i " viewBox="0 0 16 16"><path d="M3.5 14V2.5h8l-2 3 2 3h-8"/></svg>Something is broken</span><span class="btn outline" style="height:36px;padding:0 14px;font-size:13.5px;border-radius:999px;gap:8px"><svg class="i " viewBox="0 0 16 16"><circle cx="5.5" cy="10.5" r="2.5"/><path d="m7.3 8.7 6-6M11 4.5l1.5 1.5M9.5 6l1.5 1.5"/></svg>I need access</span><span class="btn outline" style="height:36px;padding:0 14px;font-size:13.5px;border-radius:999px;gap:8px"><svg class="i " viewBox="0 0 16 16"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg>New device</span><span class="btn outline" style="height:36px;padding:0 14px;font-size:13.5px;border-radius:999px;gap:8px"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M6.3 6.4a1.8 1.8 0 1 1 2.6 1.6c-.6.3-.9.7-.9 1.3M8 11.6v.1"/></svg>Ask a question</span></div>
+      </div>
+    </section>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:48px;padding:28px 48px 0">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px"><h2 style="font-size:18px;font-weight:600;margin:0;letter-spacing:-.01em">Browse the catalogue</h2><span class="t3" style="font-size:13px">Everything you can ask for, by subject</span></div>
+        
+    <div style="display:grid;grid-template-columns:40px 1fr auto 16px;gap:14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)">
+      <span style="width:40px;height:40px;border-radius:10px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>
+      <div><div style="font-weight:600;font-size:15px">Devices</div><div class="t2" style="font-size:13px;margin-top:2px">Laptops, phones, screens and everything that plugs in</div></div>
+      <span class="t3 mono" style="font-size:11.5px;white-space:nowrap">6 requests · 4 answers</span>
+      <span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+    </div>
+        
+    <div style="display:grid;grid-template-columns:40px 1fr auto 16px;gap:14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)">
+      <span style="width:40px;height:40px;border-radius:10px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16"><circle cx="5.5" cy="10.5" r="2.5"/><path d="m7.3 8.7 6-6M11 4.5l1.5 1.5M9.5 6l1.5 1.5"/></svg></span>
+      <div><div style="font-weight:600;font-size:15px">Accounts and access</div><div class="t2" style="font-size:13px;margin-top:2px">Passwords, shared drives, SharePoint, licences</div></div>
+      <span class="t3 mono" style="font-size:11.5px;white-space:nowrap">5 requests · 9 answers</span>
+      <span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+    </div>
+        
+    <div style="display:grid;grid-template-columns:40px 1fr auto 16px;gap:14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)">
+      <span style="width:40px;height:40px;border-radius:10px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="M3.5 14V2.5h8l-2 3 2 3h-8"/></svg></span>
+      <div><div style="font-weight:600;font-size:15px">Something is broken</div><div class="t2" style="font-size:13px;margin-top:2px">Tell us what stopped working and we will take it from there</div></div>
+      <span class="t3 mono" style="font-size:11.5px;white-space:nowrap">2 requests</span>
+      <span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+    </div>
+        
+    <div style="display:grid;grid-template-columns:40px 1fr auto 16px;gap:14px;align-items:center;padding:14px 4px;">
+      <span style="width:40px;height:40px;border-radius:10px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="M9.5 2.6a3.2 3.2 0 0 0 3.6 4.3L7 13a1.5 1.5 0 0 1-2.1-2.1l6.1-6.1A3.2 3.2 0 0 0 9.5 2.6z"/></svg></span>
+      <div><div style="font-weight:600;font-size:15px">I need something built</div><div class="t2" style="font-size:13px;margin-top:2px">Changes, integrations, automations, new tooling</div></div>
+      <span class="t3 mono" style="font-size:11.5px;white-space:nowrap">3 requests</span>
+      <span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+    </div>
+      </div>
+      <div>
+        <div class="card" style="padding:16px 18px;display:flex;align-items:center;gap:14px;border-radius:12px">
+          <span style="width:10px;height:10px;border-radius:99px;background:var(--brand);box-shadow:0 0 0 4px var(--brand-tint)"></span>
+          <div><div style="font-weight:600;font-size:14px">The desk is open</div><div class="t2" style="font-size:12.5px">Answering in about 2 hours · until 17:30</div></div>
+          <span class="mono t3" style="margin-left:auto;font-size:11.5px">09:41</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);position:relative;overflow:hidden">
+          <i style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--p-high)"></i>
+          <div style="font-size:13px;margin-left:6px"><b style="font-weight:600">Wi-Fi on the second floor is unstable this morning.</b> <span class="t2">Use a wired desk for calls until 11:00.</span></div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin:24px 0 2px"><h2 style="font-size:16px;font-weight:600;margin:0">Your requests</h2><a style="margin-left:auto;font-size:13px;font-weight:500">All requests <svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></a></div>
+        <div style="display:grid;grid-template-columns:4px minmax(0,1fr);gap:14px;align-items:stretch;padding:12px 0;border-top:1px solid var(--line)"><span style="position:relative;width:4px;border-radius:2px;overflow:visible"><span class="spine hot" style="--c: var(--p-urgent)"><i style="height:92%"></i></span></span><div style="min-width:0"><div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">VPN drops every 20 minutes on the Utrecht office Wi-Fi</div><div style="display:flex;align-items:center;gap:10px;margin-top:4px;font-size:12px"><span class="ref inc"><b>INC</b>-2609 0117</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="2.2" stroke-dasharray="17.28 31.42" transform="rotate(-90 7 7)"/></svg>In progress</span><span class="t3 mono" style="margin-left:auto">3h</span></div></div></div><div style="display:grid;grid-template-columns:4px minmax(0,1fr);gap:14px;align-items:stretch;padding:12px 0;border-top:1px solid var(--line)"><span style="position:relative;width:4px;border-radius:2px;overflow:visible"><span class="spine " style="--c: var(--p-high)"><i style="height:55%"></i></span></span><div style="min-width:0"><div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Laptop will not wake from sleep after Monday's patch</div><div style="display:flex;align-items:center;gap:10px;margin-top:4px;font-size:12px"><span class="ref inc"><b>INC</b>-2609 0119</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="2.2" stroke-dasharray="9.42 31.42" transform="rotate(-90 7 7)"/></svg>Waiting on requester</span><span class="t3 mono" style="margin-left:auto">6h</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</x-dc>
+</body>
+</html>

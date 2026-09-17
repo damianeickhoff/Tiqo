@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Instance" ADD COLUMN     "dateLocale" TEXT;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "workDays" INTEGER[] DEFAULT ARRAY[]::INTEGER[],
+ADD COLUMN     "workEnd" INTEGER NOT NULL DEFAULT 1020,
+ADD COLUMN     "workStart" INTEGER NOT NULL DEFAULT 540;

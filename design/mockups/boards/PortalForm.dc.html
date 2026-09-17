@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#ffffff; --chrome:#fafafa; --surface:#ffffff; --surface-2:#f4f4f5; --surface-3:#e9e9ec;
+    --line:rgba(9,9,11,.08); --line-strong:rgba(9,9,11,.16);
+    --hl:0 1px 2px rgba(9,9,11,.05), 0 0 0 1px rgba(9,9,11,.02);
+    --text:#09090b; --text-2:#52525b; --text-3:#9d9da6;
+    --brand:#febe2e; --brand-hover:#f5b21c; --brand-ink:#1c1300; --brand-deep:#b7790a;
+    --brand-tint:rgba(254,190,46,.18); --brand-glow:rgba(254,190,46,.4); --brand-wash:#fffbeb;
+    --p-low:#10b981; --p-medium:#6366f1; --p-high:#f97316; --p-urgent:#e11d48;
+    --positive:#10b981; --negative:#e11d48;
+    --created:#e0a422; --resolved:#10b981;
+    --shadow:0 1px 2px rgba(9,9,11,.06), 0 16px 40px -16px rgba(9,9,11,.18);
+    --paper:#ffffff; --seg-on:#ffffff;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .field span:not(.mono) { transform-origin: bottom; animation: grow 1100ms cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i, 0) * 16ms); }
+  @media (prefers-reduced-motion: reduce) { .field span { animation: none; } }
+.shell{height:1420px}
+  </style>
+</helmet>
+
+  <div class="portal" style="width:1440px;height:1420px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column;font-size:14px">
+    <header style="height:60px;flex:none;display:flex;align-items:center;padding:0 48px;gap:14px;border-bottom:1px solid var(--line)">
+      <svg width="28" height="28" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n28"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n28)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:16px;letter-spacing:-.02em">Tiqo</span><span class="t3" style="font-size:13px;padding-left:12px;border-left:1px solid var(--line-strong)">Service portal</span>
+      <nav style="margin-left:auto;display:flex;gap:2px;align-items:center">
+        <span class="chip on" style="height:32px;padding:0 14px;border:0;border-radius:999px;font-size:13.5px;font-weight:500;">Home</span><span class="chip " style="height:32px;padding:0 14px;border:0;border-radius:999px;font-size:13.5px;font-weight:500;background:transparent;">Answers</span><span class="chip " style="height:32px;padding:0 14px;border:0;border-radius:999px;font-size:13.5px;font-weight:500;background:transparent;">My requests<span class="mono" style="font-size:11px;background:var(--brand);color:var(--brand-ink);padding:1px 6px;border-radius:99px;margin-left:6px">3</span></span>
+        <span style="width:1px;height:18px;background:var(--line-strong);margin:0 10px"></span>
+        <span class="btn ghost" style="width:32px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg></span>
+        <span class="avatar" style="background:#0ea5e9;width:30px;height:30px;font-size:13px" title="Sanne Lin">SL</span>
+      </nav>
+    </header>
+    <div style="flex:1;min-height:0;overflow:hidden;padding:32px 48px 0">
+    <div style="max-width:760px;margin:0 auto">
+      <nav style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-3)"><a style="color:var(--text-3)">Home</a><span style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><a style="color:var(--text-3)">Accounts and access</a><span style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span style="color:var(--text-2)">Request access to a system</span></nav>
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-top:18px">
+        <span style="width:48px;height:48px;flex:none;border-radius:12px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i" viewBox="0 0 16 16" style="width:22px;height:22px"><circle cx="5.5" cy="10.5" r="2.5"/><path d="m7.3 8.7 6-6M11 4.5l1.5 1.5M9.5 6l1.5 1.5"/></svg></span>
+        <div><h1 style="font-size:26px;font-weight:600;letter-spacing:-.025em;margin:0;line-height:1.15">Request access to a system</h1><p class="t2" style="font-size:14.5px;margin:6px 0 0;max-width:62ch">Shared drives, SharePoint sites, applications and admin roles. Access is granted by the owner of the system; the desk routes it and keeps you posted.</p></div>
+      </div>
+      <div class="card" style="margin-top:22px;padding:28px 32px 24px;display:flex;flex-direction:column;gap:28px">
+        
+    <div style="border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600"><span class="t2" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 3.5a2 2 0 0 1 2-2h9v11h-9a2 2 0 0 0-2 2z"/><path d="M4.5 12.5h9"/></svg></span>This might already answer it<span class="btn ghost sm" style="margin-left:auto;height:26px">None of these</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <a style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13.5px"><span style="font-weight:500;white-space:nowrap">SharePoint: I can see the site but not the files</span><span class="t3" style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Site access and library access are granted separately.</span><span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span></a><a style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13.5px"><span style="font-weight:500;white-space:nowrap">Get into a shared mailbox</span><span class="t3" style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Who can grant it, how long it takes and where it shows up in Outlook.</span><span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span></a>
+      </div>
+    </div>
+        <fieldset style="border:0;margin:0;padding:0">
+          <div style="margin-bottom:14px"><div style="font-size:15px;font-weight:600">What you need</div><div class="t3" style="font-size:13px;margin-top:2px">The more precise, the faster the owner can say yes.</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">What do you need access to?<span style="color:var(--negative)" title="Required">*</span></span><div class="input" style="height:38px;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint);font-size:14px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">HR SharePoint site, the Contracts library</span><i style="width:1px;height:16px;background:var(--text)"></i></div></div>
+            <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Which system?<span style="color:var(--negative)" title="Required">*</span></span><div class="input" style="height:38px;font-size:14px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">SharePoint</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div>
+            <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Needed by</span><div class="input" style="height:38px;font-size:14px;"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 7h11M5.5 2v3M10.5 2v3"/></svg></span><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">14 / 09 / 2026</span></div></div>
+            <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Access level<span style="color:var(--negative)" title="Required">*</span></span><div style="display:flex;flex-direction:column;gap:6px"><label style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:14px"><span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--line-strong);background:var(--paper)"></span>Read</label><label style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:8px;border:1px solid color-mix(in oklab,var(--brand) 45%,transparent);background:var(--brand-tint);font-size:14px"><span style="width:16px;height:16px;border-radius:99px;border:5px solid var(--brand);background:#fff"></span>Edit</label><label style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:14px"><span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--line-strong);background:var(--paper)"></span>Admin</label></div></div>
+          </div>
+        </fieldset>
+        <fieldset style="border:0;margin:0;padding:0">
+          <div style="margin-bottom:14px"><div style="font-size:15px;font-weight:600">Approval</div><div class="t3" style="font-size:13px;margin-top:2px">Owners answer faster when the manager already knows.</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Who approves this?</span><div class="input" style="height:38px;font-size:14px;"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.5 2.2-4.2 5-4.2s5 1.7 5 4.2"/></svg></span><span class="ph" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis"></span></div><span class="t3" style="font-size:12px">Usually your manager or the system owner.</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Their email</span><div class="input" style="height:38px;font-size:14px;"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg></span><span class="ph" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">name@company.com</span></div></div>
+            <label style="grid-column:span 2;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:var(--paper)"><span style="display:flex;align-items:center;gap:9px;font-size:13px;"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--brand);background:var(--brand);display:flex;align-items:center;justify-content:center;color:var(--brand-ink)"><svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3 3 7-7"/></svg></span></span>My manager has already approved this</label>
+            <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2"><span style="font-size:14px;font-weight:500;display:flex;gap:4px">Anything else we should know</span><div class="input" style="height:104px;align-items:flex-start;padding:8px 10px;white-space:normal;line-height:1.5;font-size:14px"><span class="ph" style="white-space:normal"></span></div><span class="t3" style="font-size:12px">Deadlines, colleagues who already have the same access, anything that helps.</span></div>
+          </div>
+        </fieldset>
+        <div style="display:flex;align-items:center;gap:12px;padding-top:20px;border-top:1px solid var(--line)"><span class="t3" style="font-size:12.5px;line-height:1.5"><span style="display:block">Raised as a <span class="ref qst" style="font-size:12px"><b>QST</b></span> question · answered by Accounts within about 2 hours</span><span style="display:block">Updates go to <span class="mono" style="font-size:12px">sanne.lin@contoso.nl</span> and to My requests</span></span><span class="btn primary" style="margin-left:auto;height:38px;padding:0 16px;font-size:14px"><svg class="i " viewBox="0 0 16 16"><path d="m2.5 8 11-5-3 11-2.5-4.5z"/><path d="m8 9.5 5.5-6.5"/></svg>Send</span></div>
+      </div>
+    </div></div>
+    <footer class="t3" style="flex:none;border-top:1px solid var(--line);padding:18px 48px;font-size:13px;display:flex;gap:6px">Tiqo service desk<span>·</span><a>Service desk</a></footer>
+  </div>
+</x-dc>
+</body>
+</html>

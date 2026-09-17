@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root { 
+    --bg:#09090b; --chrome:#0c0c0e; --surface:#121214; --surface-2:#18181b; --surface-3:#232326;
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.14);
+    --hl:inset 0 1px 0 rgba(255,255,255,.05);
+    --text:#fafafa; --text-2:#a1a1aa; --text-3:#6b6b74;
+    --brand:#febe2e; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a;
+    --brand-tint:rgba(254,190,46,.14); --brand-glow:rgba(254,190,46,.35); --brand-wash:#1a170e;
+    --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+    --positive:#34d399; --negative:#f87171;
+    --created:#febe2e; --resolved:#34d399;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 40px -12px rgba(0,0,0,.8);
+    --paper:#121214; --seg-on:#2a2a2f;
+   }
+    
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    
+  </style>
+</helmet>
+<div class="shell">
+  <aside class="rail">
+    <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 6px;margin-bottom:8px">
+      <svg width="22" height="22" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n22"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n22)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:14px;letter-spacing:-.02em">Tiqo</span>
+      <span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg></span>
+    </div>
+    <nav class="nav" style="display:flex;flex-direction:column;gap:2px">
+      <div class="sec" style="padding-top:2px">Work</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 8.5 4 3.5h8l1.5 5v4h-11z"/><path d="M2.5 8.5h3.2l1 2h2.6l1-2h3.2"/></svg><span>Dashboard</span><kbd>G D</kbd></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg><span>Tickets</span><span class="n">23</span></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v7h-11z"/></svg><span>Projects</span><kbd>G P</kbd></a>
+      <div class="sec">Organisation</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13c0-2 1.6-3.5 3.5-3.5S9.5 11 9.5 13"/><path d="M10.5 3.6a2.2 2.2 0 0 1 0 3.9M11 9.6c1.5.4 2.5 1.8 2.5 3.4"/></svg><span>People</span><kbd>G U</kbd></a>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px" class="nav">
+      <a class="on"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.8M8 12.4v1.8M1.8 8h1.8M12.4 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3"/></svg><span>Settings</span><kbd>G S</kbd></a>
+      <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 6px;border-top:1px solid var(--line);margin-top:8px">
+        <span class="avatar" style="background:#6366f1;width:24px;height:24px;font-size:10px" title="Ada Admin">AA</span>
+        <div style="min-width:0;line-height:1.2"><div style="font-weight:600;font-size:12.5px">Ada Admin</div><div class="t3" style="font-size:11px">Admin · desk open</div></div>
+      </div>
+    </div>
+  </aside>
+  <header class="bar">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px"><span class="t3">Settings</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span class="t3">Portal</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span class="t3">Forms</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span style="color:var(--text);font-weight:500">Request access to a system</span></div>
+    
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="input" style="width:260px;height:30px;background:var(--surface)"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search tickets, people, projects</span><kbd style="margin-left:auto">⌘K</kbd></div>
+      <span class="btn primary" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New<kbd style="background:transparent;border-color:rgba(0,0,0,.25);color:var(--brand-ink);opacity:.7">⌘N</kbd></span>
+      <span style="width:1px;height:20px;background:var(--line)"></span>
+      <span class="btn ghost" style="width:30px;padding:0;justify-content:center;position:relative"><svg class="i " viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3z"/><path d="M6.5 14.5h3"/></svg><i style="position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:99px;background:var(--brand);box-shadow:0 0 0 2px var(--bg)"></i></span>
+      <span class="avatar" style="background:#6366f1;width:26px;height:26px;font-size:11px" title="Ada Admin">AA</span>
+    </div>
+  </header><div class="main">
+    <div class="pagehead" style="gap:10px">
+      <span class="btn ghost sm" style="margin-left:-8px;padding:0 6px"><svg class="i " viewBox="0 0 16 16"><path d="M13 8H3M7 4 3 8l4 4"/></svg>Forms</span>
+      <span style="width:1px;height:18px;background:var(--line)"></span>
+      <h1>Request access to a system</h1><span class="tag">Accounts and access</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <span class="t3" style="font-size:12px;display:flex;align-items:center;gap:6px;margin-right:6px"><i style="width:6px;height:6px;border-radius:99px;background:var(--brand)"></i>Unsaved changes</span>
+        <span class="chip" style="height:28px;gap:8px;padding:0 10px"><i style="width:8px;height:8px;border-radius:99px;background:var(--positive)"></i><span style="color:var(--text);font-weight:500">Live</span><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span>
+        <span class="btn outline sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="M9 3h4v4M13 3 7.5 8.5M11 9v4H3V5h4"/></svg>Preview</span>
+        <span class="btn ghost sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:196px minmax(0,1fr) 320px;gap:16px;padding:20px 24px 0">
+    <div class="card" style="padding:12px;align-self:start">
+      <div class="label" style="padding:4px 6px 8px">Add a question…</div>
+      <div style="display:flex;flex-direction:column;gap:1px"><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M3 3.5h10M8 3.5v9"/></svg></span>One line<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 3.5h11M2.5 6.5h11M2.5 9.5h11M2.5 12.5h6"/></svg></span>Paragraph<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h8"/><circle cx="2.8" cy="4" r=".8"/><circle cx="2.8" cy="8" r=".8"/><circle cx="2.8" cy="12" r=".8"/></svg></span>Dropdown<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg></span>Choice<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="m5.5 8 2 2 3.5-4"/></svg></span>Tick box<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M6 2.5 4.5 13.5M11.5 2.5 10 13.5M2.5 6h11M2 10h11"/></svg></span>Number<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg></span>Email<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M3.5 2.5h2.5l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2.5a1 1 0 0 1-1 1A11 11 0 0 1 2.5 3.5a1 1 0 0 1 1-1z"/></svg></span>Phone<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span><span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;color:var(--text-2)"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 7h11M5.5 2v3M10.5 2v3"/></svg></span>Date<span class="t3" style="margin-left:auto;display:flex;opacity:.5"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span></div>
+      <div class="hair" style="margin:8px 0"></div>
+      <span style="display:flex;align-items:center;gap:9px;height:30px;padding:0 8px;border-radius:6px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="m8 2.5 6 3-6 3-6-3z"/><path d="m2 8.5 6 3 6-3M2 11.5l6 3 6-3"/></svg></span>Group of questions<span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></span></span>
+    </div>
+    <div class="card" style="overflow:hidden;align-self:start">
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);">
+        <span style="width:40px;height:40px;border-radius:10px;background:var(--brand-tint);color:var(--brand-deep);display:flex;align-items:center;justify-content:center"><svg class="i " viewBox="0 0 16 16"><circle cx="5.5" cy="10.5" r="2.5"/><path d="m7.3 8.7 6-6M11 4.5l1.5 1.5M9.5 6l1.5 1.5"/></svg></span>
+        <div style="min-width:0"><div style="font-size:15px;font-weight:600">Request access to a system</div><div class="t3" style="font-size:12.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Shared drives, SharePoint sites, applications and admin roles. Access is granted by the owner…</div></div>
+        <span class="mono t3" style="margin-left:auto;font-size:11px;white-space:nowrap">8 questions · 3 required · ~2 min</span><span class="btn ghost sm" style="flex:none"><svg class="i " viewBox="0 0 16 16"><path d="m10.5 2.5 3 3-7.5 7.5H3v-3z"/></svg>Edit</span>
+      </div>
+      <div style="padding:18px 20px 20px">
+        <div style="display:flex;flex-direction:column;gap:2px;padding:8px 10px;margin:0 -10px 10px;border-radius:8px"><span style="font-size:13.5px;font-weight:600">What you need</span><span class="t3" style="font-size:12px">The more precise, the faster the owner can say yes.</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          
+    <div style="position:relative;grid-column:span 2;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M3 3.5h10M8 3.5v9"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">What do you need access to?</span><span style="color:var(--negative)">*</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">One line<span>·</span>The subject</div>
+      
+    </div>
+          
+    <div style="position:relative;grid-column:span 1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h8"/><circle cx="2.8" cy="4" r=".8"/><circle cx="2.8" cy="8" r=".8"/><circle cx="2.8" cy="12" r=".8"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Which system?</span><span style="color:var(--negative)">*</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Dropdown<span>·</span>A line in the description</div>
+      
+    </div>
+          
+    <div style="position:relative;grid-column:span 1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 7h11M5.5 2v3M10.5 2v3"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Needed by</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Date</div>
+      
+    </div>
+          
+    <div style="position:relative;grid-column:span 2;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Access level</span><span style="color:var(--negative)">*</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Choice<span>·</span>A line in the description</div>
+      
+    </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;padding:8px 10px;margin:22px -10px 10px;border-radius:8px"><span style="font-size:13.5px;font-weight:600">Approval</span><span class="t3" style="font-size:12px">Owners answer faster when the manager already knows.</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          
+    <div style="position:relative;grid-column:span 1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M3 3.5h10M8 3.5v9"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Who approves this?</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">One line<span>·</span>A line in the description</div>
+      
+    </div>
+          
+    <div style="position:relative;grid-column:span 1;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in oklab,var(--brand) 50%,transparent);background:var(--brand-tint);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3);margin-left:-6px"><svg class="i " viewBox="0 0 16 16"><circle cx="6" cy="4" r="1"/><circle cx="10" cy="4" r="1"/><circle cx="6" cy="8" r="1"/><circle cx="10" cy="8" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="10" cy="12" r="1"/></svg></span><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Their email</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Email<span>·</span>A line in the description<span>·</span><span style="display:inline-flex;align-items:center;gap:4px;color:var(--brand-deep)"><svg class="i " viewBox="0 0 16 16"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-1 1"/><path d="M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l1-1"/></svg>Conditional</span></div>
+      <div style="position:absolute;right:6px;top:6px;display:flex;gap:2px"><span class="btn outline sm" style="width:22px;height:22px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="m4 10 4-4 4 4"/></svg></span><span class="btn outline sm" style="width:22px;height:22px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+    </div>
+          
+    <div style="position:relative;grid-column:span 2;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="m5.5 8 2 2 3.5-4"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My manager has already approved this</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Tick box</div>
+      
+    </div>
+          
+    <div style="position:relative;grid-column:span 2;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="display:flex;color:var(--text-3)"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 3.5h11M2.5 6.5h11M2.5 9.5h11M2.5 12.5h6"/></svg></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anything else we should know</span></div>
+      <div class="t3" style="font-size:11.5px;margin-top:3px;display:flex;gap:6px;align-items:center">Paragraph<span>·</span>The description</div>
+      
+    </div>
+        </div>
+        <div style="margin-top:14px;border:1px dashed var(--line-strong);border-radius:10px;height:40px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px" class="t3"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>Drop a question here, or pick one from the left</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;align-self:start">
+      <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px"><div class="label" style="display:flex;align-items:center;gap:7px"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h2M7.5 11.5h6"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="5.5" cy="11.5" r="1.5"/></svg>Question</div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Label</span><div class="input" style="height:32px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Their email</span></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Kind</span><div class="input" style="height:32px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Email</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div><div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Placeholder</span><div class="input" style="height:32px;"><span class="ph" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">name@company.com</span></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Help text</span><div class="input" style="height:32px;"><span class="ph" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Optional</span></div></div>
+        <div style="display:flex;gap:18px;padding-top:2px"><label style="display:flex;align-items:center;gap:9px;font-size:13px;"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--line-strong);background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--brand-ink)"></span>Required</label><label style="display:flex;align-items:center;gap:9px;font-size:13px;"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--brand);background:var(--brand);display:flex;align-items:center;justify-content:center;color:var(--brand-ink)"><svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3 3 7-7"/></svg></span>Half width</label></div></div>
+      <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px"><div class="label" style="display:flex;align-items:center;gap:7px"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h2M7.5 11.5h6"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="5.5" cy="11.5" r="1.5"/></svg>Where the answer goes</div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Becomes</span><div class="input" style="height:32px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">A line in the description</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Group</span><div class="input" style="height:32px;"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Approval</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div></div>
+      <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px"><div class="label" style="display:flex;align-items:center;gap:7px"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h2M7.5 11.5h6"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="5.5" cy="11.5" r="1.5"/></svg>Only ask this when</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Depends on</span><div class="input" style="height:32px;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)"><span class="" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Who approves this?</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div><div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12.5px;font-weight:500;display:flex;gap:4px">Is</span><div class="input" style="height:32px;"><span class="ph" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Choose one…</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div></div></div>
+        <span class="t3" style="font-size:12px;display:flex;gap:6px;align-items:flex-start;line-height:1.4"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 7.5v3.5M8 5.2v.1"/></svg>Only earlier dropdown, choice and tick-box questions can be picked.</span></div>
+      <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)"><span class="btn primary sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="m3 8.5 3 3 7-7"/></svg>Save</span><span class="btn ghost sm" style="height:28px">Discard</span><span class="t3" style="font-size:12px;margin-left:auto;display:flex;align-items:center;gap:6px"><i style="width:6px;height:6px;border-radius:99px;background:var(--brand)"></i>Unsaved changes</span></div>
+      <span class="btn ghost sm" style="height:30px;justify-content:center;color:var(--negative)"><svg class="i " viewBox="0 0 16 16"><path d="M3 4.5h10M6.5 4.5v-2h3v2M4.5 4.5l.7 9h5.6l.7-9"/></svg>Delete this question</span>
+    </div></div></div></div>
+</x-dc>
+</body>
+</html>

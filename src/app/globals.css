@@ -1,26 +1,851 @@
 @import "tailwindcss";
 
+/*
+  Tiqo design tokens — "Signal".
+
+  Brand is #febe2e. It is the only warm hue on the desk: everything else is a
+  cool, neutral grey, so the amber reads as a signal light rather than a wash.
+
+  Colour discipline:
+    · Brand amber owns the chrome: logo, primary actions, active nav, focus,
+      the hero metric, and the sequential ramp in the pipeline chart.
+    · Priority owns the one categorical palette — drawn as signal bars, never
+      as a coloured pill. Light and dark are stepped separately.
+    · Status is a ring glyph in the status's own colour.
+    · Everything else is ink on a neutral ground.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* The working ground is white; only the chrome (rail and bar) is tinted. */
+  --bg: #ffffff;
+  --chrome: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --surface-3: #e9e9ec;
+
+  /* Hairlines are alpha so they read the same on every surface. */
+  --line: rgba(9, 9, 11, 0.08);
+  --line-strong: rgba(9, 9, 11, 0.16);
+  --border: var(--line);
+  --border-soft: rgba(9, 9, 11, 0.05);
+  --chrome-border: var(--line);
+
+  --text: #09090b;
+  --text-2: #52525b;
+  --text-3: #9d9da6;
+
+  --brand: #febe2e;
+  --brand-hover: #f5b21c;
+  --brand-ink: #1c1300; /* text placed on a brand fill */
+  --brand-deep: #936e1b; /* brand used as text on light surfaces */
+  --brand-tint: rgba(254, 190, 46, 0.18);
+  --brand-glow: rgba(254, 190, 46, 0.4);
+  /* A wash rather than a tint: opaque, so anything floating on it — the action
+     bar, a card's header strip — hides what passes underneath. */
+  --brand-wash: #fffbeb;
+
+  /* Priority ramp — one chroma, four hues, light surface */
+  --p-low: #10b981;
+  --p-medium: #6366f1;
+  --p-high: #f97316;
+  --p-urgent: #e11d48;
+
+  /* Brand sequential ramp — workflow stage, light→dark */
+  --stage-1: #fde9b0;
+  --stage-2: #fbcf62;
+  --stage-3: #ecab1c;
+  --stage-4: #bd8210;
+  --stage-5: #8a5e0a;
+
+  /* Two-series volume chart */
+  --series-created: #e0a422;
+  --series-resolved: #10b981;
+
+  --positive: #10b981;
+  --negative: #e11d48;
+  /* What is legible *on* the negative, which is not the same colour in both
+     themes: the light one is deep enough to carry white, the dark one is a
+     washed red that white disappears into. */
+  --negative-ink: #ffffff;
+
+  /* Elevation. Cards sit on a white ground, so the hairline does most of the
+     separating and the shadow is barely there. */
+  --highlight: 0 1px 2px rgba(9, 9, 11, 0.05), 0 0 0 1px rgba(9, 9, 11, 0.02);
+  --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.05);
+  --shadow-md: 0 1px 2px rgba(9, 9, 11, 0.04), 0 8px 20px -12px rgba(9, 9, 11, 0.16);
+  --shadow-lg: 0 1px 3px rgba(9, 9, 11, 0.05), 0 18px 40px -20px rgba(9, 9, 11, 0.24);
+
+  /* For elements that float *over* content rather than sitting on the page.
+     The zero-offset layers spread evenly on all four sides, including above,
+     which is what separates a hovering bar from a card resting in the flow. */
+  --shadow-float:
+    0 0 10px rgba(9, 9, 11, 0.05), 0 0 28px rgba(9, 9, 11, 0.05),
+    0 6px 20px -6px rgba(9, 9, 11, 0.14);
+
+  /* The raised segment of a segmented control. */
+  --seg-on: #ffffff;
+
+  /* Shell geometry. One source for the bar height and the rail width, so the
+     things that line up with them cannot drift. */
+  --bar: 56px;
+  --rail-expanded: 240px;
+  --rail-collapsed: 56px;
+  --rail: var(--rail-expanded);
+  /* The ticket toolbar, which stacks under the bar. */
+  --toolbar: 49px;
+  /*
+   * A project's identity plus its tabs, which stack under the bar the way the
+   * ticket toolbar does. Fixed rather than measured because the rail beside it
+   * is pinned to exactly this offset: if the two disagreed by a pixel the rail
+   * would hang that far below the fold, which is only visible once you try to
+   * scroll to the end of it.
+   */
+  --project-head: 136px;
+}
+
+/*
+  Dark is chosen, not detected.
+
+  The element carries `data-theme` before the first byte of body: an explicit
+  choice comes from the cookie server-side, and "system" is resolved by a tiny
+  script in the head that watches `prefers-color-scheme`. That is why there is
+  no `@media` block here — one list of tokens, one place to change them, and no
+  white flash on a dark machine.
+*/
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #09090b;
+  --chrome: #0c0c0e;
+  --surface: #121214;
+  --surface-2: #18181b;
+  --surface-3: #232326;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --border: var(--line);
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --chrome-border: var(--line);
+
+  --text: #fafafa;
+  --text-2: #a1a1aa;
+  --text-3: #6b6b74;
+
+  --brand: #febe2e;
+  --brand-hover: #ffcb54;
+  --brand-ink: #1c1300;
+  --brand-deep: #fcc94a;
+  --brand-tint: rgba(254, 190, 46, 0.14);
+  --brand-glow: rgba(254, 190, 46, 0.35);
+  --brand-wash: #1a170e;
+
+  /* Priority ramp — one chroma, four hues, dark surface */
+  --p-low: #34d399;
+  --p-medium: #818cf8;
+  --p-high: #fb923c;
+  --p-urgent: #fb7185;
+
+  --stage-1: #6b4a08;
+  --stage-2: #9a6d0d;
+  --stage-3: #c99117;
+  --stage-4: #f0b62b;
+  --stage-5: #fdd97e;
+
+  --series-created: #febe2e;
+  --series-resolved: #34d399;
+
+  --positive: #34d399;
+  --negative: #f87171;
+  --negative-ink: #2a0a11;
+
+  /* Dark surfaces swallow a soft shadow; a 1px inner top light does the lifting. */
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 20px -12px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4), 0 18px 40px -20px rgba(0, 0, 0, 0.85);
+  --shadow-float:
+    0 0 12px rgba(0, 0, 0, 0.45), 0 0 32px rgba(0, 0, 0, 0.35), 0 6px 22px -6px rgba(0, 0, 0, 0.65);
+
+  --seg-on: #2a2a2f;
+}
+
+@theme {
+  /* The type scale. Tailwind's rem-based defaults are replaced by a pixel
+     scale tuned for a dense desk: 14px is the working size in lists and
+     controls, 15px in forms and on the portal. Line-heights are left to the
+     elements, as they were when every size was an arbitrary value. */
+  --text-*: initial;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 30px;
+  --text-3xl: 38px;
+
+  /* Radii: controls 8, cards 12, panels (dialogs, menus) 16, chips are pills. */
+  --radius-chip: 4px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+
+  --color-chrome: var(--chrome);
+  --color-chrome-border: var(--chrome-border);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-deep: var(--brand-deep);
+
+  --color-p-low: var(--p-low);
+  --color-p-medium: var(--p-medium);
+  --color-p-high: var(--p-high);
+  --color-p-urgent: var(--p-urgent);
+
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-negative-ink: var(--negative-ink);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    /* The font variables live on <body> (next/font puts them there), so the
+       stack is spelled out here rather than routed through a theme variable
+       that would be resolved on :root, where they do not exist yet. */
+    font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: var(--radius-control);
+  }
+
+  ::selection {
+    background: var(--brand-tint);
+  }
+
+  /*
+   * Scrollbars are only drawn while something is actually being scrolled: the
+   * track keeps its width the whole time, so nothing reflows when the thumb
+   * appears. `data-scrolling` is set on the document by ScrollWatcher.
+   */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  /* The document is its own scroller, so it has to be named as well as its
+     descendants — a descendant combinator alone would skip the page itself. */
+  :root[data-scrolling="true"],
+  :root[data-scrolling="true"] * {
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    transition: background-color 200ms ease;
+  }
+
+  :root[data-scrolling="true"]::-webkit-scrollbar-thumb,
+  :root[data-scrolling="true"] ::-webkit-scrollbar-thumb {
+    background-color: var(--line-strong);
+  }
+
+  :root[data-scrolling="true"]::-webkit-scrollbar-thumb:hover,
+  :root[data-scrolling="true"] ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-3);
+  }
+
+  /*
+   * The ticket rail hides its own scrollbar rather than reserving a track.
+   *
+   * The rail sits inside the shell's scrollport, which already reserves one:
+   * two stacked tracks put twenty dead pixels between the cards and the edge
+   * of the window, against twelve on the other side. The cards get the width
+   * back, and the shell's own bar — right beside the rail — is still there to
+   * say the region scrolls.
+   */
+  .rail-scroll {
+    scrollbar-width: none;
+  }
+
+  .rail-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  /* Metrics and keys are compared column-wise, so their digits must not dance. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /*
+   * Reading mode on a document takes both rails away, and one of them is the
+   * tree in the layout — which no page can reach into, and which must not
+   * decide this for itself: the shelf beside the page needs its tree whatever
+   * somebody chose while reading a runbook. So the document says so on the
+   * root element for as long as it is the document on screen.
+   */
+  /*
+   * Marked important because what it is overruling is a utility class on the
+   * same element — `lg:flex` and `lg:grid-cols-…` — and utilities are a later
+   * layer than this one whatever the selector says.
+   */
+  [data-doc-reading] .doc-tree {
+    display: none !important;
+  }
+
+  [data-doc-reading] .doc-shell {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--highlight);
+  }
+
+  /* Cards that are links brighten their hairline; nothing lifts. */
+  .card-interactive {
+    transition:
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .card-interactive:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  /*
+   * Something addressed to you, and waiting.
+   *
+   * The brand tint carries a single meaning in this app — your turn — so the
+   * three places that say it share one class rather than three copies of the
+   * same pair of inline styles. The border is mixed from the brand rather than
+   * a token of its own: it has to be the same hue at a different weight, and a
+   * fourth brand variable would be one more thing to keep in step.
+   */
+  .callout-brand {
+    background: var(--brand-tint);
+    border: 1px solid color-mix(in oklab, var(--brand) 45%, transparent);
+    border-radius: var(--radius-card);
+  }
+
+  .label {
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /*
+   * A quiet chip: a tag, a team, a permission, a role beside a name.
+   *
+   * Ported from the mockups, where it is the one shape every repeated noun
+   * wears. The fill is mixed from the text colour rather than named, so it
+   * lands at the same weight in both themes without a second token.
+   */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+
+  /*
+   * A panel card own heading, ruled under.
+   *
+   * The rule stops at 60% on purpose: a full-width line reads as the top edge
+   * of the next section, and the rail is already full of those. Drawn as an
+   * absolutely positioned pseudo-element so the class can be put on a flex row
+   * without becoming a flex item in it.
+   */
+  .card-heading {
+    position: relative;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-heading::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+    width: 60%;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /*
+   * How wide the portal runs.
+   *
+   * A percentage rather than a fixed column: a service portal is a handful of
+   * cards and a search box, and on a wide screen a 64rem column left it
+   * stranded in the middle of the page.
+   */
+  .portal-width {
+    max-width: 60%;
+  }
+
+  .select-chevron {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239d9da6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+  }
+
+  /* Diagonal hatch used where a chart needs a non-colour distinction. */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--line-strong) 0,
+      var(--line-strong) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  }
+
+  /* A keyboard hint: the key a control answers to. */
+  .kbd {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+}
+
+/* ---------------------------------------------------------------- motion -- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--dash, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--brand-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@layer utilities {
+  /* Entrance stagger. Set --i on each child for its place in the sequence. */
+  .animate-rise {
+    animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  .animate-fade {
+    animation: fade 400ms ease both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  .animate-draw {
+    animation: draw 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+
+  .animate-grow-y {
+    transform-origin: bottom;
+    animation: grow-y 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+
+  .animate-grow-x {
+    transform-origin: left;
+    animation: grow-x 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface-3) 25%,
+      var(--surface-2) 37%,
+      var(--surface-3) 63%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+/* Set on the element by the theme picker for the frames a switch takes. */
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------- editor -- */
+
+/*
+ * The written document, styled to match what the renderer shows for the same
+ * Markdown. Two sets of rules for one grammar is a place for drift, so these
+ * deliberately mirror `markdown.tsx` rather than inventing a look of their own.
+ */
+.tiqo-prose {
+  outline: none;
+}
+
+.tiqo-prose > * + * {
+  margin-top: 0.5rem;
+}
+
+.tiqo-prose h1,
+.tiqo-prose h2,
+.tiqo-prose h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.tiqo-prose h1 {
+  font-size: var(--text-lg);
+}
+.tiqo-prose h2 {
+  font-size: 15px;
+}
+.tiqo-prose h3 {
+  font-size: var(--text-md);
+}
+
+.tiqo-prose ul,
+.tiqo-prose ol {
+  padding-left: 1.25rem;
+}
+.tiqo-prose ul {
+  list-style: disc;
+}
+.tiqo-prose ol {
+  list-style: decimal;
+}
+.tiqo-prose li::marker {
+  color: var(--text-3);
+}
+
+.tiqo-prose blockquote {
+  border-left: 2px solid var(--line-strong);
+  padding-left: 0.75rem;
+  font-style: italic;
+  color: var(--text-2);
+}
+
+.tiqo-prose code {
+  background: var(--surface-3);
+  border-radius: 4px;
+  padding: 0.125rem 0.25rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.9em;
+}
+
+.tiqo-prose pre {
+  background: var(--surface-3);
+  border-radius: var(--radius-control);
+  padding: 0.625rem 0.75rem;
+  overflow-x: auto;
+  font-size: var(--text-sm);
+}
+
+.tiqo-prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.tiqo-prose mark {
+  background: var(--brand-tint);
+  color: var(--brand-deep);
+  border-radius: 4px;
+  padding: 0 0.125rem;
+  font-weight: 500;
+}
+
+.tiqo-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+/*
+ * A list inside a list is a list, not a paragraph with a bullet in front of it:
+ * the padding is the only thing that says which level a line belongs to, and
+ * the gap above it would otherwise be the gap between two blocks.
+ */
+.tiqo-prose li > ul,
+.tiqo-prose li > ol {
+  margin-top: 0.25rem;
+}
+
+/*
+ * A callout, while it is being written.
+ *
+ * The colour is set once per kind and read by the band, the ground and the
+ * title, so a new kind is one block rather than three. The title is drawn from
+ * the attribute rather than held in the document: it is a label on the block,
+ * and a line of text inside it would be a line somebody can put the caret in
+ * and delete without meaning to. Where there is none the kind's own word
+ * stands in — the word they typed to ask for the block.
+ */
+.tiqo-prose .callout {
+  --callout: var(--brand-deep);
+  border-left: 2px solid var(--callout);
+  border-radius: var(--radius-card);
+  background: color-mix(in oklab, var(--callout) 8%, transparent);
+  padding: 0.625rem 0.875rem 0.625rem 0.75rem;
+}
+
+.tiqo-prose .callout[data-tone="tip"] {
+  --callout: var(--positive);
+}
+.tiqo-prose .callout[data-tone="important"] {
+  --callout: var(--p-medium);
+}
+.tiqo-prose .callout[data-tone="warning"] {
+  --callout: var(--p-high);
+}
+.tiqo-prose .callout[data-tone="caution"] {
+  --callout: var(--negative);
+}
+
+.tiqo-prose .callout::before {
+  content: attr(data-title);
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--callout);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.tiqo-prose .callout[data-title=""]::before {
+  content: "Note";
+}
+.tiqo-prose .callout[data-title=""][data-tone="tip"]::before {
+  content: "Tip";
+}
+.tiqo-prose .callout[data-title=""][data-tone="important"]::before {
+  content: "Important";
+}
+.tiqo-prose .callout[data-title=""][data-tone="warning"]::before {
+  content: "Warning";
+}
+.tiqo-prose .callout[data-title=""][data-tone="caution"]::before {
+  content: "Caution";
+}
+
+/*
+ * A table, while it is being written.
+ *
+ * Only in the editor — `.ProseMirror` is the class the writing area has and a
+ * saved page does not — because the reader draws its own and a rule matching
+ * both would be two stylesheets arguing over one table. Every cell is bordered
+ * here where the reader rules only between rows: a cell you are about to put
+ * the caret in has to be a cell you can see.
+ *
+ * The columns split the width evenly rather than sizing to their contents, so
+ * they stop moving under the caret while a row is being typed.
+ */
+.tiqo-prose.ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
+
+.tiqo-prose.ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  table-layout: fixed;
+}
+
+.tiqo-prose.ProseMirror th,
+.tiqo-prose.ProseMirror td {
+  position: relative;
+  border: 1px solid var(--line);
+  padding: 0.375rem 0.625rem;
+  vertical-align: top;
+  text-align: left;
+}
+
+.tiqo-prose.ProseMirror th {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+/* The cell the caret is in, and any cells dragged across with it. */
+.tiqo-prose.ProseMirror .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--brand-tint);
+  pointer-events: none;
+}
+
+/*
+ * A reference reads the same while it is being written as it does once saved —
+ * seeing it become a chip is the confirmation that it was understood.
+ */
+.tiqo-prose a {
+  color: var(--brand-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tiqo-prose a[href^="/tickets/"],
+.tiqo-prose a[href^="/projects/"],
+.tiqo-prose a[href^="/people/"] {
+  background: var(--surface-3);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.125rem 0.375rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.86em;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/*
+ * The source panel: the request on a ticket, the description on a project.
+ *
+ * The shape is shared, because "the same as the request field" has to stay
+ * true and three copies of these values is how they end up not matching. No
+ * border: the ground marks the block as the thing everything else answers
+ * without drawing a line around it.
+ *
+ * The ground is a modifier, because the two sides mean different things by the
+ * same colour. On the desk the brand wash is emphasis, and it matches the
+ * action bar. On the portal it already means "this came from the desk" — every
+ * agent reply wears it — so a washed request there would read as a message
+ * from the service desk rather than as the requester's own words.
+ */
+.source-panel {
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+}
+
+.source-panel-brand {
+  background: var(--brand-wash);
+}
+
+.source-panel-quiet {
+  background: var(--surface-2);
 }
