@@ -786,7 +786,6 @@ export const en = {
     inCategory: (name: string) => `In ${name}`,
     noItems: "Nothing has been published here yet.",
     readMore: "Read this answer",
-    didThisHelp: "Still stuck? Raise a request and we will pick it up.",
 
     /* An answer (round 8). */
     updatedOn: (date: string) => `Updated ${date}`,

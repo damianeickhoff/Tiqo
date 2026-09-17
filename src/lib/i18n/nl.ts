@@ -785,7 +785,6 @@ export const nl: Messages = {
     inCategory: (name: string) => `In ${name}`,
     noItems: "Hier is nog niets gepubliceerd.",
     readMore: "Lees dit antwoord",
-    didThisHelp: "Kom je er niet uit? Maak een melding en wij pakken het op.",
 
     /* Een antwoord (ronde 8). */
     updatedOn: (date: string) => `Bijgewerkt ${date}`,

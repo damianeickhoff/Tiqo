@@ -105,8 +105,13 @@ export function PortalSearch({
 
   return (
     <div ref={box} className="relative w-full">
+      {/* A real GET to the search page, so the box still works before the
+          script that makes it a combobox has loaded. With the script the
+          submit handler takes over and nothing navigates. */}
       <form
         role="search"
+        action="/portal/search"
+        method="get"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -125,6 +130,7 @@ export function PortalSearch({
             field, not on the page — so its inks are fixed rather than tokens. */}
         <input
           ref={input}
+          name="q"
           value={query}
           autoFocus={autoFocus}
           autoComplete="off"
@@ -162,13 +168,23 @@ export function PortalSearch({
           >
             {busy ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
           </button>
-        ) : busy ? (
-          <Loader2
-            size={15}
-            aria-hidden
-            className="text-text-3 absolute top-1/2 right-3.5 -translate-y-1/2 animate-spin"
-          />
-        ) : null}
+        ) : (
+          <>
+            {/* The compact box has no button to press, and a form without one
+                only submits on Enter by the implicit rule. Naming the button
+                makes that explicit, and gives the keyboard somewhere to land. */}
+            <button type="submit" className="sr-only">
+              {t.portal.searchButton}
+            </button>
+            {busy ? (
+              <Loader2
+                size={15}
+                aria-hidden
+                className="text-text-3 absolute top-1/2 right-3.5 -translate-y-1/2 animate-spin"
+              />
+            ) : null}
+          </>
+        )}
       </form>
 
       {open && query.trim().length >= 2 ? (
