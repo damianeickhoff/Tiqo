@@ -61,6 +61,28 @@ function rgba({ r, g, b }: Rgb, alpha: number) {
   return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${alpha})`;
 }
 
+/**
+ * What to write on a given colour: near-black, or white once the colour is
+ * dark enough to need it. The same decision `brandTokens` makes for the brand,
+ * exported because the portal's search band can be painted any colour an admin
+ * likes and the greeting on it still has to be readable.
+ *
+ * Null when the colour cannot be read, so the caller can fall back rather than
+ * guess.
+ */
+export function readableInk(hex: string): string | null {
+  const colour = parseHex(hex);
+  if (!colour) return null;
+  return toHex(luminance(colour) > 0.45 ? mix(colour, BLACK, 0.86) : WHITE);
+}
+
+/** The same colour a step darker — the far end of a gradient drawn from one. */
+export function darken(hex: string, amount = 0.1): string | null {
+  const colour = parseHex(hex);
+  if (!colour) return null;
+  return toHex(mix(colour, BLACK, amount));
+}
+
 export type BrandTokens = { light: Record<string, string>; dark: Record<string, string> };
 
 /**

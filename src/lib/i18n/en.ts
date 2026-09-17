@@ -371,6 +371,14 @@ export const en = {
     pressKeys: "Press",
     toPost: "to post.",
     nothingHappened: "Nothing has happened yet.",
+    // The conversation card's heading, and what it holds. Notes are named
+    // separately because they are the part the requester never sees.
+    conversation: "Conversation",
+    conversationCount: (replies: number, notes: number) =>
+      [
+        `${replies} ${replies === 1 ? "reply" : "replies"}`,
+        ...(notes > 0 ? [`${notes} ${notes === 1 ? "note" : "notes"}`] : []),
+      ].join(" · "),
     nothingChanged: "Nothing has changed yet.",
     edited: "Edited",
     editedOn: (date: string) => `Edited ${date}`,
@@ -605,6 +613,19 @@ export const en = {
       MY_REQUESTS: "Your requests",
       RICH_TEXT: "A block of text",
     },
+    heroPaint: "The face of the search band",
+    heroStyles: {
+      BRAND: "Brand",
+      SOLID: "Colour",
+      GRADIENT: "Gradient",
+      IMAGE: "Image",
+    },
+    heroFrom: "From",
+    heroTo: "To",
+    heroToAuto: "Darker",
+    heroImage: "Image address",
+    heroImageHint:
+      "A wide picture works best. It is dimmed so the greeting and the search stay readable.",
     blockHints: {
       HERO: "A greeting, the search box and the shelf under it",
       ANNOUNCEMENTS: "Shown across the top of every page now, not here",
@@ -758,6 +779,7 @@ export const en = {
     approvalAsked: (who: string, when: string) => `${who} asked you ${when}`,
     approvalRequest: "What was asked for",
     approvalBanner: (age: string) => `Something has been waiting ${age} on your approval`,
+    waitedFor: (span: string) => `waiting ${span}`,
     approvalBannerAction: "Answer it",
     searchPlaceholder: "What do you need? Search for an answer or a request",
     searching: "Looking…",
@@ -2009,6 +2031,13 @@ export const en = {
       mail: "Mail",
       roles: "Roles",
     },
+    /// The headings the settings navigation is read under.
+    groups: {
+      desk: "Desk",
+      tickets: "Tickets",
+      portal: "Portal",
+      system: "System",
+    },
     brandTitle: "Primary colour",
     brandBlurb:
       "Every accent in the app is derived from this one colour — the portal's front page, buttons, chips, and anything waiting on somebody.",
@@ -2496,6 +2525,8 @@ export const en = {
     nameStep: "Give the step a name.",
     namePhase: "Give the phase a name.",
     oneLevelOnly: "Sections only nest one level deep.",
+    badColour: "That is not a colour. Use six characters, like #2f5be8.",
+    badImageUrl: "That is not a web address. It has to start with http.",
     shelfFull: "The shelf holds five sections. Take one off first.",
     fieldOrderOnly: "A question can only depend on one asked before it.",
     nameArticle: "Give the article a title.",

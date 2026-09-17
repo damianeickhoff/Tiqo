@@ -1334,6 +1334,16 @@ model PortalAnnouncement {
 }
 
 /// What the portal's front page is made of.
+/// What the search band is painted with. BRAND follows the tenant's colour,
+/// so a desk that never opens this setting keeps whatever the colour becomes;
+/// the other three are chosen here and stop following it.
+enum PortalHeroStyle {
+  BRAND
+  SOLID
+  GRADIENT
+  IMAGE
+}
+
 enum PortalBlockKind {
   HERO
   ANNOUNCEMENTS
@@ -1365,6 +1375,18 @@ model PortalBlock {
   /// Narrows a band to one section of the catalogue.
   categoryId String?
   category   PortalCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  /// How the search band is painted. Only read on the HERO; kept on the block
+  /// rather than on the instance because it is the band's own look, and the
+  /// designer is where somebody is standing when they want to change it.
+  heroStyle  PortalHeroStyle @default(BRAND)
+  /// The colour, or the first stop of the gradient.
+  heroColor  String?
+  /// The second stop. Null on a gradient falls back to the first darkened.
+  heroColor2 String?
+  /// An image behind it, as a URL. The writing is kept legible with a scrim
+  /// rather than by hoping about the picture.
+  heroImage  String?
 
   createdAt DateTime @default(now())
 

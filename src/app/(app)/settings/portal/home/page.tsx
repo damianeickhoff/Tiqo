@@ -21,6 +21,10 @@ export default async function PortalHomeSettings() {
         categoryId: true,
         isActive: true,
         span: true,
+        heroStyle: true,
+        heroColor: true,
+        heroColor2: true,
+        heroImage: true,
       },
     }),
     prisma.portalCategory.findMany({

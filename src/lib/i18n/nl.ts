@@ -369,6 +369,12 @@ export const nl: Messages = {
     pressKeys: "Druk op",
     toPost: "om te plaatsen.",
     nothingHappened: "Er is nog niets gebeurd.",
+    conversation: "Gesprek",
+    conversationCount: (replies: number, notes: number) =>
+      [
+        `${replies} ${replies === 1 ? "reactie" : "reacties"}`,
+        ...(notes > 0 ? [`${notes} ${notes === 1 ? "notitie" : "notities"}`] : []),
+      ].join(" · "),
     nothingChanged: "Er is nog niets gewijzigd.",
     edited: "Bewerkt",
     editedOn: (date: string) => `Bewerkt op ${date}`,
@@ -604,6 +610,19 @@ export const nl: Messages = {
       MY_REQUESTS: "Je aanvragen",
       RICH_TEXT: "Een blok tekst",
     },
+    heroPaint: "Het gezicht van de zoekbalk",
+    heroStyles: {
+      BRAND: "Huisstijl",
+      SOLID: "Kleur",
+      GRADIENT: "Verloop",
+      IMAGE: "Afbeelding",
+    },
+    heroFrom: "Van",
+    heroTo: "Naar",
+    heroToAuto: "Donkerder",
+    heroImage: "Adres van de afbeelding",
+    heroImageHint:
+      "Een brede foto werkt het best. Hij wordt gedimd zodat de begroeting en het zoekveld leesbaar blijven.",
     blockHints: {
       HERO: "Een begroeting, het zoekveld en de plank eronder",
       ANNOUNCEMENTS: "Staat nu boven aan elke pagina, niet meer hier",
@@ -758,6 +777,7 @@ export const nl: Messages = {
     approvalAsked: (who: string, when: string) => `${who} vroeg het je ${when}`,
     approvalRequest: "Wat er gevraagd is",
     approvalBanner: (age: string) => `Er wacht al ${age} iets op jouw goedkeuring`,
+    waitedFor: (span: string) => `wacht ${span}`,
     approvalBannerAction: "Beantwoord het",
     searchPlaceholder: "Wat heb je nodig? Zoek een antwoord of een aanvraag",
     searching: "Zoeken…",
@@ -1968,6 +1988,12 @@ export const nl: Messages = {
       mail: "Mail",
       roles: "Rollen",
     },
+    groups: {
+      desk: "Servicedesk",
+      tickets: "Tickets",
+      portal: "Portaal",
+      system: "Systeem",
+    },
     brandTitle: "Hoofdkleur",
     brandBlurb:
       "Elk accent in de app komt uit deze ene kleur — de voorpagina van het portaal, knoppen, labels en alles wat op iemand wacht.",
@@ -2440,6 +2466,8 @@ export const nl: Messages = {
     nameStep: "Geef de stap een naam.",
     namePhase: "Geef de fase een naam.",
     oneLevelOnly: "Onderdelen gaan maar één niveau diep.",
+    badColour: "Dat is geen kleur. Gebruik zes tekens, zoals #2f5be8.",
+    badImageUrl: "Dat is geen webadres. Het moet met http beginnen.",
     shelfFull: "Op de plank passen vijf onderdelen. Haal er eerst één af.",
     fieldOrderOnly: "Een vraag kan alleen afhangen van een vraag die eerder komt.",
     nameArticle: "Geef het artikel een titel.",

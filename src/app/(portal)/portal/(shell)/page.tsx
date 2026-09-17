@@ -52,6 +52,10 @@ export default async function PortalHome() {
         limit: true,
         categoryId: true,
         span: true,
+        heroStyle: true,
+        heroColor: true,
+        heroColor2: true,
+        heroImage: true,
       },
     }),
     getMessages(),
@@ -75,6 +79,10 @@ export default async function PortalHome() {
             limit: 3,
             categoryId: null,
             span: 3,
+            heroStyle: "BRAND" as const,
+            heroColor: null,
+            heroColor2: null,
+            heroImage: null,
           },
         ]
       : blocks;
@@ -91,7 +99,15 @@ export default async function PortalHome() {
           { id: "d4", kind: "FEATURED_FORMS", limit: 6, categoryId: null, span: 6 },
           { id: "d5", kind: "ARTICLES", limit: 4, categoryId: null, span: 3 },
           { id: "d6", kind: "MY_REQUESTS", limit: 3, categoryId: null, span: 3 },
-        ].map((band) => ({ ...band, title: null, subtitle: null })) as typeof blocks);
+        ].map((band) => ({
+          ...band,
+          title: null,
+          subtitle: null,
+          heroStyle: "BRAND" as const,
+          heroColor: null,
+          heroColor2: null,
+          heroImage: null,
+        })) as typeof blocks);
 
   // The catalogue band directly under the hero is the shelf; anywhere else it
   // is the list it always was.
@@ -142,6 +158,12 @@ export default async function PortalHome() {
           starts={leading.slice(0, 4)}
           desk={{ open: hours.open, line }}
           cards={cards}
+          background={{
+            style: bands[heroAt]!.heroStyle,
+            color: bands[heroAt]!.heroColor,
+            color2: bands[heroAt]!.heroColor2,
+            image: bands[heroAt]!.heroImage,
+          }}
         />
         {shelfAt >= 0 ? (
           <PortalShelf items={leading} totalItems={totals.items} totalSections={totals.sections} />

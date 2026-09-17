@@ -7,12 +7,14 @@ import { requireUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { uniqueSlug } from "@/lib/portal";
+import { parseHex } from "@/lib/brand";
 import type { FormState } from "@/lib/actions/auth";
 import type {
   AnnouncementTone,
   PortalBlockKind,
   PortalFieldKind,
   PortalFieldTarget,
+  PortalHeroStyle,
 } from "@/generated/prisma/enums";
 
 /**
@@ -60,10 +62,29 @@ export async function updateBlock(
     categoryId?: string | null;
     isActive?: boolean;
     span?: number;
+    heroStyle?: PortalHeroStyle;
+    heroColor?: string;
+    heroColor2?: string;
+    heroImage?: string;
   },
 ) {
   const { t, ok } = await guard();
   if (!ok) return { ok: false as const, error: t.errors.noSettings };
+
+  // A colour that cannot be read is not stored. The band falls back to the
+  // brand when it meets one, and a value that is silently dropped is worse
+  // than being told the six characters were wrong.
+  for (const value of [patch.heroColor, patch.heroColor2]) {
+    if (value?.trim() && !parseHex(value)) {
+      return { ok: false as const, error: t.errors.badColour };
+    }
+  }
+
+  // Absolute, and http only: a relative address would resolve against the
+  // portal, and anything else is a scheme in a style attribute.
+  if (patch.heroImage?.trim() && !/^https?:\/\/\S+$/i.test(patch.heroImage.trim())) {
+    return { ok: false as const, error: t.errors.badImageUrl };
+  }
 
   await prisma.portalBlock.update({
     where: { id: blockId },
@@ -75,6 +96,12 @@ export async function updateBlock(
       ...(patch.limit === undefined ? {} : { limit: patch.limit }),
       ...(patch.categoryId === undefined ? {} : { categoryId: patch.categoryId }),
       ...(patch.isActive === undefined ? {} : { isActive: patch.isActive }),
+      ...(patch.heroStyle === undefined ? {} : { heroStyle: patch.heroStyle }),
+      ...(patch.heroColor === undefined ? {} : { heroColor: patch.heroColor.trim() || null }),
+      ...(patch.heroColor2 === undefined ? {} : { heroColor2: patch.heroColor2.trim() || null }),
+      ...(patch.heroImage === undefined
+        ? {}
+        : { heroImage: patch.heroImage.trim().slice(0, 500) || null }),
       // Two columns of six is a third of the page and the narrowest a band
       // stays readable at; six is the row. Clamped here as well as in the
       // designer, because the designer is not the only thing that can call it.

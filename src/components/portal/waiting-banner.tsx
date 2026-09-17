@@ -100,6 +100,11 @@ export async function ApprovalNudge({
         <span className="font-mono text-[13px] underline underline-offset-[3px]">{reference}</span>
         <span className="text-text-2"> · {title}</span>
       </span>
+      {/* The wait again, beside the button: in the sentence it is a fact, here
+          it is the reason to press. The same place the nudge above puts it. */}
+      <span className="text-text-3 hidden shrink-0 font-mono text-xs whitespace-nowrap sm:block">
+        {t.portal.waitedFor(shortAge(since))}
+      </span>
       <span className="bg-brand text-brand-fg inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-base font-semibold">
         {t.portal.approvalBannerAction}
         <ArrowRight size={13} />

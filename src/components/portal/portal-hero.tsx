@@ -5,7 +5,59 @@ import { PortalIcon } from "@/components/portal/portal-icon";
 import { PortalSearch } from "@/components/portal/portal-search";
 import { StatusRing } from "@/components/tickets/glyphs";
 import { getMessages } from "@/lib/settings";
+import { darken, readableInk } from "@/lib/brand";
+import type { PortalHeroStyle } from "@/generated/prisma/enums";
 import type { TicketStatus } from "@/lib/tickets";
+
+export type HeroBackground = {
+  style: PortalHeroStyle;
+  color: string | null;
+  color2: string | null;
+  image: string | null;
+};
+
+/**
+ * What the band is painted with, and what colour the writing on it has to be.
+ *
+ * BRAND stays on the tokens so the field follows the tenant's colour wherever
+ * that is changed. The other three are fixed by an admin, so the ink is worked
+ * out here from the colour they picked; over a picture nobody can work it out
+ * at all, so the picture is dimmed and the writing is white by decree.
+ */
+function paint(background: HeroBackground | undefined): {
+  background: string;
+  ink: string;
+  scrim: boolean;
+} {
+  const brand = {
+    background: "linear-gradient(115deg, var(--brand) 0%, var(--brand-2) 100%)",
+    ink: "var(--brand-fg)",
+    scrim: false,
+  };
+  if (!background || background.style === "BRAND") return brand;
+
+  if (background.style === "IMAGE") {
+    if (!background.image) return brand;
+    return {
+      background: `center / cover no-repeat url(${JSON.stringify(background.image)})`,
+      ink: "#ffffff",
+      scrim: true,
+    };
+  }
+
+  const first = background.color ?? "";
+  const ink = readableInk(first);
+  if (!ink) return brand;
+
+  if (background.style === "SOLID") return { background: first, ink, scrim: false };
+
+  const second = background.color2 ?? darken(first, 0.18) ?? first;
+  return {
+    background: `linear-gradient(115deg, ${first} 0%, ${second} 100%)`,
+    ink,
+    scrim: false,
+  };
+}
 
 export type HeroCards = {
   /// The viewer's most recent request that is still running.
@@ -42,9 +94,12 @@ export async function PortalHero({
   starts,
   desk,
   cards,
+  background,
 }: {
   firstName: string;
   welcome: string;
+  /// What the band is painted with, as the designer left it.
+  background?: HeroBackground;
   /// Four quick starts under the search: the leading sections of the catalogue.
   starts: { slug: string; name: string; icon: string | null }[];
   /// The desk light line: whether it is open, and the sentence after the dot.
@@ -53,6 +108,7 @@ export async function PortalHero({
 }) {
   const t = await getMessages();
   const example = !cards.open && !cards.resolved && !cards.reply;
+  const field = paint(background);
 
   const open = cards.open ?? {
     title: t.portal.exampleOpen,
@@ -77,21 +133,34 @@ export async function PortalHero({
         // + the 60 the shelf overlaps by, and room to breathe.
         className="relative rounded-[24px] px-6 pt-10 pb-12 sm:px-10 lg:px-16 lg:pt-[60px] lg:pb-[108px] xl:min-h-[460px]"
         style={{
-          background: "linear-gradient(115deg, var(--brand) 0%, var(--brand-2) 100%)",
-          color: "var(--brand-fg)",
+          background: field.background,
+          // --brand-fg is what the rest of the band reads for its own inks, so
+          // a chosen colour overrides it here rather than in twenty places.
+          ["--brand-fg" as string]: field.ink,
+          color: field.ink,
           boxShadow: "0 30px 60px -30px rgba(9, 9, 11, 0.35)",
         }}
       >
         {/* The clipping belongs to the glow, not to the field: on the field it
             would also swallow the search results, which hang below by design. */}
         <div aria-hidden className="absolute inset-0 overflow-hidden rounded-[24px]">
-          <div
-            className="absolute -top-[160px] -right-[120px] size-[620px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(255, 255, 255, 0.35), transparent 70%)",
-            }}
-          />
+          {field.scrim ? (
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(105deg, rgba(9, 9, 11, 0.72) 0%, rgba(9, 9, 11, 0.45) 55%, rgba(9, 9, 11, 0.3) 100%)",
+              }}
+            />
+          ) : (
+            <div
+              className="absolute -top-[160px] -right-[120px] size-[620px] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(255, 255, 255, 0.35), transparent 70%)",
+              }}
+            />
+          )}
         </div>
 
         <div

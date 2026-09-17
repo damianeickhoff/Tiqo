@@ -19,7 +19,7 @@ import {
   Text,
   Trash2,
 } from "lucide-react";
-import type { PortalBlockKind } from "@/generated/prisma/enums";
+import type { PortalBlockKind, PortalHeroStyle } from "@/generated/prisma/enums";
 import {
   addBlock,
   deleteBlock,
@@ -82,6 +82,11 @@ export type Block = {
   categoryId: string | null;
   isActive: boolean;
   span: number;
+  /// Only the search band reads these.
+  heroStyle: PortalHeroStyle;
+  heroColor: string | null;
+  heroColor2: string | null;
+  heroImage: string | null;
 };
 
 /**
@@ -356,6 +361,10 @@ function BlockCard({
     subtitle: block.subtitle ?? "",
     limit: block.limit ?? 6,
     categoryId: block.categoryId ?? "",
+    heroStyle: block.heroStyle,
+    heroColor: block.heroColor ?? "#2f5be8",
+    heroColor2: block.heroColor2 ?? "",
+    heroImage: block.heroImage ?? "",
   });
   const { draft: form, set } = draft;
 
@@ -365,7 +374,11 @@ function BlockCard({
   // always sits in the column on the right whatever width it is given.
   const locked =
     block.kind === "HERO" || block.kind === "ANNOUNCEMENTS" || block.kind === "MY_REQUESTS";
-  const configurable = block.kind !== "ANNOUNCEMENTS" && block.kind !== "HERO";
+  const configurable = block.kind !== "ANNOUNCEMENTS";
+  // The search band has nothing to word — the greeting and the welcome line are
+  // settings — but it does have a face, and this is where somebody is standing
+  // when they want to change it.
+  const paintable = block.kind === "HERO";
   const countable = ["CATEGORIES", "FEATURED_FORMS", "ARTICLES", "MY_REQUESTS"].includes(
     block.kind,
   );
@@ -479,134 +492,155 @@ function BlockCard({
             <span className="bg-brand size-1.5 shrink-0 rounded-full" title={t.common.unsaved} />
           ) : null}
 
-          {locked ? null : (
-            <span className="flex shrink-0 items-center gap-0.5">
-              {configurable ? (
-                <button
-                  type="button"
-                  onClick={() => setOpen((current) => !current)}
-                  aria-expanded={open}
-                  aria-label={t.common.editThing(t.forms.blockNames[block.kind])}
-                  className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center"
-                >
-                  <Settings2 size={14} />
-                </button>
-              ) : null}
+          <span className="flex shrink-0 items-center gap-0.5">
+            {configurable ? (
               <button
                 type="button"
-                disabled={pending}
-                onClick={() => run(() => updateBlock(block.id, { isActive: !block.isActive }))}
-                title={block.isActive ? t.forms.hide : t.forms.show}
-                aria-label={block.isActive ? t.forms.hide : t.forms.show}
+                onClick={() => setOpen((current) => !current)}
+                aria-expanded={open}
+                aria-label={t.common.editThing(t.forms.blockNames[block.kind])}
                 className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center"
               >
-                {block.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                <Settings2 size={14} />
               </button>
-              {/* Dragging is the way this is meant to be used; these are the
+            ) : null}
+            {locked ? null : (
+              <>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => run(() => updateBlock(block.id, { isActive: !block.isActive }))}
+                  title={block.isActive ? t.forms.hide : t.forms.show}
+                  aria-label={block.isActive ? t.forms.hide : t.forms.show}
+                  className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center"
+                >
+                  {block.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                </button>
+                {/* Dragging is the way this is meant to be used; these are the
                   way it can be used without a mouse. */}
-              <button
-                type="button"
-                disabled={pending || first}
-                onClick={() => run(() => moveBlock(block.id, "up"))}
-                aria-label={t.common.moveUp(t.forms.blockNames[block.kind])}
-                className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center disabled:opacity-30"
-              >
-                <ChevronUp size={14} />
-              </button>
-              <button
-                type="button"
-                disabled={pending || last}
-                onClick={() => run(() => moveBlock(block.id, "down"))}
-                aria-label={t.common.moveDown(t.forms.blockNames[block.kind])}
-                className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center disabled:opacity-30"
-              >
-                <ChevronDown size={14} />
-              </button>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => run(() => deleteBlock(block.id))}
-                aria-label={t.common.deleteThing(t.forms.blockNames[block.kind])}
-                className="text-text-3 hover:bg-negative/12 hover:text-negative rounded-control flex size-7 items-center justify-center"
-              >
-                <Trash2 size={14} />
-              </button>
-            </span>
-          )}
+                <button
+                  type="button"
+                  disabled={pending || first}
+                  onClick={() => run(() => moveBlock(block.id, "up"))}
+                  aria-label={t.common.moveUp(t.forms.blockNames[block.kind])}
+                  className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center disabled:opacity-30"
+                >
+                  <ChevronUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  disabled={pending || last}
+                  onClick={() => run(() => moveBlock(block.id, "down"))}
+                  aria-label={t.common.moveDown(t.forms.blockNames[block.kind])}
+                  className="text-text-3 hover:bg-surface-3 hover:text-text rounded-control flex size-7 items-center justify-center disabled:opacity-30"
+                >
+                  <ChevronDown size={14} />
+                </button>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => run(() => deleteBlock(block.id))}
+                  aria-label={t.common.deleteThing(t.forms.blockNames[block.kind])}
+                  className="text-text-3 hover:bg-negative/12 hover:text-negative rounded-control flex size-7 items-center justify-center"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </>
+            )}
+          </span>
         </div>
 
-        {locked ? <p className="text-text-3 px-3 py-2.5 text-sm">{t.forms.heroLocked}</p> : null}
+        {/* A band that cannot be moved says why it is where it is, rather than
+            leaving somebody hunting for a handle that was never there. */}
+        {locked ? (
+          <p className="text-text-3 px-3 py-2.5 text-sm">{t.forms.blockHints[block.kind]}</p>
+        ) : null}
 
         {open && configurable ? (
           <div className="animate-fade space-y-3 px-3 py-3">
-            <label className="block">
-              <span className="label mb-1.5 block">{t.forms.bandTitle}</span>
-              <Input
-                value={form.title}
-                maxLength={120}
-                placeholder={t.forms.blockNames[block.kind]}
-                onChange={(event) => set({ title: event.target.value })}
-              />
-            </label>
+            {paintable ? <HeroPaint form={form} set={set} /> : null}
 
-            <label className="block">
-              <span className="label mb-1.5 block">
-                {block.kind === "RICH_TEXT" ? t.forms.bandBody : t.forms.bandSubtitle}
-              </span>
-              <Textarea
-                value={form.subtitle}
-                rows={block.kind === "RICH_TEXT" ? 4 : 2}
-                maxLength={240}
-                placeholder={t.common.optional}
-                onChange={(event) => set({ subtitle: event.target.value })}
-              />
-            </label>
+            {paintable ? null : (
+              <>
+                <label className="block">
+                  <span className="label mb-1.5 block">{t.forms.bandTitle}</span>
+                  <Input
+                    value={form.title}
+                    maxLength={120}
+                    placeholder={t.forms.blockNames[block.kind]}
+                    onChange={(event) => set({ title: event.target.value })}
+                  />
+                </label>
 
-            {countable ? (
-              <label className="block">
-                <span className="label mb-1.5 block">{t.forms.howMany}</span>
-                <Input
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={form.limit}
-                  onChange={(event) => {
-                    const next = Number.parseInt(event.target.value, 10);
-                    set({ limit: Number.isSafeInteger(next) ? next : 1 });
-                  }}
-                  className="tnum"
-                />
-              </label>
-            ) : null}
+                <label className="block">
+                  <span className="label mb-1.5 block">
+                    {block.kind === "RICH_TEXT" ? t.forms.bandBody : t.forms.bandSubtitle}
+                  </span>
+                  <Textarea
+                    value={form.subtitle}
+                    rows={block.kind === "RICH_TEXT" ? 4 : 2}
+                    maxLength={240}
+                    placeholder={t.common.optional}
+                    onChange={(event) => set({ subtitle: event.target.value })}
+                  />
+                </label>
 
-            {scopeable ? (
-              <label className="block">
-                <span className="label mb-1.5 block">{t.forms.limitToSection}</span>
-                <Select
-                  value={form.categoryId}
-                  onChange={(event) => set({ categoryId: event.target.value })}
-                >
-                  <option value="">
-                    {block.kind === "FEATURED_FORMS" ? t.forms.featuredOnly : t.forms.everything}
-                  </option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-            ) : null}
+                {countable ? (
+                  <label className="block">
+                    <span className="label mb-1.5 block">{t.forms.howMany}</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={form.limit}
+                      onChange={(event) => {
+                        const next = Number.parseInt(event.target.value, 10);
+                        set({ limit: Number.isSafeInteger(next) ? next : 1 });
+                      }}
+                      className="tnum"
+                    />
+                  </label>
+                ) : null}
+
+                {scopeable ? (
+                  <label className="block">
+                    <span className="label mb-1.5 block">{t.forms.limitToSection}</span>
+                    <Select
+                      value={form.categoryId}
+                      onChange={(event) => set({ categoryId: event.target.value })}
+                    >
+                      <option value="">
+                        {block.kind === "FEATURED_FORMS"
+                          ? t.forms.featuredOnly
+                          : t.forms.everything}
+                      </option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                ) : null}
+              </>
+            )}
 
             <SaveBar
               draft={draft}
               save={(values) =>
-                updateBlock(block.id, {
-                  title: values.title,
-                  subtitle: values.subtitle,
-                  limit: values.limit,
-                  categoryId: values.categoryId || null,
-                })
+                paintable
+                  ? updateBlock(block.id, {
+                      heroStyle: values.heroStyle,
+                      heroColor: values.heroColor,
+                      heroColor2: values.heroColor2,
+                      heroImage: values.heroImage,
+                    })
+                  : updateBlock(block.id, {
+                      title: values.title,
+                      subtitle: values.subtitle,
+                      limit: values.limit,
+                      categoryId: values.categoryId || null,
+                    })
               }
             />
           </div>
@@ -627,5 +661,138 @@ function BlockCard({
         </button>
       )}
     </li>
+  );
+}
+
+/**
+ * What the search band is painted with.
+ *
+ * Four choices rather than a free field: the brand, one colour, two colours
+ * blended, or a picture. The swatch above them is the answer to the only
+ * question anybody is really asking — what will it look like — and it is drawn
+ * from the draft, so it answers before the Save rather than after it.
+ */
+function HeroPaint({
+  form,
+  set,
+}: {
+  form: {
+    heroStyle: PortalHeroStyle;
+    heroColor: string;
+    heroColor2: string;
+    heroImage: string;
+  };
+  set: (
+    patch: Partial<{
+      heroStyle: PortalHeroStyle;
+      heroColor: string;
+      heroColor2: string;
+      heroImage: string;
+    }>,
+  ) => void;
+}) {
+  const t = useMessages();
+  const STYLES: PortalHeroStyle[] = ["BRAND", "SOLID", "GRADIENT", "IMAGE"];
+
+  const swatch =
+    form.heroStyle === "BRAND"
+      ? "linear-gradient(115deg, var(--brand) 0%, var(--brand-2) 100%)"
+      : form.heroStyle === "SOLID"
+        ? form.heroColor
+        : form.heroStyle === "GRADIENT"
+          ? `linear-gradient(115deg, ${form.heroColor} 0%, ${form.heroColor2 || form.heroColor} 100%)`
+          : form.heroImage
+            ? `center / cover no-repeat url(${JSON.stringify(form.heroImage)})`
+            : "var(--surface-2)";
+
+  return (
+    <div className="space-y-3">
+      <span className="label block">{t.forms.heroPaint}</span>
+
+      <div
+        aria-hidden
+        className="rounded-card h-16 w-full"
+        style={{ background: swatch, boxShadow: "var(--highlight)" }}
+      />
+
+      <div className="bg-surface-2 flex gap-1 rounded-full p-1">
+        {STYLES.map((style) => (
+          <button
+            key={style}
+            type="button"
+            aria-pressed={form.heroStyle === style}
+            onClick={() => set({ heroStyle: style })}
+            className={cn(
+              "h-8 flex-1 rounded-full text-sm font-medium transition-colors",
+              form.heroStyle === style
+                ? "bg-surface text-text shadow-[var(--highlight)]"
+                : "text-text-2 hover:text-text",
+            )}
+          >
+            {t.forms.heroStyles[style]}
+          </button>
+        ))}
+      </div>
+
+      {form.heroStyle === "SOLID" || form.heroStyle === "GRADIENT" ? (
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="block">
+            <span className="label mb-1.5 block">
+              {form.heroStyle === "GRADIENT" ? t.forms.heroFrom : t.settings.colour}
+            </span>
+            <span className="flex items-center gap-2">
+              <input
+                type="color"
+                value={/^#[0-9a-fA-F]{6}$/.test(form.heroColor) ? form.heroColor : "#2f5be8"}
+                onChange={(event) => set({ heroColor: event.target.value })}
+                aria-label={t.settings.pickColour}
+                className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
+              />
+              <Input
+                value={form.heroColor}
+                onChange={(event) => set({ heroColor: event.target.value })}
+                spellCheck={false}
+                className="w-28 font-mono"
+              />
+            </span>
+          </label>
+
+          {form.heroStyle === "GRADIENT" ? (
+            <label className="block">
+              <span className="label mb-1.5 block">{t.forms.heroTo}</span>
+              <span className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(form.heroColor2) ? form.heroColor2 : "#1b3fa8"}
+                  onChange={(event) => set({ heroColor2: event.target.value })}
+                  aria-label={t.settings.pickColour}
+                  className="bg-surface rounded-control h-11 w-12 cursor-pointer border border-transparent p-1 shadow-[var(--highlight)]"
+                />
+                <Input
+                  value={form.heroColor2}
+                  placeholder={t.forms.heroToAuto}
+                  onChange={(event) => set({ heroColor2: event.target.value })}
+                  spellCheck={false}
+                  className="w-28 font-mono"
+                />
+              </span>
+            </label>
+          ) : null}
+        </div>
+      ) : null}
+
+      {form.heroStyle === "IMAGE" ? (
+        <label className="block">
+          <span className="label mb-1.5 block">{t.forms.heroImage}</span>
+          <Input
+            value={form.heroImage}
+            placeholder="https://"
+            onChange={(event) => set({ heroImage: event.target.value })}
+            spellCheck={false}
+          />
+          <span className="text-text-3 mt-1.5 block text-sm">{t.forms.heroImageHint}</span>
+        </label>
+      ) : null}
+    </div>
   );
 }
