@@ -72,10 +72,12 @@ export default async function PortalApprovalsPage() {
   const answered = recent.map(shape);
 
   return (
-    <div className="space-y-5">
-      <header>
-        <h1 className="text-xl font-semibold tracking-[-0.02em]">{t.portal.approvals}</h1>
-        <p className="text-text-2 text-md mt-1">{t.portal.approvalsBlurb}</p>
+    <div className="portal-wrap pb-14">
+      <header className="pt-9 pb-[30px]">
+        <h1 className="text-[36px] leading-[1.1] font-semibold tracking-[-0.035em]">
+          {t.portal.approvals}
+        </h1>
+        <p className="text-text-2 mt-2.5 max-w-[60ch] text-[16px]">{t.portal.approvalsBlurb}</p>
       </header>
 
       <PortalApprovals approvals={[...waiting, ...answered]} />

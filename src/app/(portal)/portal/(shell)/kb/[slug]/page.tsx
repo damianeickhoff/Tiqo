@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { dateLocaleOf, getMessages, getSettings } from "@/lib/settings";
 import { localised, readerLocale } from "@/lib/portal-locale";
 import { ArticleFeedback } from "@/components/portal/article-feedback";
-import { ServiceCard } from "@/components/portal/portal-pieces";
+import { AnswerRow, Tile } from "@/components/portal/portal-pieces";
 import { Markdown } from "@/components/markdown";
-import { Card } from "@/components/ui";
 import { Avatar } from "@/components/avatar";
 
 type Params = Promise<{ slug: string }>;
@@ -125,34 +124,41 @@ export default async function ArticlePage({ params }: { params: Params }) {
       ? article.updatedBy
       : null;
 
-  return (
-    <div className="space-y-6">
-      <nav className="text-text-3 flex flex-wrap items-center gap-1 text-base">
-        <Link href="/portal" className="hover:text-text transition-colors">
-          {t.portal.home}
-        </Link>
-        {article.category ? (
-          <>
-            <ChevronRight size={13} aria-hidden />
-            <Link
-              href={`/portal/c/${article.category.slug}`}
-              className="hover:text-text transition-colors"
-            >
-              {article.category.name}
-            </Link>
-          </>
-        ) : null}
-      </nav>
+  const ways = article.category?.forms ?? [];
+  const aside = related.length > 0 || ways.length > 0;
 
-      <header className="animate-rise">
-        <h1 className="text-3xl leading-tight font-semibold tracking-[-0.025em]">{words.title}</h1>
+  return (
+    <div className="portal-wrap pb-14">
+      <header className="animate-rise pt-9">
+        <nav className="text-text-3 mb-4 flex flex-wrap items-center gap-1.5 text-[13.5px]">
+          <Link href="/portal" className="hover:text-text transition-colors">
+            {t.portal.home}
+          </Link>
+          <ChevronRight size={12} aria-hidden />
+          <Link href="/portal/answers" className="hover:text-text transition-colors">
+            {t.portal.answers}
+          </Link>
+          {article.category ? (
+            <>
+              <ChevronRight size={12} aria-hidden />
+              <span className="text-text-2">{article.category.name}</span>
+            </>
+          ) : null}
+        </nav>
+
+        <h1 className="max-w-[26ch] text-[36px] leading-[1.1] font-semibold tracking-[-0.035em]">
+          {words.title}
+        </h1>
         {words.summary ? (
-          <p className="text-text-2 mt-2 max-w-[62ch] text-lg leading-relaxed">{words.summary}</p>
+          <p className="text-text-2 mt-2.5 max-w-[70ch] text-[16px] leading-relaxed">
+            {words.summary}
+          </p>
         ) : null}
+
         {/* Who stands behind it, and who touched it last — with their faces,
             because a name on its own is a string and a face is a person you
             can go and ask. */}
-        <div className="text-text-3 mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm">
+        <div className="text-text-3 mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm">
           {article.createdBy ? (
             <span className="flex items-center gap-1.5">
               <Avatar
@@ -177,71 +183,91 @@ export default async function ArticlePage({ params }: { params: Params }) {
         </div>
       </header>
 
-      <Card className="animate-rise p-6 lg:p-8">
-        <Markdown text={words.body} className="text-md leading-[1.75]" />
+      <div
+        className={
+          aside
+            ? "animate-rise mt-7 grid gap-x-11 gap-y-[22px] lg:grid-cols-[minmax(0,1fr)_320px]"
+            : "animate-rise mt-7"
+        }
+      >
+        <article className="pcard min-w-0">
+          <div className="px-6 pt-6 pb-5 sm:px-7 sm:pt-[26px] sm:pb-[22px]">
+            <Markdown text={words.body} className="text-md leading-[1.75]" />
+          </div>
 
-        <ArticleFeedback
-          articleId={article.id}
-          helpedThisMonth={helpedThisMonth}
-          mine={myVote?.helpful ?? null}
-        />
-      </Card>
+          <ArticleFeedback
+            articleId={article.id}
+            helpedThisMonth={helpedThisMonth}
+            mine={myVote?.helpful ?? null}
+          />
+        </article>
 
-      {related.length > 0 ? (
-        <section className="animate-rise">
-          <h2 className="label border-line border-b pb-2">{t.portal.relatedAnswers}</h2>
-          <ul>
-            {related.map((other) => {
-              const theirs = localised(
-                { title: other.title, summary: other.summary },
-                other.translations,
-                locale,
-              );
-              return (
-                <li key={other.id} className="border-line border-b">
-                  <Link
-                    href={`/portal/kb/${other.slug}`}
-                    className="group flex w-full items-center gap-3 py-3 transition-colors"
-                  >
-                    <BookOpen size={16} className="text-text-3 shrink-0" aria-hidden />
-                    <span className="text-md group-hover:text-brand-deep shrink-0 font-semibold transition-colors">
-                      {theirs.title}
-                    </span>
-                    {theirs.summary ? (
-                      <span className="text-text-3 min-w-0 flex-1 truncate text-base">
-                        {theirs.summary}
-                      </span>
-                    ) : (
-                      <span className="flex-1" />
-                    )}
-                    <ChevronRight size={15} className="text-text-3 shrink-0" aria-hidden />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ) : null}
+        {aside ? (
+          <aside className="flex flex-col gap-[22px]">
+            {related.length > 0 ? (
+              <section className="pcard">
+                <h2 className="px-[22px] pt-[18px] pb-1 text-[16px] font-semibold tracking-[-0.01em]">
+                  {t.portal.relatedAnswers}
+                </h2>
+                <div className="p-1.5">
+                  {related.map((other) => {
+                    const theirs = localised(
+                      { title: other.title, summary: other.summary },
+                      other.translations,
+                      locale,
+                    );
+                    return (
+                      <AnswerRow
+                        key={other.id}
+                        href={`/portal/kb/${other.slug}`}
+                        title={theirs.title}
+                        summary={theirs.summary}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
 
-      {article.category && article.category.forms.length > 0 ? (
-        <section className="animate-rise space-y-3">
-          <p className="text-text-2 text-md">{t.portal.didThisHelp}</p>
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {article.category.forms.map((form) => (
-              <li key={form.id}>
-                <ServiceCard
-                  href={`/portal/f/${form.slug}`}
-                  title={form.name}
-                  summary={form.summary}
-                  icon={form.icon}
-                  color={form.color}
-                  alwaysArrow
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+            {/* The way out of an answer that did not answer it. Offered as the
+                two forms of this section rather than a link to the catalogue:
+                somebody who is still stuck should not have to go and look. */}
+            {ways.length > 0 ? (
+              <section className="pcard">
+                <h2 className="px-[22px] pt-[18px] pb-1.5 text-[16px] font-semibold tracking-[-0.01em]">
+                  {t.portal.stillStuck}
+                </h2>
+                <p className="text-text-2 px-[22px] pb-4 text-[13.5px] leading-relaxed">
+                  {t.portal.stillStuckBody}
+                </p>
+                <ul>
+                  {ways.map((form) => (
+                    <li key={form.id} className="border-line border-t">
+                      <Link
+                        href={`/portal/f/${form.slug}`}
+                        className="hover:bg-surface-2 flex items-center gap-3 px-[22px] py-[13px] transition-colors"
+                      >
+                        <Tile icon={form.icon} color={form.color} size={34} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-base font-semibold">
+                            {form.name}
+                          </span>
+                          {form.summary ? (
+                            <span className="text-text-3 mt-px block truncate text-[12.5px]">
+                              {form.summary}
+                            </span>
+                          ) : null}
+                        </span>
+                        <ArrowRight size={13} className="text-text-3 shrink-0" aria-hidden />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+          </aside>
+        ) : null}
+      </div>
     </div>
   );
 }

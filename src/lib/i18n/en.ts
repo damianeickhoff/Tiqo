@@ -767,6 +767,9 @@ export const en = {
     seeAllResults: "See all results",
     answer: "Answer",
     request: "Request",
+    /// The plural, as a heading over a section's forms. Not `request` with an
+    /// "s" stuck on it: Dutch pluralises elsewhere, and did not.
+    sectionRequests: "Requests",
     otherAnswers: "Everything else",
     noAnswers: "Nothing has been written up yet.",
     browse: "Browse the catalogue",
@@ -883,6 +886,22 @@ export const en = {
     exampleQuote: "“Could you try it on battery once and tell me whether it wakes?”",
     deskPhoneRow: "Urgent and the desk is closed",
     aboutSpan: (span: string) => `About ${span}`,
+
+    /* The round-12 inner pages. */
+    requests: "Requests",
+    inThisSection: (count: number) => `${count} in this section`,
+    searchInSection: (name: string) => `Search in ${name}`,
+    forQuery: (query: string) => `for “${query}”`,
+    stillStuck: "Still stuck?",
+    stillStuckBody: "Raise a request and we will pick it up.",
+    beforeYouAsk: "Before you ask",
+
+    /* One request, and the ladder down its rail. */
+    whatYouAsked: "What you asked",
+    whereItStands: "Where it stands",
+    stepRaised: "Raised",
+    stepPickedUp: "Picked up",
+    stepPickedUpBy: (who: string) => `Picked up by ${who}`,
   },
 
   plan: {

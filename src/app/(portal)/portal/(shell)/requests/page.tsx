@@ -6,8 +6,9 @@ import { requireUser } from "@/lib/auth";
 import { getMessages } from "@/lib/settings";
 import { shortAge } from "@/lib/tickets";
 import { Avatar } from "@/components/avatar";
-import { Card, EmptyState, buttonClass } from "@/components/ui";
-import { HeatSpine, StatusRing } from "@/components/tickets/indicators";
+import { EmptyState } from "@/components/ui";
+import { HeatSpine } from "@/components/tickets/indicators";
+import { StatusRing } from "@/components/tickets/glyphs";
 import { Reference } from "@/components/tickets/ticket-row";
 import { RequestFilters } from "@/components/portal/request-filters";
 import { longestWait } from "@/lib/portal";
@@ -19,6 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 type SearchParams = Promise<{ q?: string; show?: string }>;
+
+/** The head's brand pill, and the same offer again in the empty state. */
+const MAKE_REQUEST =
+  "bg-brand text-brand-fg inline-flex h-[42px] items-center gap-2 rounded-full px-[18px] " +
+  "text-base font-semibold transition-[filter] hover:brightness-[0.97]";
 
 /**
  * Everything this person has asked for, newest first. Their own only — the
@@ -106,23 +112,26 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
   const waiting = await longestWait(user.id);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-        <header className="animate-rise">
-          <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em]">
+    <div className="portal-wrap pb-14">
+      <div className="animate-rise flex flex-wrap items-end gap-x-6 gap-y-5 pt-9 pb-[30px]">
+        <header>
+          <h1 className="text-[36px] leading-[1.1] font-semibold tracking-[-0.035em]">
             {t.portal.myRequests}
           </h1>
-          <p className="text-text-2 mt-1 text-base">{t.portal.myRequestsBlurb}</p>
+          <p className="text-text-2 mt-2.5 max-w-[60ch] text-[16px]">{t.portal.myRequestsBlurb}</p>
         </header>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* The tools ride on the baseline of the title rather than under it:
+            this page is a list somebody narrows, and the narrowing belongs
+            beside the name of what is being narrowed. */}
+        <div className="ml-auto flex flex-wrap items-center gap-2.5">
           <RequestFilters
             q={q}
             show={show}
             counts={{ all: allCount, open: allCount - settledCount, settled: settledCount }}
           />
-          <Link href="/portal" className={cn(buttonClass("primary", "md"), "rounded-full")}>
-            <Plus size={14} strokeWidth={2.5} />
+          <Link href="/portal" className={MAKE_REQUEST}>
+            <Plus size={15} strokeWidth={2.5} />
             {t.portal.makeRequest}
           </Link>
         </div>
@@ -139,26 +148,28 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
       ) : null}
 
       {tickets.length === 0 ? (
-        <Card className="animate-rise p-8">
+        <div className="mt-8">
           <EmptyState
             title={t.portal.noneYet}
             body={t.portal.noneYetBody}
             action={
-              <Link href="/portal" className={buttonClass("primary", "md")}>
+              <Link href="/portal" className={MAKE_REQUEST}>
                 {t.portal.raiseOne}
               </Link>
             }
           />
-        </Card>
+        </div>
       ) : (
         groups.map((group) => (
           <section key={group.label} className="animate-rise">
-            <h2 className="label mb-2 flex items-baseline gap-2">
+            <h2 className="mt-8 mb-3.5 flex items-baseline gap-2.5 text-[20px] font-semibold tracking-[-0.02em]">
               {group.label}
-              <span className="tnum font-mono text-xs normal-case">{group.rows.length}</span>
+              <span className="tnum text-text-3 font-mono text-[12.5px] font-medium">
+                {group.rows.length}
+              </span>
             </h2>
 
-            <Card className="overflow-hidden">
+            <div className="pcard overflow-hidden">
               <ul className="divide-line divide-y">
                 {group.rows.map((ticket) => {
                   const settled = Boolean(ticket.status?.settles);
@@ -170,11 +181,11 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
                       <Link
                         href={`/portal/requests/${ticket.number}`}
                         className={cn(
-                          "hover:bg-surface-2 grid items-center gap-4 py-3.5 pr-4 pl-4 transition-[background-color]",
-                          "grid-cols-[4px_minmax(0,1fr)_16px] sm:grid-cols-[4px_128px_minmax(0,1fr)_190px_16px]",
+                          "hover:bg-surface-2 grid items-center gap-[18px] py-4 pr-[22px] pl-[18px] transition-[background-color]",
+                          "grid-cols-[4px_minmax(0,1fr)_16px] sm:grid-cols-[4px_132px_minmax(0,1fr)_230px_16px]",
                           // Settled rows step back: they are history, and history
                           // should not compete with what is still running.
-                          settled && "opacity-70",
+                          settled && "opacity-[0.72]",
                         )}
                       >
                         {/* How much of the promise has burned, as a bar rather
@@ -182,28 +193,33 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
                             reads as a border, and a border cannot show progress. */}
                         <HeatSpine ticket={ticket} />
 
-                        <Reference reference={ticket.reference} className="hidden sm:block" />
+                        <Reference
+                          reference={ticket.reference}
+                          className="hidden text-xs sm:block"
+                        />
 
                         <span className="min-w-0">
-                          <span className="flex items-center gap-2">
-                            <span className="text-md truncate font-semibold">{ticket.title}</span>
+                          <span className="flex min-w-0 items-center gap-2.5">
+                            <span className="truncate text-[15.5px] font-semibold tracking-[-0.01em]">
+                              {ticket.title}
+                            </span>
                             {yourTurn ? (
-                              <span className="tag text-brand-deep shrink-0 bg-[var(--brand-tint)]">
+                              <span className="bg-brand text-brand-fg inline-flex h-[21px] shrink-0 items-center rounded-full px-2 text-[11.5px] font-semibold whitespace-nowrap">
                                 {t.portal.waitingOnYou}
                               </span>
                             ) : null}
                           </span>
 
-                          <span className="text-text-3 mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 text-sm">
+                          <span className="text-text-3 mt-[3px] flex min-w-0 flex-wrap items-center gap-x-1.5 text-sm">
                             {ticket.portalForm ? <span>{ticket.portalForm.name} ·</span> : null}
-                            <span className="tnum font-mono">
+                            <span className="tnum font-mono text-xs">
                               {t.common.ago(shortAge(ticket.createdAt, undefined, t))}
                             </span>
                             {ticket._count.comments > 0 ? (
                               <>
                                 <span aria-hidden>·</span>
                                 <span className="inline-flex items-center gap-1">
-                                  <MessageSquare size={11} aria-hidden />
+                                  <MessageSquare size={12} aria-hidden />
                                   {t.portal.replyCount(ticket._count.comments)}
                                 </span>
                               </>
@@ -224,9 +240,9 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
                           </span>
                         </span>
 
-                        <span className="hidden items-center gap-3 px-2 sm:flex">
+                        <span className="text-text-2 hidden items-center gap-2 text-[13.5px] sm:flex">
                           {ticket.status ? (
-                            <span className="text-text-2 flex min-w-0 items-center gap-1.5 text-sm">
+                            <span className="flex min-w-0 items-center gap-2">
                               <StatusRing status={ticket.status} />
                               <span className="truncate">{ticket.status.name}</span>
                             </span>
@@ -249,13 +265,13 @@ export default async function PortalRequests({ searchParams }: { searchParams: S
                           )}
                         </span>
 
-                        <ChevronRight size={15} className="text-text-3 shrink-0" aria-hidden />
+                        <ChevronRight size={14} className="text-text-3 shrink-0" aria-hidden />
                       </Link>
                     </li>
                   );
                 })}
               </ul>
-            </Card>
+            </div>
           </section>
         ))
       )}

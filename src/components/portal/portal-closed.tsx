@@ -3,7 +3,6 @@ import { DoorClosed } from "lucide-react";
 import { messagesFor } from "@/lib/i18n";
 import { brandStyleSheet } from "@/lib/brand";
 import { Logo } from "@/components/shell/logo";
-import { buttonClass } from "@/components/ui";
 
 /**
  * The portal, shut.
@@ -12,6 +11,9 @@ import { buttonClass } from "@/components/ui";
  * arrives to find a bounce learns nothing, and phones instead. The door is
  * still answered — it says why it is closed, in the desk's own words, which is
  * why closing it asks for those words first.
+ *
+ * The layout returns this instead of the shell, so it carries the bar, the
+ * ground and the brand sheet itself.
  */
 export function PortalClosed({
   locale,
@@ -33,32 +35,35 @@ export function PortalClosed({
     <>
       <style dangerouslySetInnerHTML={{ __html: brandStyleSheet(brandColor) }} />
       <div className="bg-bg flex min-h-dvh flex-col">
-        <header className="border-line border-b">
-          <div className="portal-width mx-auto flex h-14 w-full items-center gap-3 px-5 lg:px-6">
-            <Logo size={26} />
-            <span className="text-text-3 border-line border-l pl-3 text-base">{title}</span>
-          </div>
+        {/* The same lockup the portal's bar wears, with nothing beside it:
+            there is nowhere to go from here, and a row of dead links would
+            only invite clicking. */}
+        <header className="portal-wrap flex h-[68px] shrink-0 items-center gap-2.5">
+          <Logo size={26} wordmark={false} />
+          <span className="text-[15px] font-semibold tracking-[-0.01em]">{title}</span>
         </header>
 
-        <main className="mx-auto flex w-full max-w-xl flex-1 items-center px-5 py-16">
-          <div className="w-full">
+        <main className="portal-wrap flex flex-1 items-center justify-center py-12">
+          <div className="pcard w-full max-w-[560px] px-9 py-12 text-center">
             <span
               aria-hidden
-              className="text-brand-deep rounded-control flex size-11 items-center justify-center"
-              style={{ background: "var(--brand-tint)" }}
+              className="bg-brand text-brand-fg mx-auto flex size-14 items-center justify-center rounded-full"
             >
-              <DoorClosed size={22} />
+              <DoorClosed size={26} />
             </span>
 
-            <h1 className="mt-4 text-xl font-semibold tracking-[-0.02em]">
+            <h1 className="mt-5 text-[26px] leading-tight font-semibold tracking-[-0.025em]">
               {t.portal.closedTitle}
             </h1>
-            <p className="text-text-2 text-md mt-2 leading-relaxed">
+            <p className="text-text-2 mx-auto mt-3 max-w-[46ch] text-[15px] leading-relaxed">
               {reason || t.portal.closedFallback}
             </p>
 
             {canUseDesk ? (
-              <Link href="/" className={`${buttonClass("outline", "md")} mt-6`}>
+              <Link
+                href="/"
+                className="bg-surface-2 text-text hover:bg-bg mt-7 inline-flex h-[42px] items-center rounded-full px-[18px] text-[14px] font-semibold transition-colors"
+              >
                 {t.portal.toTheDesk}
               </Link>
             ) : null}

@@ -12,6 +12,7 @@ import {
   DropZone,
 } from "@/components/tickets/file-picker";
 import { useMessages } from "@/components/shell/instance-context";
+import { cn } from "@/lib/utils";
 
 /** Answering the desk. One box and one button — a requester replying to their
  *  own request needs no visibility switch, no assignee and no tags. */
@@ -41,7 +42,10 @@ export function PortalReply({ ticketId }: { ticketId: string }) {
             of sending it. */}
           <div className="flex items-center justify-between">
             <p className="label">{t.portal.addReply}</p>
-            <AttachButton className={buttonClass("ghost", "sm")} showLabel />
+            <AttachButton
+              className={cn(buttonClass("ghost", "sm"), "h-[34px] rounded-full px-3.5")}
+              showLabel
+            />
           </div>
           <FormError>{errors.form}</FormError>
 
@@ -49,12 +53,15 @@ export function PortalReply({ ticketId }: { ticketId: string }) {
             writing Markdown; a requester answering a question does not, and a
             reply that turns their asterisks into italics is a surprise nobody
             asked for. */}
+          {/* A filled well rather than a raised box: on the portal an input is
+              a hole in the card, and the card it sits in is already white. */}
           <Textarea
             name="body"
             rows={4}
             value={body}
             onChange={(event) => setBody(event.target.value)}
             placeholder={t.portal.replyPlaceholder}
+            className="bg-surface-2 min-h-[104px] rounded-xl px-3.5 py-3 shadow-none focus:border-transparent"
           />
           <FieldError>{errors.body}</FieldError>
           <FieldError>{errors.files}</FieldError>
@@ -73,8 +80,8 @@ function Submit() {
   const { pending } = useFormStatus();
   const t = useMessages();
   return (
-    <Button type="submit" disabled={pending}>
-      <Send size={14} />
+    <Button type="submit" disabled={pending} className="h-12 rounded-full px-6 text-[14.5px]">
+      <Send size={15} />
       {pending ? t.ticket.posting : t.portal.send}
     </Button>
   );

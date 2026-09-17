@@ -1,20 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { Fragment, useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { BookOpen, Send } from "lucide-react";
 import type { PortalFieldKind, PortalFieldTarget } from "@/generated/prisma/enums";
 import { readAnswer, submitForm, suggestAnswers } from "@/lib/actions/portal";
 import type { SearchHit } from "@/lib/portal";
-import {
-  Button,
-  buttonClass,
-  FieldError,
-  FormError,
-  Input,
-  Select,
-  Textarea,
-} from "@/components/ui";
+import { FieldError, FormError, Input, Select, Textarea } from "@/components/ui";
 import {
   AttachButton,
   AttachChips,
@@ -42,6 +34,17 @@ export type PortalField = {
 };
 
 export type PortalSection = { id: string; title: string; description: string | null };
+
+/**
+ * Round 12 draws every answer as a filled well rather than an outlined box: on
+ * the portal's grey ground a card is already an edge, and a second edge inside
+ * it turns a form into a grid of boxes. The fill is what says "you write here".
+ */
+const WELL =
+  "bg-surface-2 rounded-card border-transparent px-3.5 text-[14.5px] shadow-none focus:border-brand";
+
+/** A section of the form: one padded row of the card, ruled off from the last. */
+const GROUP = "px-7 py-[26px]";
 
 /**
  * The form a requester fills in.
@@ -94,54 +97,77 @@ export function PortalForm({
   ].filter((group) => group.fields.length > 0);
 
   return (
-    <form action={formAction} className="space-y-7">
+    // One card, not one per section: the sections of a form are steps through a
+    // single question, and cutting them into separate cards would make each
+    // read as its own decision.
+    <form action={formAction} className="pcard animate-rise min-w-0 pt-1.5">
       <AttachmentsProvider>
-        <DropZone className="-m-2 space-y-7 p-2">
-          <FormError>{errors.form}</FormError>
+        <DropZone>
+          {errors.form ? (
+            <div className="px-7 pt-[26px]">
+              <FormError>{errors.form}</FormError>
+            </div>
+          ) : null}
 
-          <Suggestions query={subject} />
-
-          {groups.map(({ section, fields: group }) => (
-            <fieldset key={section?.id ?? "loose"} className="space-y-4">
+          {groups.map(({ section, fields: group }, index) => (
+            <fieldset
+              key={section?.id ?? "loose"}
+              className={cn(GROUP, index > 0 && "border-line border-t")}
+            >
               {section ? (
-                <legend className="mb-3">
-                  <span className="text-md block font-semibold">{section.title}</span>
+                <legend className="mb-[18px] block">
+                  <span className="block text-[17px] font-semibold tracking-[-0.015em]">
+                    {section.title}
+                  </span>
                   {section.description ? (
-                    <span className="text-text-3 mt-0.5 block text-base">
+                    <span className="text-text-3 mt-[3px] block text-[13.5px]">
                       {section.description}
                     </span>
                   ) : null}
                 </legend>
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-x-[22px] gap-y-[18px] sm:grid-cols-2">
                 {group.map((field) => (
-                  <div
-                    key={field.id}
-                    className={cn("min-w-0", field.halfWidth ? "sm:col-span-1" : "sm:col-span-2")}
-                  >
-                    <label htmlFor={field.id} className="mb-1.5 flex items-baseline gap-1.5">
-                      <span className="text-md font-medium">{field.label}</span>
-                      {field.required ? (
-                        <span className="text-negative text-base" title={t.portal.required}>
-                          *
-                        </span>
+                  <Fragment key={field.id}>
+                    <div
+                      className={cn(
+                        "flex min-w-0 flex-col gap-[7px]",
+                        field.halfWidth ? "sm:col-span-1" : "sm:col-span-2",
+                      )}
+                    >
+                      <label htmlFor={field.id} className="flex items-baseline gap-0.5">
+                        <span className="text-[13.5px] font-semibold">{field.label}</span>
+                        {field.required ? (
+                          <span className="text-negative text-[13.5px]" title={t.portal.required}>
+                            *
+                          </span>
+                        ) : null}
+                      </label>
+
+                      {/* Pasting a screenshot into any answer attaches it, rather
+                      than dropping nothing into the box. */}
+                      <FieldInput
+                        field={field}
+                        value={answers[field.id] ?? ""}
+                        onChange={(value) =>
+                          setAnswers((current) => ({ ...current, [field.id]: value }))
+                        }
+                      />
+
+                      {field.hint ? (
+                        <p className="text-text-3 text-[12.5px]">{field.hint}</p>
                       ) : null}
-                    </label>
+                      <FieldError>{errors[field.id]}</FieldError>
+                    </div>
 
-                    {/* Pasting a screenshot into any answer attaches it, rather
-                    than dropping nothing into the box. */}
-                    <FieldInput
-                      field={field}
-                      value={answers[field.id] ?? ""}
-                      onChange={(value) =>
-                        setAnswers((current) => ({ ...current, [field.id]: value }))
-                      }
-                    />
-
-                    {field.hint ? <p className="text-text-3 mt-1.5 text-sm">{field.hint}</p> : null}
-                    <FieldError>{errors[field.id]}</FieldError>
-                  </div>
+                    {/* Under the subject and nowhere else: the answer is offered
+                        at the moment the question has been named, while there is
+                        still nothing else typed to throw away. */}
+                    {field.id === subjectField?.id ? (
+                      <Suggestions query={subject} className="sm:col-span-2" />
+                    ) : null}
+                  </Fragment>
                 ))}
               </div>
             </fieldset>
@@ -149,20 +175,32 @@ export function PortalForm({
 
           {/* Its own block rather than a question the desk has to remember to add
           to every form: a screenshot helps whatever was asked for. */}
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <span className="text-md font-medium">{t.ticket.attachments}</span>
-              <AttachButton className={buttonClass("outline", "sm")} showLabel />
-            </div>
-            <p className="text-text-3 text-sm">{t.ticket.attachHint}</p>
-            <FieldError>{errors.files}</FieldError>
-            <AttachChips />
-          </div>
+          <fieldset className={cn(GROUP, "border-line border-t")}>
+            <legend className="mb-[18px] block">
+              <span className="block text-[17px] font-semibold tracking-[-0.015em]">
+                {t.ticket.attachments}
+              </span>
+              <span className="text-text-3 mt-[3px] block text-[13.5px]">
+                {t.ticket.attachHint}
+              </span>
+            </legend>
 
-          <div className="border-line flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t pt-5">
+            <div className="flex min-w-0 flex-col gap-[7px]">
+              <div className="flex flex-wrap items-center gap-2">
+                <AttachButton
+                  className="bg-surface text-text hover:bg-surface-2 inline-flex h-[34px] shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-medium shadow-[var(--highlight)] transition-colors"
+                  showLabel
+                />
+                <AttachChips />
+              </div>
+              <FieldError>{errors.files}</FieldError>
+            </div>
+          </fieldset>
+
+          <div className="border-line flex flex-wrap items-center gap-x-[18px] gap-y-4 border-t px-7 py-5">
             {/* What sending this actually does, said before it is done rather than
             on the confirmation screen afterwards. */}
-            <div className="text-text-3 min-w-0 space-y-0.5 text-sm">
+            <div className="text-text-2 min-w-0 text-[13.5px] leading-[1.55]">
               {footer.map((line) => (
                 <p key={line}>{line}</p>
               ))}
@@ -179,7 +217,7 @@ export function PortalForm({
  * "Before you send this." Articles that match what the subject line says so
  * far, offered once there is enough of it to mean anything.
  */
-function Suggestions({ query }: { query: string }) {
+function Suggestions({ query, className }: { query: string; className?: string }) {
   const t = useMessages();
   const [found, setFound] = useState<SearchHit[]>([]);
   const [dismissed, setDismissed] = useState(false);
@@ -207,20 +245,25 @@ function Suggestions({ query }: { query: string }) {
   if (dismissed || hits.length === 0) return null;
 
   return (
-    <section className="animate-rise border-border bg-surface-2 rounded-card border p-4">
-      <div className="mb-2.5 flex items-center gap-2">
+    // The one amber thing on the page. It is an interruption, and it should
+    // look like one — but a wash rather than a fill, because it is offering
+    // help rather than asking for an answer.
+    <section
+      className={cn("animate-rise rounded-[14px] bg-[var(--brand-wash)] px-[18px] py-4", className)}
+    >
+      <div className="flex items-center gap-2">
         <BookOpen size={15} className="text-text-3 shrink-0" aria-hidden />
         <p className="text-base font-semibold">{t.portal.mightAnswer}</p>
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="text-text-3 hover:bg-surface-3 hover:text-text ml-auto rounded-full px-2.5 py-1 text-sm font-medium transition-colors"
+          className="text-text-3 hover:text-text ml-auto shrink-0 rounded-full px-2 py-1 text-sm font-medium transition-colors"
         >
           {t.portal.noneOfThese}
         </button>
       </div>
 
-      <ul className="space-y-1.5">
+      <ul className="mt-2 space-y-2">
         {hits.map((hit) => (
           <li key={hit.id}>
             {/* Opened in place rather than followed: someone halfway through
@@ -229,12 +272,17 @@ function Suggestions({ query }: { query: string }) {
             <button
               type="button"
               onClick={() => setPeek(hit)}
-              className="border-border-soft bg-surface hover:border-brand/45 rounded-control block w-full border px-3 py-2.5 text-left transition-colors"
+              className="bg-surface rounded-card flex w-full items-start gap-3 px-3.5 py-3 text-left shadow-[var(--highlight)] transition-shadow hover:shadow-[var(--shadow-md)]"
             >
-              <span className="block text-base font-medium">{hit.title}</span>
-              {hit.summary ? (
-                <span className="text-text-3 mt-0.5 block truncate text-sm">{hit.summary}</span>
-              ) : null}
+              <BookOpen size={15} className="text-text-3 mt-px shrink-0" aria-hidden />
+              <span className="min-w-0">
+                <span className="block text-base font-medium">{hit.title}</span>
+                {hit.summary ? (
+                  <span className="text-text-2 mt-0.5 block truncate text-[12.5px]">
+                    {hit.summary}
+                  </span>
+                ) : null}
+              </span>
             </button>
           </li>
         ))}
@@ -315,13 +363,19 @@ function FieldInput({
         placeholder={field.placeholder ?? undefined}
         value={value}
         onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
+        className={cn(WELL, "h-[104px] py-[11px]")}
       />
     );
   }
 
   if (field.kind === "SELECT") {
     return (
-      <Select {...shared} value={value} onChange={(event) => onChange(event.target.value)}>
+      <Select
+        {...shared}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={cn(WELL, "h-11 pr-9")}
+      >
         <option value="">{t.portal.choose}</option>
         {field.options.map((option) => (
           <option key={option} value={option}>
@@ -334,15 +388,15 @@ function FieldInput({
 
   if (field.kind === "RADIO") {
     return (
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-2">
         {field.options.map((option) => (
           <label
             key={option}
             className={cn(
-              "rounded-control text-md flex cursor-pointer items-center gap-2.5 border px-3 py-2 transition-colors",
+              "rounded-card flex min-h-11 cursor-pointer items-center gap-3 px-3.5 py-2.5 text-[14.5px] transition-colors",
               value === option
-                ? "border-brand/45 bg-[var(--brand-tint)]"
-                : "border-border hover:bg-surface-2",
+                ? "bg-[var(--brand-wash)] shadow-[inset_0_0_0_1.5px_var(--brand)]"
+                : "bg-surface-2 hover:bg-surface-3",
             )}
           >
             <input
@@ -355,15 +409,17 @@ function FieldInput({
             />
             {/* Drawn rather than accented: a native radio picks its own dot
                 colour per platform, and on a dark ground that came out as a
-                grey ring with a grey centre. */}
+                grey ring with a grey centre. The chosen dot is the brand and
+                not the brand's ink, because the ink is near-black and the wash
+                behind it is near-black once the theme is dark. */}
             <span
               aria-hidden
               className={cn(
-                "flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors",
-                value === option ? "bg-brand border-brand" : "border-line-strong",
+                "flex size-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px]",
+                value === option ? "border-brand bg-surface" : "border-line-strong bg-surface",
               )}
             >
-              {value === option ? <span className="size-1.5 rounded-full bg-white" /> : null}
+              {value === option ? <span className="bg-brand size-[9px] rounded-full" /> : null}
             </span>
             {option}
           </label>
@@ -374,13 +430,13 @@ function FieldInput({
 
   if (field.kind === "CHECKBOX") {
     return (
-      <label className="border-border hover:bg-surface-2 rounded-control text-md flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors">
+      <label className="bg-surface-2 hover:bg-surface-3 rounded-card flex min-h-11 cursor-pointer items-center gap-3 px-3.5 py-2.5 text-[14.5px] transition-colors">
         <input
           {...shared}
           type="checkbox"
           checked={value === "on"}
           onChange={(event) => onChange(event.target.checked ? "on" : "")}
-          className="size-4 accent-[var(--brand)]"
+          className="size-4 shrink-0 accent-[var(--brand)]"
         />
         {field.placeholder ?? field.hint ?? field.label}
       </label>
@@ -406,6 +462,7 @@ function FieldInput({
       placeholder={field.placeholder ?? undefined}
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      className={cn(WELL, "h-11")}
     />
   );
 }
@@ -414,9 +471,15 @@ function Submit() {
   const { pending } = useFormStatus();
   const t = useMessages();
   return (
-    <Button type="submit" size="lg" disabled={pending}>
-      <Send size={15} />
+    // Ink rather than amber: this is the one thing on the page that is finished
+    // with, and the amber on the portal means "your turn" everywhere else.
+    <button
+      type="submit"
+      disabled={pending}
+      className="text-md ml-auto inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-[var(--text)] px-[26px] font-semibold whitespace-nowrap text-[var(--bg)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-45"
+    >
+      <Send size={16} />
       {pending ? t.portal.sending : t.portal.send}
-    </Button>
+    </button>
   );
 }

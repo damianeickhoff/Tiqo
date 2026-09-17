@@ -768,6 +768,7 @@ export const nl: Messages = {
     seeAllResults: "Alle resultaten",
     answer: "Antwoord",
     request: "Aanvraag",
+    sectionRequests: "Aanvragen",
     otherAnswers: "Al het andere",
     noAnswers: "Er is nog niets opgeschreven.",
     browse: "Bekijk de catalogus",
@@ -884,6 +885,22 @@ export const nl: Messages = {
     exampleQuote: "“Kun je het één keer op de accu proberen en zeggen of hij wakker wordt?”",
     deskPhoneRow: "Dringend en de desk is dicht",
     aboutSpan: (span: string) => `Ongeveer ${span}`,
+
+    /* De binnenpagina's van ronde 12. */
+    requests: "Aanvragen",
+    inThisSection: (count: number) => `${count} in dit onderdeel`,
+    searchInSection: (name: string) => `Zoeken in ${name}`,
+    forQuery: (query: string) => `voor “${query}”`,
+    stillStuck: "Kom je er niet uit?",
+    stillStuckBody: "Dien een aanvraag in, dan pakken wij het op.",
+    beforeYouAsk: "Voordat je het vraagt",
+
+    /* Eén melding, en de ladder in de zijkolom. */
+    whatYouAsked: "Wat je hebt gevraagd",
+    whereItStands: "Hoe het ervoor staat",
+    stepRaised: "Ingediend",
+    stepPickedUp: "Opgepakt",
+    stepPickedUpBy: (who) => `Opgepakt door ${who}`,
   },
 
   plan: {

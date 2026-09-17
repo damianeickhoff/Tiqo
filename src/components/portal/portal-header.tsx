@@ -85,7 +85,10 @@ export function PortalHeader({
           </span>
         </Link>
 
-        <nav className="flex items-center gap-0.5">
+        {/* On a phone the four sections are wider than the screen, so the row
+            scrolls rather than pushing the avatar off the edge. No scrollbar:
+            it would sit under the pills and the row is only 36px tall. */}
+        <nav className="-mx-1 flex min-w-0 flex-1 [scrollbar-width:none] items-center gap-0.5 overflow-x-auto px-1 [&::-webkit-scrollbar]:hidden">
           {links.map(({ href, label, count }) => {
             const active = href === "/portal" ? pathname === href : pathname.startsWith(href);
             return (
@@ -94,7 +97,7 @@ export function PortalHeader({
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-9 items-center gap-[7px] rounded-full px-3 text-base font-medium transition-colors sm:px-[13px]",
+                  "flex h-9 shrink-0 items-center gap-[7px] rounded-full px-3 text-base font-medium whitespace-nowrap transition-colors sm:px-[13px]",
                   active
                     ? "bg-surface text-text shadow-[var(--highlight)]"
                     : "text-text-2 hover:bg-surface-2 hover:text-text",
@@ -111,7 +114,7 @@ export function PortalHeader({
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2.5">
+        <div className="flex shrink-0 items-center gap-2.5">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}

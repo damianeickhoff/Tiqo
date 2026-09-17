@@ -42,21 +42,21 @@ export function ArticleFeedback({
   const helped = helpedThisMonth + (choice === true && mine !== true ? 1 : 0);
 
   return (
-    <div className="border-line mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-4">
+    <div className="border-line flex flex-wrap items-center gap-x-3 gap-y-2 border-t px-6 py-4 sm:px-7">
       <p className="text-text-2 text-base">{t.portal.didThisSolveIt}</p>
 
       <div className="flex items-center gap-1.5">
         <Choice on={choice === true} pending={pending} onClick={() => vote(true)}>
-          <ThumbsUp size={12} />
+          <ThumbsUp size={14} />
           {t.common.yes}
         </Choice>
         <Choice on={choice === false} pending={pending} onClick={() => vote(false)}>
-          <ThumbsDown size={12} />
+          <ThumbsDown size={14} />
           {t.portal.notReally}
         </Choice>
       </div>
 
-      <p className="text-text-3 ml-auto text-sm">
+      <p className="text-text-3 ml-auto text-[12.5px]">
         {choice !== null && choice !== mine ? (
           <span className="text-positive inline-flex items-center gap-1 font-medium">
             <Check size={12} strokeWidth={2.5} />
@@ -90,11 +90,11 @@ function Choice({
       aria-pressed={on}
       onClick={onClick}
       className={cn(
-        "inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-sm font-medium",
-        "transition-[background-color,border-color,color] disabled:opacity-60",
-        on
-          ? "border-brand/45 text-brand-deep bg-[var(--brand-tint)]"
-          : "border-line bg-surface text-text-2 hover:border-line-strong hover:text-text",
+        "inline-flex h-[34px] items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium",
+        "transition-[background-color,color] disabled:opacity-60",
+        // Round 12 asks for contrast by fill: the chosen answer is a brand
+        // wash, the other a plain well, and neither carries a border.
+        on ? "text-brand-deep bg-[var(--brand-tint)]" : "bg-surface-2 text-text-2 hover:text-text",
       )}
     >
       {children}

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, X } from "lucide-react";
+import { Check, Stamp, X } from "lucide-react";
 import type { ApprovalState } from "@/generated/prisma/enums";
 import { respondToApproval } from "@/lib/actions/approvals";
 import { isApprovalOverdue } from "@/lib/approvals";
 import { RefuseDialog } from "@/components/tickets/approvals";
-import { Button, FieldError } from "@/components/ui";
+import { FieldError } from "@/components/ui";
 import { Markdown } from "@/components/markdown";
 import { useDateFormat, useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,13 @@ export type PortalApproval = {
   /// be able to read the thing.
   description: string;
 };
+
+/// The two buttons on a decision. Round-12 pills rather than the desk's
+/// controls: this page is met by somebody who has never seen the desk.
+const PILL =
+  "inline-flex h-[42px] shrink-0 items-center gap-2 rounded-full px-[18px] text-[14px] " +
+  "font-semibold transition-[box-shadow,background-color,color] duration-150 " +
+  "disabled:pointer-events-none disabled:opacity-45";
 
 /**
  * Approving from the portal.
@@ -62,79 +69,111 @@ export function PortalApprovals({ approvals }: { approvals: PortalApproval[] }) 
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       {waiting.length === 0 ? (
-        <p className="border-line text-text-3 rounded-card text-md border border-dashed px-4 py-10 text-center">
+        <p className="pcard text-text-3 px-6 py-14 text-center text-[14.5px]">
           {t.portal.approvalsEmpty}
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="flex flex-col gap-4">
           {waiting.map((approval) => (
-            <li key={approval.id} className="callout-brand p-4">
-              <p className="text-text-3 font-mono text-xs">
-                {t.portal.approvalAbout(approval.reference)}
-              </p>
+            // The brand down the edge, the way the front page marks the one
+            // thing addressed to this person by name. A decision nobody has
+            // taken is the same kind of thing.
+            <li key={approval.id} className="pcard relative overflow-hidden pb-5">
+              <span aria-hidden className="bg-brand absolute inset-y-0 left-0 w-1.5" />
 
-              <p className="text-md mt-1.5 leading-snug font-semibold">{approval.title}</p>
-
-              <p className="text-text-2 mt-1 flex flex-wrap items-center gap-x-1.5 text-sm">
-                <span>
-                  {approval.phase ? t.approvals.phaseGate(approval.phase) : t.approvals.wholeTicket}
+              <div className="flex items-start gap-3.5 px-[26px] pt-[22px]">
+                <span
+                  aria-hidden
+                  className="bg-brand text-brand-fg flex size-10 shrink-0 items-center justify-center rounded-full"
+                >
+                  <Stamp size={17} />
                 </span>
-                {approval.askedBy ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span>{t.approvals.askedBy(approval.askedBy)}</span>
-                  </>
-                ) : null}
-                {approval.dueAt ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span
-                      className={cn(isApprovalOverdue(approval) && "text-negative font-semibold")}
-                    >
-                      {isApprovalOverdue(approval)
-                        ? t.approvals.overdue
-                        : t.approvals.dueOn(dateFormat.format(approval.dueAt))}
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-text-3 font-mono text-xs">
+                    {t.portal.approvalAbout(approval.reference)}
+                  </p>
+
+                  <p className="mt-0.5 text-[17px] leading-[1.25] font-semibold tracking-[-0.015em]">
+                    {approval.title}
+                  </p>
+
+                  <p className="text-text-3 mt-1 flex flex-wrap items-center gap-x-1.5 text-[13px]">
+                    <span>
+                      {approval.phase
+                        ? t.approvals.phaseGate(approval.phase)
+                        : t.approvals.wholeTicket}
                     </span>
-                  </>
-                ) : null}
-              </p>
+                    {approval.askedBy ? (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span>{t.approvals.askedBy(approval.askedBy)}</span>
+                      </>
+                    ) : null}
+                    {approval.dueAt ? (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span
+                          className={cn(
+                            isApprovalOverdue(approval) && "text-negative font-semibold",
+                          )}
+                        >
+                          {isApprovalOverdue(approval)
+                            ? t.approvals.overdue
+                            : t.approvals.dueOn(dateFormat.format(approval.dueAt))}
+                        </span>
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+              </div>
 
               {/* The change in its own words. Without it the question reads
                   "approve this reference", which is not a question. */}
               {approval.description ? (
-                <div className="border-line bg-surface rounded-control mt-3 border px-3 py-2.5">
-                  <p className="label mb-1">{t.portal.approvalRequest}</p>
+                <div className="bg-surface-2 mx-[26px] mt-4 rounded-xl px-4 py-3.5">
+                  <p className="label mb-2">{t.portal.approvalRequest}</p>
                   {/* Through the same renderer the desk reads it with. A
                       change written as a numbered list is a change whose steps
                       somebody is being asked to agree to, and showing it as
                       raw text with the marks still in it is showing them
                       something other than what was written. */}
-                  <Markdown text={approval.description} className="text-base" />
+                  <Markdown text={approval.description} className="text-[13.5px]" />
                 </div>
               ) : null}
 
               {approval.question ? (
-                <p className="text-md mt-3 leading-snug font-medium">{approval.question}</p>
+                <p className="mt-4 px-[26px] text-[14.5px] leading-snug">{approval.question}</p>
               ) : null}
 
-              <FieldError>{errors[approval.id] || undefined}</FieldError>
+              <div className="mt-4 px-[26px]">
+                <FieldError>{errors[approval.id] || undefined}</FieldError>
+              </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button type="button" disabled={pending} onClick={() => answer(approval.id, true)}>
-                  <Check size={14} strokeWidth={2.5} />
-                  {t.approvals.approve}
-                </Button>
-                <Button
+              <div className="mt-3 flex flex-wrap gap-2 px-[26px]">
+                <button
                   type="button"
-                  variant="danger"
+                  disabled={pending}
+                  onClick={() => answer(approval.id, true)}
+                  className={cn(PILL, "bg-brand hover:bg-brand-hover text-[var(--brand-fg)]")}
+                >
+                  <Check size={15} strokeWidth={2.5} />
+                  {t.approvals.approve}
+                </button>
+                <button
+                  type="button"
                   disabled={pending}
                   onClick={() => setRefusing(approval.id)}
+                  className={cn(
+                    PILL,
+                    "bg-surface text-text hover:bg-surface-2 border border-transparent font-medium shadow-[var(--highlight)]",
+                  )}
                 >
-                  <X size={14} strokeWidth={2.5} />
+                  <X size={15} strokeWidth={2.5} />
                   {t.approvals.refuse}
-                </Button>
+                </button>
               </div>
             </li>
           ))}
@@ -145,32 +184,42 @@ export function PortalApprovals({ approvals }: { approvals: PortalApproval[] }) 
           moment it is given leaves somebody wondering whether it landed. */}
       {answered.length > 0 ? (
         <section>
-          <h2 className="label mb-2">{t.portal.approvalsAnswered}</h2>
-          <ul className="card divide-line divide-y">
-            {answered.map((approval) => (
-              <li key={approval.id} className="px-4 py-3">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-text-3 font-mono text-xs">{approval.reference}</span>
-                  <span className="min-w-0 flex-1 truncate text-base">{approval.title}</span>
-                  <span
-                    className={cn(
-                      "flex shrink-0 items-center gap-1 text-xs font-medium",
-                      approval.state === "APPROVED" ? "text-positive" : "text-negative",
-                    )}
-                  >
-                    {approval.state === "APPROVED" ? (
-                      <Check size={12} strokeWidth={3} />
-                    ) : (
-                      <X size={12} strokeWidth={3} />
-                    )}
-                    {approval.state === "APPROVED" ? t.approvals.answer.yes : t.approvals.answer.no}
-                  </span>
-                </div>
-                {approval.comment ? (
-                  <p className="text-text-2 border-line mt-1.5 border-l-2 pl-2.5 text-sm leading-snug">
-                    {approval.comment}
-                  </p>
-                ) : null}
+          <h2 className="mt-8 mb-3.5 text-[20px] font-semibold tracking-[-0.02em]">
+            {t.portal.approvalsAnswered}
+          </h2>
+          <ul className="pcard">
+            {answered.map((approval, index) => (
+              <li
+                key={approval.id}
+                className={cn(
+                  "flex items-center gap-3.5 px-[22px] py-3.5 text-[13.5px]",
+                  index > 0 && "border-line border-t",
+                )}
+              >
+                <span className="text-text-3 hidden shrink-0 font-mono text-xs sm:block">
+                  {approval.reference}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">{approval.title}</span>
+                  {approval.comment ? (
+                    <span className="text-text-3 mt-px block truncate text-[12.5px]">
+                      “{approval.comment}”
+                    </span>
+                  ) : null}
+                </span>
+                <span
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 font-semibold",
+                    approval.state === "APPROVED" ? "text-positive" : "text-negative",
+                  )}
+                >
+                  {approval.state === "APPROVED" ? (
+                    <Check size={14} strokeWidth={3} />
+                  ) : (
+                    <X size={14} strokeWidth={3} />
+                  )}
+                  {approval.state === "APPROVED" ? t.approvals.answer.yes : t.approvals.answer.no}
+                </span>
               </li>
             ))}
           </ul>
