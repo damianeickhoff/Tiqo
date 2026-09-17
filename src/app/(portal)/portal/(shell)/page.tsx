@@ -14,7 +14,7 @@ import { heatOf, shortAge, shortSpan } from "@/lib/tickets";
 import { PortalHero, type HeroCards } from "@/components/portal/portal-hero";
 import { PortalShelf, type ShelfItem } from "@/components/portal/portal-shelf";
 import { PortalDeskCard } from "@/components/portal/portal-desk-card";
-import { AnswerRow, BandHeader, ServiceCard, Tile } from "@/components/portal/portal-pieces";
+import { ArticleCard, BandHeader, ServiceCard, Tile } from "@/components/portal/portal-pieces";
 import { ApprovalNudge, WaitingBanner } from "@/components/portal/waiting-banner";
 import { cn } from "@/lib/utils";
 
@@ -565,24 +565,28 @@ async function renderBand(
           href="/portal/answers"
           linkLabel={t.portal.allAnswers}
         />
-        <div className="pcard grid gap-0 p-1.5 sm:grid-cols-2">
+        {/* A card each rather than rows sharing one: an answer is a thing you
+            pick, like a form on the band above, and four of them on a single
+            surface read as a list of links instead. */}
+        <ul className="grid gap-4 sm:grid-cols-2">
           {articles.map((article) => (
-            <AnswerRow
-              key={article.id}
-              href={`/portal/kb/${article.slug}`}
-              title={article.title}
-              summary={article.summary}
-              meta={[
-                article.category?.name,
-                t.portal.minRead(
-                  Math.max(1, Math.round(article.body.trim().split(/\s+/).length / 200)),
-                ),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            />
+            <li key={article.id}>
+              <ArticleCard
+                href={`/portal/kb/${article.slug}`}
+                title={article.title}
+                summary={article.summary}
+                meta={[
+                  article.category?.name,
+                  t.portal.minRead(
+                    Math.max(1, Math.round(article.body.trim().split(/\s+/).length / 200)),
+                  ),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
     );
   }

@@ -140,7 +140,7 @@ export function AnswerRow({
   return (
     <Link
       href={href}
-      className="border-line hover:bg-surface-2 flex gap-3.5 rounded-xl border px-[18px] py-4 transition-colors"
+      className="hover:bg-surface-2 flex gap-3.5 rounded-xl px-[18px] py-4 transition-colors"
     >
       <span
         aria-hidden
