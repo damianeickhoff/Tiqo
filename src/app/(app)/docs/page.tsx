@@ -206,6 +206,13 @@ export default async function DocsPage() {
                               >
                                 {space.key.slice(0, 3)}
                               </span>
+                              {/* The whole width of the card. The shelf's
+                                  state used to sit on this line and squeezed
+                                  it hard enough that four cards across read
+                                  "The whole desk · 3 pa…" — so it has moved
+                                  down to the foot, where the other thing that
+                                  is true of the shelf rather than of its name
+                                  already lives. */}
                               <span className="min-w-0 flex-1">
                                 {/* Wrapped rather than cut: a shelf is known
                                     by its name, and "How the de…" is not one. */}
@@ -217,15 +224,6 @@ export default async function DocsPage() {
                                   {t.docs.pages(pages.length)}
                                 </span>
                               </span>
-                              {behind > 0 ? (
-                                <span className="text-negative shrink-0 rounded-full bg-[color-mix(in_oklab,var(--negative)_12%,transparent)] px-2 py-0.5 text-xs font-medium">
-                                  {t.docs.staleN(behind)}
-                                </span>
-                              ) : (
-                                <span className="text-positive shrink-0 text-xs font-medium">
-                                  {t.docs.allCurrent}
-                                </span>
-                              )}
                             </div>
 
                             {space.description ? (
@@ -236,10 +234,21 @@ export default async function DocsPage() {
                               <span className="flex-1" />
                             )}
 
-                            <p className="text-text-3 text-sm">
-                              {touched
-                                ? t.docs.updatedWhen(when.format(touched))
-                                : t.docs.emptyBody}
+                            <p className="text-text-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                              <span className="min-w-0 truncate">
+                                {touched
+                                  ? t.docs.updatedWhen(when.format(touched))
+                                  : t.docs.emptyBody}
+                              </span>
+                              {behind > 0 ? (
+                                <span className="text-negative ml-auto shrink-0 rounded-full bg-[color-mix(in_oklab,var(--negative)_12%,transparent)] px-2 py-0.5 text-xs font-medium">
+                                  {t.docs.staleN(behind)}
+                                </span>
+                              ) : (
+                                <span className="text-positive ml-auto shrink-0 text-xs font-medium">
+                                  {t.docs.allCurrent}
+                                </span>
+                              )}
                             </p>
                           </Card>
                         </Link>

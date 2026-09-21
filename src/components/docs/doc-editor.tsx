@@ -2,10 +2,11 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Hash, Loader2, Pencil } from "lucide-react";
+import { Check, ExternalLink, Hash, Loader2, Pencil } from "lucide-react";
 import { saveDoc } from "@/lib/actions/docs";
 import { Markdown } from "@/components/markdown";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import { DocOutline, type Heading } from "@/components/docs/doc-outline";
 import { AttachmentsProvider, DropZone, useAttachments } from "@/components/tickets/file-picker";
 import { Button, FieldError, FormError, Input } from "@/components/ui";
 import { useMessages } from "@/components/shell/instance-context";
@@ -32,6 +33,9 @@ type Draft = { title: string; summary: string; body: string };
  */
 export function DocArticle({
   docId,
+  /// This page's own address. Only used to open it in a second tab when
+  /// somebody else's save has arrived under an open draft.
+  docPath,
   title,
   summary,
   body,
@@ -50,6 +54,13 @@ export function DocArticle({
   /// Whether both rails are away. The words then get more of the width they
   /// have been given, which is the whole reason somebody turned it on.
   reading = false,
+  /// The page's own headings, floated over the words while reading. Here
+  /// rather than on the rail because it is the one thing beside the page that
+  /// is used *while* reading it — and here rather than in the page beneath,
+  /// because this component is the one that knows whether the words on screen
+  /// are the page or a draft of it. Writing takes it away: an index of
+  /// headings that are being rewritten is worse than no index.
+  outline = [],
   /// Drawn beside the title when the page is not being edited: the review
   /// state, who owns it, when it was last touched. Hidden while writing,
   /// where it is noise around the thing being worked on.
@@ -59,6 +70,7 @@ export function DocArticle({
   below,
 }: {
   docId: string;
+  docPath: string;
   title: string;
   summary: string | null;
   body: string;
@@ -75,6 +87,7 @@ export function DocArticle({
   actions?: React.ReactNode;
   menu?: React.ReactNode;
   reading?: boolean;
+  outline?: Heading[];
   meta?: React.ReactNode;
   below?: React.ReactNode;
 }) {
@@ -118,6 +131,9 @@ export function DocArticle({
     }
   }
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Somebody else saved while this draft was open. Held apart from the other
+  // form errors because it is the only one with a way out to offer.
+  const [conflict, setConflict] = useState(false);
   const [flash, setFlash] = useState(false);
   const [pending, startTransition] = useTransition();
   const form = useRef<HTMLFormElement>(null);
@@ -136,17 +152,16 @@ export function DocArticle({
     setNote("");
     setReview(reviewByDefault);
     setErrors({});
+    setConflict(false);
     setEditing(false);
   }
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
+  function send(data: FormData) {
     startTransition(async () => {
       const result = await saveDoc(docId, data);
       if (!result.ok) {
         setErrors(result.errors);
+        setConflict("conflict" in result && result.conflict === true);
         return;
       }
       setCommitted(draft);
@@ -154,6 +169,7 @@ export function DocArticle({
       setNote("");
       setReview(reviewByDefault);
       setErrors({});
+      setConflict(false);
       setEditing(false);
       setFlash(true);
       setTimeout(() => setFlash(false), 2400);
@@ -162,6 +178,27 @@ export function DocArticle({
       // somebody came from rather than to the name it used to have.
       if (result.href) router.replace(result.href);
     });
+  }
+
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    send(new FormData(event.currentTarget));
+  }
+
+  /**
+   * Save over the version that arrived while this draft was open.
+   *
+   * Dropping `loadedAt` is what tells the server to stop checking, and it is
+   * safe to offer because a save keeps what it replaced: the other version
+   * becomes the newest entry in the history rather than disappearing. The
+   * guard exists so nobody does this without being told, not so that nobody
+   * can do it.
+   */
+  function saveAnyway() {
+    if (!form.current) return;
+    const data = new FormData(form.current);
+    data.delete("loadedAt");
+    send(data);
   }
 
   if (!editing) {
@@ -187,12 +224,24 @@ export function DocArticle({
           </span>
         </div>
 
-        <div className="px-5 py-6 lg:px-8">
+        {/* Positioned, so the index can hover in the corner of the page for
+            the whole of its length rather than scrolling off the top of it. */}
+        <div className="relative px-5 py-6 lg:px-8">
+          <DocOutline headings={outline} />
+
           {/* Wide enough to hold a table and a code sample without folding
               them, and no wider: a line of prose that runs the whole of a
               1920 screen is a line nobody finds the start of again. Reading
               mode, which has just taken both rails away, gets the extra. */}
-          <article className={reading ? "max-w-[72rem]" : "max-w-[60rem]"}>
+          <article
+            className={cn(
+              // The gutter the floating index stands in, given up by the words
+              // rather than taken from them: a mark hovering over the end of
+              // every line is a mark covering the end of every line.
+              outline.length > 1 && "sm:pr-12",
+              reading ? "max-w-[72rem]" : "max-w-[60rem]",
+            )}
+          >
             <header>
               <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em] text-balance">
                 {committed.title}
@@ -237,6 +286,30 @@ export function DocArticle({
 
           <div className="space-y-3 px-5 py-5 lg:px-8">
             <FormError>{errors.form}</FormError>
+            {conflict ? (
+              <div className="flex flex-wrap items-center gap-2">
+                {/* A new tab, because reading the other version must not cost
+                    this draft — which is exactly what made the refusal a dead
+                    end before. */}
+                <a
+                  href={docPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand-deep inline-flex items-center gap-1 text-base font-medium hover:underline"
+                >
+                  <ExternalLink size={13} />
+                  {t.docs.openTheirs}
+                </a>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={saveAnyway}
+                  className="text-text-3 hover:text-text rounded-full px-2 py-1 text-base font-medium transition-colors disabled:opacity-50"
+                >
+                  {t.docs.saveAnyway}
+                </button>
+              </div>
+            ) : null}
             <input type="hidden" name="loadedAt" value={version} />
 
             <div>

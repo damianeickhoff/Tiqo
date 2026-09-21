@@ -21,7 +21,16 @@ const AGAIN = [0, 7, 14, 30];
  * different from one that warns on the day and repeats weekly, and choosing
  * them one field at a time hides that.
  */
-export function DocDefaultsForm({ defaults }: { defaults: DocReviewDefaults }) {
+export function DocDefaultsForm({
+  defaults,
+  /// Whether anything can call the poll route at all. Read on the server, from
+  /// the environment, because the four settings below are promises this app
+  /// keeps only when something outside it is running on a clock.
+  polled,
+}: {
+  defaults: DocReviewDefaults;
+  polled: boolean;
+}) {
   const t = useMessages();
   const draft = useDraft(defaults);
 
@@ -31,6 +40,18 @@ export function DocDefaultsForm({ defaults }: { defaults: DocReviewDefaults }) {
           rule itself was configurable in three places and stated in none, so
           the chasing below read as a schedule with no subject. */}
       <p className="text-text-2 text-sm leading-relaxed">{t.docs.staleExplainer}</p>
+
+      {/* Where the notices actually come from. Configuring a reminder rhythm
+          on an instance nothing is polling produces no reminder at all, and
+          the only place that was written down was the mail section of the
+          README — which is not where anybody setting this up would look. */}
+      {polled ? (
+        <p className="text-text-3 text-sm leading-relaxed">{t.docs.remindersNeedPoll}</p>
+      ) : (
+        <p className="callout-brand text-brand-deep px-3 py-2 text-sm leading-relaxed">
+          {t.docs.remindersNoPoll}
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t.docs.remindOwner} hint={t.docs.remindOwnerHint} htmlFor="doc-remind">

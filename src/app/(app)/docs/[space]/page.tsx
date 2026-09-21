@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { canEditDocs, canManageDocs } from "@/lib/permissions";
 import { dateLocaleOf, getMessages, getSettings } from "@/lib/settings";
 import {
+  ancestorsOf,
   daysUntilReview,
   docHref,
   excerptOf,
@@ -72,6 +73,8 @@ export default async function SpacePage({
             slug: true,
             title: true,
             summary: true,
+            parentId: true,
+            position: true,
             updatedAt: true,
             archivedAt: true,
             reviewDays: true,
@@ -134,6 +137,23 @@ export default async function SpacePage({
       : [],
   );
   const when = new Intl.DateTimeFormat(dateLocaleOf(settings), { day: "numeric", month: "short" });
+
+  // Where each page sits. The shelf lists the whole tree flat — deliberately,
+  // because a runbook's sub-pages go stale on their own and belong in these
+  // lists — but a card that says only "Restarting the concentrator" reads as a
+  // page of its own, and the rail beside it is meanwhile showing it two levels
+  // down. So each one carries the chain above it.
+  const under = new Map(
+    space.docs
+      .filter((doc) => doc.parentId)
+      .map((doc) => [
+        doc.id,
+        ancestorsOf(space.docs, doc.id)
+          .slice(0, -1)
+          .map((step) => step.title)
+          .join(" › "),
+      ]),
+  );
 
   return (
     <>
@@ -207,12 +227,19 @@ export default async function SpacePage({
                     buried inside a link. */}
                 <Card interactive className="relative flex h-full flex-col gap-2 px-4 py-3.5">
                   <div className="flex items-start gap-2">
-                    <Link
-                      href={docHref(space.key, doc.slug)}
-                      className="text-md hover:text-brand-deep min-w-0 flex-1 font-semibold transition-colors after:absolute after:inset-0"
-                    >
-                      {doc.title}
-                    </Link>
+                    <span className="min-w-0 flex-1">
+                      {under.has(doc.id) ? (
+                        <span className="text-text-3 block truncate text-xs">
+                          {under.get(doc.id)}
+                        </span>
+                      ) : null}
+                      <Link
+                        href={docHref(space.key, doc.slug)}
+                        className="text-md hover:text-brand-deep block font-semibold transition-colors after:absolute after:inset-0"
+                      >
+                        {doc.title}
+                      </Link>
+                    </span>
                     <span className="relative z-10 flex">
                       <PinButton docId={doc.id} pinned={doc.stars.length > 0} variant="mark" />
                     </span>
@@ -257,6 +284,9 @@ export default async function SpacePage({
                     href={docHref(space.key, doc.slug)}
                     className="hover:text-brand-deep block truncate text-base font-medium transition-colors after:absolute after:inset-0"
                   >
+                    {under.has(doc.id) ? (
+                      <span className="text-text-3 font-normal">{under.get(doc.id)} › </span>
+                    ) : null}
                     {doc.title}
                   </Link>
                   <span className="text-text-3 block truncate text-sm">

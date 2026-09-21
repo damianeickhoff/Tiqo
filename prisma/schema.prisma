@@ -1928,10 +1928,17 @@ model Doc {
 
   createdById String?
   createdBy   User?    @relation("DocAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  /// Who last wrote the *words*, and when. Deliberately not `@updatedAt`: a
+  /// page is confirmed, snoozed, re-owned, moved and archived far more often
+  /// than it is rewritten, and a clock Prisma touches on every write would
+  /// make all of those read as edits — "Updated today by Ada" on a page
+  /// nobody has changed, and a "recently updated" list that fills up with
+  /// pages somebody merely ticked. So the two are set by hand, by the two
+  /// actions that actually replace the text.
   updatedById String?
   updatedBy   User?    @relation("DocEditor", fields: [updatedById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 
   @@unique([spaceId, slug])
   @@index([spaceId, parentId, position])
@@ -1946,6 +1953,11 @@ model DocRevision {
   docId    String
   doc      Doc     @relation(fields: [docId], references: [id], onDelete: Cascade)
   title    String
+  /// The sentence that stands in for the page in every list, every search
+  /// result and every portal answer made from it. Kept here with the words
+  /// because it is one of them: without it, rewriting the summary changed the
+  /// one line most people ever read and left no trace anywhere.
+  summary  String?
   body     String
   note     String?
   authorId String?

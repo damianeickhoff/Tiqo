@@ -1417,6 +1417,7 @@ export const nl: Messages = {
     /* Planken. */
     spaces: "Ruimtes",
     space: "Ruimte",
+    browseShelf: "Pagina's op deze plank",
     allSpaces: "Alle ruimtes",
     newSpace: "Nieuwe ruimte",
     addSpace: "Ruimte toevoegen",
@@ -1534,6 +1535,8 @@ export const nl: Messages = {
     edit: "Bewerken",
     editing: "Bezig met bewerken",
     editingUnsaved: "Bezig met bewerken · niet opgeslagen",
+    openTheirs: "Hun versie lezen",
+    saveAnyway: "Toch de mijne opslaan",
     hashHint: "Typ # om naar een ticket, een middel of een pagina te verwijzen",
     countsAsReview: "Telt als herziening",
     note: "Wat er veranderd is",
@@ -1560,6 +1563,10 @@ export const nl: Messages = {
     staleAfterDays: (days: number) => `${days} dagen zonder bevestiging`,
     staleExplainer:
       "Een pagina is verouderd zodra het interval is verstreken sinds de laatste bevestiging. Het interval komt van de ruimte waar de pagina op staat en is per pagina aan te passen.",
+    remindersNeedPoll:
+      "Herinneringen gaan uit zodra de poll-route draait. Die moet op een timer staan — een cron-regel, een systemd-timer — anders wordt hier nooit iets verstuurd; de README heeft de regel om over te nemen.",
+    remindersNoPoll:
+      "Niets pollt deze installatie, dus er kan geen herinnering uitgaan. Zet MAIL_POLL_TOKEN en zet de poll-route op een timer; de README heeft de regel om over te nemen. De markeringen op de pagina's zelf werken sowieso.",
     neverStale: "Verloopt nooit",
     reviewDays: (days: number) => `${days} dagen`,
     dueIn: (days: number) => (days === 1 ? "Morgen nalopen" : `Over ${days} dagen nalopen`),
@@ -1615,7 +1622,7 @@ export const nl: Messages = {
     republishBlurb: "Overschrijft het antwoord met wat deze pagina nu zegt.",
     publishedAs: "Op het portaal",
     publishedWhen: (when: string) => `Gepubliceerd ${when}`,
-    underSection: (section: string, when: string) => `Onder ${section} · ${when.toLowerCase()}`,
+    underSection: (section: string, when: string) => `Onder ${section} · gepubliceerd ${when}`,
     answerBehind: (count: number) =>
       count === 1
         ? "Deze pagina is sindsdien gewijzigd — het antwoord loopt 1 versie achter."
@@ -2731,7 +2738,7 @@ export const nl: Messages = {
     docGone: "Die pagina bestaat niet meer.",
     docArchived: "Die pagina is gearchiveerd. Haal hem uit het archief om hem te wijzigen.",
     docMovedOn: (who: string) =>
-      `${who} heeft deze pagina opgeslagen terwijl jij aan het schrijven was. Open hem opnieuw en voeg je wijzigingen toe — nu opslaan overschrijft die van ${who}.`,
+      `${who} heeft deze pagina opgeslagen terwijl jij aan het schrijven was. Lees die versie voordat je kiest — die van jou overschrijft hem op de pagina, maar hij blijft in de geschiedenis staan.`,
     spaceGone: "Die ruimte bestaat niet meer.",
     revisionGone: "Die versie bestaat niet meer.",
     nameSpace: "Geef de ruimte een naam.",
