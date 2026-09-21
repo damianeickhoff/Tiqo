@@ -12,12 +12,12 @@ import { getMessages } from "@/lib/settings";
 import { readAttribute, type FieldSpec } from "@/lib/cmdb";
 import { ciWhere } from "@/lib/ci-filter";
 import { expiryWindow } from "@/lib/ci-expiry";
-import { readViews } from "@/lib/ci-views";
+import { isBuiltInView, readViews } from "@/lib/ci-views";
 import { CI_MODE_COOKIE, readCiMode } from "@/lib/ci-mode";
 import { ALL_TYPES, attrKeyOf, availableColumns, readColumns, unionFields } from "@/lib/ci-columns";
 import { PageHeader } from "@/components/shell/page-header";
 import { CiFilterBar } from "@/components/cmdb/ci-filter-bar";
-import { CiTypeSidebar } from "@/components/cmdb/ci-type-sidebar";
+import { CiViews } from "@/components/cmdb/ci-views";
 import {
   CiTable,
   ciFieldOf,
@@ -353,19 +353,52 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
     return `/cmdb?${query.toString()}`;
   };
 
-  return (
-    /* The register fills the desk rather than ending where its rows do. Three
-       columns that are each as tall as the screen — the types, the list, the
-       pane — is what lets the sidebar's lifecycle strip sit at the foot of the
-       sidebar instead of halfway up a short page, and what keeps the pane still
-       while forty rows are read past it. Only above `lg`: on a phone the three
-       are stacked and the page scrolls as one. */
-    <div className="flex min-h-full flex-col lg:h-full lg:min-h-0">
-      <PageHeader title={t.cmdb.title} />
+  /** What is being stood in, for the line under the title: a kind of thing, one
+   *  of the questions the register ships with, or the whole estate. */
+  const standingLabel = typeKey
+    ? (types.find((type) => type.key === typeKey)?.name ?? typeKey)
+    : isBuiltInView(view)
+      ? t.cmdb.builtInView[view]
+      : t.cmdb.allTypes;
 
-      <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
-        <Suspense fallback={<div className="bg-bg shrink-0 lg:w-[240px]" />}>
-          <CiTypeSidebar
+  return (
+    // The same frame as the queue and the list of projects: the page is exactly
+    // the height of the work area, the head and the views column stay on the
+    // ground, and the sheet is the register and nothing else — the filters that
+    // narrow it are its own header row. The pane is a card on the ground beside
+    // it. Only from `lg`: below it the whole desk is one scrolling column and
+    // the register is a part of it.
+    <div className="flex flex-col lg:h-[calc(100dvh-var(--bar))] lg:min-h-0">
+      <PageHeader
+        title={t.cmdb.title}
+        showBlurb
+        actions={
+          <>
+            <CiColumnsPicker
+              typeKey={viewKey}
+              chosen={columns}
+              available={available.map((id) => ({ id, label: labelFor(id, fields, t) }))}
+            />
+            <a
+              href={`/api/cmdb/export${exportQuery ? `?${exportQuery}` : ""}`}
+              title={t.cmdb.exportHint}
+              className={buttonClass("outline", "sm")}
+            >
+              <Download size={13} />
+              {t.cmdb.exportCsv}
+            </a>
+            {canEditCis(user) ? (
+              <NewCiButton types={types.map((type) => ({ id: type.id, name: type.name }))} />
+            ) : null}
+          </>
+        }
+      >
+        <span className="tnum font-mono text-xs">{`${standingLabel} · ${total}`}</span>
+      </PageHeader>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-2 pb-5 lg:flex-row lg:gap-5 lg:pr-5">
+        <Suspense fallback={<div className="lg:w-[200px]" />}>
+          <CiViews
             types={types.map((type) => ({
               key: type.key,
               name: type.name,
@@ -382,171 +415,142 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
           />
         </Suspense>
 
-        <div className="flex min-w-0 flex-1 lg:min-h-0">
-          {/* The register itself is the one object on this page — one sheet.
-              The types beside it and the pane are on the ground. */}
-          <div className="sheet flex min-w-0 flex-1 flex-col lg:min-h-0">
-            <Suspense fallback={<div className="bg-surface h-[61px] shrink-0" />}>
-              <CiFilterBar
-                teams={teams.map((group) => ({ id: group.id, label: group.name }))}
-                shown={t.cmdb.shown(from, to, total)}
-                modeToggle={<CiViewMode mode={mode} />}
-                columnsPicker={
-                  <CiColumnsPicker
-                    typeKey={viewKey}
-                    chosen={columns}
-                    available={available.map((id) => ({ id, label: labelFor(id, fields, t) }))}
-                  />
-                }
-                exportButton={
-                  <a
-                    href={`/api/cmdb/export${exportQuery ? `?${exportQuery}` : ""}`}
-                    title={t.cmdb.exportHint}
-                    className={buttonClass("outline", "sm")}
-                  >
-                    <Download size={13} />
-                    {t.cmdb.exportCsv}
-                  </a>
-                }
-                addButton={
-                  canEditCis(user) ? (
-                    <NewCiButton types={types.map((type) => ({ id: type.id, name: type.name }))} />
-                  ) : null
-                }
-              />
-            </Suspense>
+        <div className="sheet mx-3 flex min-w-0 flex-col overflow-hidden lg:mx-0 lg:min-h-0 lg:flex-1">
+          <Suspense fallback={<div className="h-[52px]" />}>
+            <CiFilterBar
+              teams={teams.map((group) => ({ id: group.id, label: group.name }))}
+              modeToggle={<CiViewMode mode={mode} />}
+            />
+          </Suspense>
 
-            {/* The rows are the only part that scrolls, sideways as well as
-                down: a column set wider than the pane is a register to push
-                along, not one with columns quietly left out of it. */}
-            <div className="min-w-0 max-lg:overflow-x-auto lg:min-h-0 lg:flex-1 lg:overflow-auto">
-              {items.length === 0 ? (
-                <div className="px-5 py-6 lg:px-6">
-                  {/* Two different emptinesses with two different answers: a
+          {/* The rows are the only part that scrolls, sideways as well as
+              down: a column set wider than the pane is a register to push
+              along, not one with columns quietly left out of it. */}
+          <div className="min-w-0 max-lg:overflow-x-auto lg:min-h-0 lg:flex-1 lg:overflow-auto">
+            {items.length === 0 ? (
+              <div className="px-5 py-6 lg:px-6">
+                {/* Two different emptinesses with two different answers: a
                     register nobody has filled in yet wants a way to start, and a
                     filter matching nothing wants to be widened. One state for
                     both told half the people the wrong thing. */}
-                  {filtered || view ? (
-                    <EmptyState title={t.cmdb.filteredTitle} body={t.cmdb.filteredBody} />
-                  ) : (
-                    <EmptyState
-                      title={t.cmdb.emptyTitle}
-                      body={t.cmdb.emptyBody}
-                      action={
-                        canEditCis(user) ? (
-                          <div className="flex flex-wrap items-center justify-center gap-2">
-                            <NewCiButton
-                              types={types.map((type) => ({ id: type.id, name: type.name }))}
-                            />
-                            {canManageCis(user) ? (
-                              <Link href="/settings/cmdb" className={buttonClass("outline", "sm")}>
-                                {t.cmdb.importTitle}
-                              </Link>
-                            ) : null}
-                          </div>
-                        ) : undefined
-                      }
-                    />
-                  )}
-                </div>
-              ) : (
-                <CiSelectionProvider>
-                  {/* Only for the people who could act on a selection. Everyone else
+                {filtered || view ? (
+                  <EmptyState title={t.cmdb.filteredTitle} body={t.cmdb.filteredBody} />
+                ) : (
+                  <EmptyState
+                    title={t.cmdb.emptyTitle}
+                    body={t.cmdb.emptyBody}
+                    action={
+                      canEditCis(user) ? (
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                          <NewCiButton
+                            types={types.map((type) => ({ id: type.id, name: type.name }))}
+                          />
+                          {canManageCis(user) ? (
+                            <Link href="/settings/cmdb" className={buttonClass("outline", "sm")}>
+                              {t.cmdb.importTitle}
+                            </Link>
+                          ) : null}
+                        </div>
+                      ) : undefined
+                    }
+                  />
+                )}
+              </div>
+            ) : (
+              <CiSelectionProvider>
+                {/* Only for the people who could act on a selection. Everyone else
                     gets the same table with no tick column, because the
                     checkboxes draw nothing outside the provider. */}
-                  {canEditCis(user) ? (
-                    <CiBulkBar teams={teams.map((group) => ({ id: group.id, name: group.name }))} />
-                  ) : null}
+                {canEditCis(user) ? (
+                  <CiBulkBar teams={teams.map((group) => ({ id: group.id, name: group.name }))} />
+                ) : null}
 
-                  {split ? (
-                    <CiSplitTable
-                      items={rows.map((item) => ({
-                        id: item.id,
-                        name: item.name,
-                        lifecycle: item.lifecycle,
-                        attributes: item.attributes,
-                        typeId: item.typeId,
-                        type: item.type,
-                        team: item.team,
-                        openTickets: item._count.tickets,
-                        subtitle: subtitleOf(item, subtitleFields),
-                      }))}
-                      storeKey={columnStore}
-                      columns={columns}
-                      fields={fields}
-                      fieldsByType={fieldsByType}
-                      lookups={lookups}
-                      peek={peek}
-                      rowHref={rowHref}
-                    />
-                  ) : (
-                    <CiTable
-                      items={rows.map((item) => ({
-                        id: item.id,
-                        name: item.name,
-                        lifecycle: item.lifecycle,
-                        attributes: item.attributes,
-                        typeId: item.typeId,
-                        type: item.type,
-                        team: item.team,
-                        openTickets: item._count.tickets,
-                      }))}
-                      storeKey={columnStore}
-                      columns={columns}
-                      fields={fields}
-                      fieldsByType={fieldsByType}
-                      lookups={lookups}
-                      sort={sort}
-                      dir={dir}
-                      sortHref={(next) => {
-                        const query = new URLSearchParams();
-                        for (const [key, value] of Object.entries(params)) {
-                          const first = one(value);
-                          if (first && key !== "page" && key !== "sort" && key !== "dir") {
-                            query.set(key, first);
-                          }
+                {split ? (
+                  <CiSplitTable
+                    items={rows.map((item) => ({
+                      id: item.id,
+                      name: item.name,
+                      lifecycle: item.lifecycle,
+                      attributes: item.attributes,
+                      typeId: item.typeId,
+                      type: item.type,
+                      team: item.team,
+                      openTickets: item._count.tickets,
+                      subtitle: subtitleOf(item, subtitleFields),
+                    }))}
+                    storeKey={columnStore}
+                    columns={columns}
+                    fields={fields}
+                    fieldsByType={fieldsByType}
+                    lookups={lookups}
+                    peek={peek}
+                    rowHref={rowHref}
+                  />
+                ) : (
+                  <CiTable
+                    items={rows.map((item) => ({
+                      id: item.id,
+                      name: item.name,
+                      lifecycle: item.lifecycle,
+                      attributes: item.attributes,
+                      typeId: item.typeId,
+                      type: item.type,
+                      team: item.team,
+                      openTickets: item._count.tickets,
+                    }))}
+                    storeKey={columnStore}
+                    columns={columns}
+                    fields={fields}
+                    fieldsByType={fieldsByType}
+                    lookups={lookups}
+                    sort={sort}
+                    dir={dir}
+                    sortHref={(next) => {
+                      const query = new URLSearchParams();
+                      for (const [key, value] of Object.entries(params)) {
+                        const first = one(value);
+                        if (first && key !== "page" && key !== "sort" && key !== "dir") {
+                          query.set(key, first);
                         }
-                        query.set("sort", next);
-                        // Pressing the column you are already sorted by turns it round;
-                        // pressing a different one starts it the way people expect that
-                        // column to read.
-                        if (next === sort && dir === "asc") query.set("dir", "desc");
-                        return `/cmdb?${query.toString()}`;
-                      }}
-                    />
-                  )}
-                </CiSelectionProvider>
-              )}
-            </div>
-
-            {pages > 1 ? (
-              <nav className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 lg:px-6">
-                <Step
-                  params={params}
-                  page={page - 1}
-                  disabled={page === 1}
-                  label={t.tickets.prev}
-                />
-                <p className="text-text-3 tnum text-base">{`${page} / ${pages}`}</p>
-                <Step
-                  params={params}
-                  page={page + 1}
-                  disabled={page === pages}
-                  label={t.tickets.next}
-                />
-              </nav>
-            ) : null}
+                      }
+                      query.set("sort", next);
+                      // Pressing the column you are already sorted by turns it round;
+                      // pressing a different one starts it the way people expect that
+                      // column to read.
+                      if (next === sort && dir === "asc") query.set("dir", "desc");
+                      return `/cmdb?${query.toString()}`;
+                    }}
+                  />
+                )}
+              </CiSelectionProvider>
+            )}
           </div>
 
-          {split && peek ? (
-            <>
-              <CiPeekKeys ids={rows.map((item) => item.id)} current={peek} />
-              <Suspense key={peek} fallback={<div className="bg-bg hidden w-[400px] xl:block" />}>
-                <CiPeek id={peek} user={user} />
-              </Suspense>
-            </>
-          ) : null}
+          {/* Inside the sheet but outside the scroller, like the queue's: the
+              range is a fact about the page you are on rather than about the
+              view you are in, which is what the head says. */}
+          <nav className="border-line text-text-3 flex shrink-0 items-center gap-3 border-t px-4 py-2 text-sm">
+            <p className="tnum">{t.cmdb.shown(from, to, total)}</p>
+            <div className="ml-auto flex items-center gap-2">
+              <Step params={params} page={page - 1} disabled={page === 1} label={t.tickets.prev} />
+              <Step
+                params={params}
+                page={page + 1}
+                disabled={page === pages}
+                label={t.tickets.next}
+              />
+            </div>
+          </nav>
         </div>
+
+        {split && peek ? (
+          <>
+            <CiPeekKeys ids={rows.map((item) => item.id)} current={peek} />
+            <Suspense key={peek} fallback={<div className="hidden w-[340px] xl:block" />}>
+              <CiPeek id={peek} user={user} />
+            </Suspense>
+          </>
+        ) : null}
       </div>
     </div>
   );
@@ -618,7 +622,7 @@ function Step({
 }) {
   if (disabled) {
     return (
-      <span className="text-text-3 rounded-control h-9 border border-transparent px-3 text-base leading-9 opacity-50 shadow-[var(--highlight)]">
+      <span className="text-text-3 rounded-control h-8 border border-transparent px-2.5 text-sm leading-8 opacity-50 shadow-[var(--highlight)]">
         {label}
       </span>
     );
@@ -633,10 +637,7 @@ function Step({
   const search = query.toString();
 
   return (
-    <Link
-      href={search ? `/cmdb?${search}` : "/cmdb"}
-      className="rounded-control h-9 border border-transparent px-3 text-base leading-9 shadow-[var(--highlight)] transition-colors"
-    >
+    <Link href={search ? `/cmdb?${search}` : "/cmdb"} className={buttonClass("outline", "sm")}>
       {label}
     </Link>
   );

@@ -44,25 +44,30 @@ export type ViewGroup = { id: string; heading?: string; items: ViewItem[] };
  *   save     — the quiet last row with a plus, when the page can keep views.
  *   children — drawn after the save row; where a naming form goes while it is
  *              open (pass `save` as undefined for as long as it is).
+ *   footer   — pinned to the foot of the column, for a page that has one fact
+ *              about the whole list rather than about any one view. Hidden
+ *              below `lg`, where the column is a chip strip with no foot.
  */
 export function ViewsColumn({
   label,
   groups,
   save,
   children,
+  footer,
   className,
 }: {
   label: string;
   groups: ViewGroup[];
   save?: { label: string; onSelect: () => void };
   children?: React.ReactNode;
+  footer?: React.ReactNode;
   className?: string;
 }) {
   return (
     <nav
       aria-label={label}
       className={cn(
-        "shrink-0 max-lg:overflow-x-auto lg:w-[200px] lg:overflow-y-auto lg:pt-1 lg:pl-6",
+        "shrink-0 max-lg:overflow-x-auto lg:flex lg:w-[200px] lg:flex-col lg:overflow-y-auto lg:pt-1 lg:pl-6",
         className,
       )}
     >
@@ -91,6 +96,8 @@ export function ViewsColumn({
 
         {children}
       </div>
+
+      {footer ? <div className="mt-auto pt-4 max-lg:hidden">{footer}</div> : null}
     </nav>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Flag, Inbox, Layers, Star, UserRound, Users, X } from "lucide-react";
 import { ViewsColumn, type ViewGroup } from "@/components/shell/views-column";
+import { MAX_VIEW_NAME, QUEUE_VIEWS_STORE, useSavedViews } from "@/components/shell/saved-views";
 import { Input } from "@/components/ui";
 import { useMessages } from "@/components/shell/instance-context";
 
@@ -55,93 +56,6 @@ const KEYS = [
   "q",
 ] as const;
 
-/** A view somebody kept: what they called it, and what it was showing. */
-type SavedView = { name: string; query: string };
-
-/**
- * Where the kept views live.
- *
- * The browser, for now: the register keeps its views on the account, and the
- * queue has no column to put them in yet — a migration is a decision of its
- * own. The shape is the register's, so moving them to the account later is a
- * change of store and not of meaning.
- */
-const STORE = "tiqo.queue.views";
-const LIMIT = 20;
-const MAX_NAME = 40;
-
-const NONE: SavedView[] = [];
-
-/**
- * What is stored, read defensively.
- *
- * It is text somebody could have written anything into, and a queue that will
- * not draw because a kept view is malformed is worse than a view that quietly
- * is not there.
- */
-function parse(raw: string): SavedView[] {
-  try {
-    const rows = JSON.parse(raw) as unknown;
-    if (!Array.isArray(rows)) return NONE;
-    const views: SavedView[] = [];
-    for (const row of rows) {
-      if (!row || typeof row !== "object") continue;
-      const { name, query } = row as Record<string, unknown>;
-      if (typeof name !== "string" || typeof query !== "string") continue;
-      const trimmed = name.trim().slice(0, MAX_NAME);
-      if (!trimmed || views.some((view) => view.name === trimmed)) continue;
-      views.push({ name: trimmed, query });
-    }
-    return views.slice(0, LIMIT);
-  } catch {
-    return NONE;
-  }
-}
-
-/** The last text read and what it parsed to, so a snapshot is the same list
- *  until the text itself changes — a new array every render would be a render
- *  every render. */
-let cache = { raw: "", views: NONE };
-const listeners = new Set<() => void>();
-
-function announce() {
-  for (const listener of listeners) listener();
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  // Another tab of the same queue keeps the same views.
-  window.addEventListener("storage", announce);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", announce);
-  };
-}
-
-function snapshot(): SavedView[] {
-  let raw = "";
-  try {
-    raw = window.localStorage.getItem(STORE) ?? "";
-  } catch {
-    return NONE;
-  }
-  if (raw !== cache.raw) cache = { raw, views: parse(raw) };
-  return cache.views;
-}
-
-/** The server has no browser storage, so it draws no kept views — and the
- *  first client render agrees with the HTML it replaces. */
-const empty = () => NONE;
-
-function writeStore(views: SavedView[]) {
-  try {
-    window.localStorage.setItem(STORE, JSON.stringify(views));
-  } catch {
-    /* A browser that will not keep them is not a queue that cannot be read. */
-  }
-  announce();
-}
-
 /**
  * The queue's views column: the five built-in views with live counts, then
  * whatever this browser has kept, then the row that keeps one more.
@@ -149,7 +63,7 @@ function writeStore(views: SavedView[]) {
 export function QueueViews({ counts }: { counts: ViewCounts }) {
   const t = useMessages();
   const params = useSearchParams();
-  const saved = useSyncExternalStore(subscribe, snapshot, empty);
+  const { views: saved, save: keep, forget } = useSavedViews(QUEUE_VIEWS_STORE);
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState("");
 
@@ -165,18 +79,10 @@ export function QueueViews({ counts }: { counts: ViewCounts }) {
   })();
 
   function save() {
-    const wanted = name.trim().slice(0, MAX_NAME);
-    if (!wanted) return;
-    const next = [...saved.filter((view) => view.name !== wanted), { name: wanted, query }].slice(
-      -LIMIT,
-    );
-    writeStore(next);
+    if (!name.trim()) return;
+    keep(name, query);
     setName("");
     setNaming(false);
-  }
-
-  function forget(view: SavedView) {
-    writeStore(saved.filter((kept) => kept.name !== view.name));
   }
 
   const groups: ViewGroup[] = [
@@ -210,7 +116,7 @@ export function QueueViews({ counts }: { counts: ViewCounts }) {
         action: (
           <button
             type="button"
-            onClick={() => forget(view)}
+            onClick={() => forget(view.name)}
             aria-label={t.tickets.forgetView(view.name)}
             title={t.tickets.forgetView(view.name)}
             className="text-text-3 hover:text-negative rounded-full p-1 transition-colors"
@@ -239,7 +145,7 @@ export function QueueViews({ counts }: { counts: ViewCounts }) {
           <Input
             autoFocus
             value={name}
-            maxLength={MAX_NAME}
+            maxLength={MAX_VIEW_NAME}
             placeholder={t.tickets.viewName}
             aria-label={t.tickets.viewName}
             className="h-8 text-sm"

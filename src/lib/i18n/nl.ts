@@ -1206,6 +1206,8 @@ export const nl: Messages = {
     shown: (from: number, to: number, total: number) =>
       total === 0 ? "Niets te tonen" : `${from}–${to} van ${total}`,
 
+    views: "Weergaven",
+    types: "Soorten",
     modeList: "Lijst",
     modeSplit: "Gesplitst",
     savedViews: "Bewaarde weergaven",
@@ -1880,10 +1882,18 @@ export const nl: Messages = {
     /* De lijst (ronde 8). */
     newProject: "Nieuw project",
     searchProjects: "Zoek projecten",
-    activeArchived: (active: number, archived: number) =>
-      archived === 0 ? `${active} actief` : `${active} actief · ${archived} gearchiveerd`,
     filterActive: "Actief",
-    filterAll: "Alles",
+
+    /* De weergavenkolom, en de twee filters in de kopregel van het blad. */
+    views: "Weergaven",
+    viewLedByMe: "Door mij geleid",
+    viewFiltered: "Gefilterd",
+    savedViews: "Bewaard",
+    saveView: "Bewaar deze weergave",
+    viewName: "Naam van de weergave",
+    forgetView: (name: string) => `Vergeet weergave ${name}`,
+    anyHealth: "Elke status",
+    anyLead: "Elke projectleider",
     colProject: "Project",
     colSettled: "Afgerond",
     nextMilestone: "Volgende mijlpaal",
