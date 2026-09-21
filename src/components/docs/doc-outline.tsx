@@ -17,10 +17,12 @@ export type Heading = { id: string; text: string; level: number };
  * page's corner, which fixed the scrolling and left a control floating an inch
  * below the row of controls it belongs to.
  *
- * So it is a plain button on the title's own line, at the right of the page
- * and under the toolbar's last control — beside the thing it is an index of,
- * rather than up among the controls that act on the page as a whole.
- * Pointing at it, tabbing to it or tapping it drops the list below.
+ * So it is a plain button at the right of the title's own line, beside the
+ * thing it is an index of rather than up among the controls that act on the
+ * page as a whole. It ends where the words do, which on a wide screen is
+ * short of the toolbar above it: the words have a measure and the sheet does
+ * not, and dragging the toolbar in to meet it looked worse than the two edges
+ * disagreeing. Pointing at it, tabbing to it or tapping it drops the list.
  *
  * Not rendered at all while the page is being written — the editor is a draft
  * of the words, and an index of headings that are being rewritten is worse
