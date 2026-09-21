@@ -54,12 +54,12 @@ export function DocArticle({
   /// Whether both rails are away. The words then get more of the width they
   /// have been given, which is the whole reason somebody turned it on.
   reading = false,
-  /// The page's own headings, floated over the words while reading. Here
-  /// rather than on the rail because it is the one thing beside the page that
-  /// is used *while* reading it — and here rather than in the page beneath,
-  /// because this component is the one that knows whether the words on screen
-  /// are the page or a draft of it. Writing takes it away: an index of
-  /// headings that are being rewritten is worse than no index.
+  /// The page's own headings, drawn as a button on the toolbar while reading.
+  /// Here rather than on the rail because it is the one thing beside the page
+  /// that is used *while* reading it — and here rather than in the page
+  /// beneath, because this component is the one that knows whether the words
+  /// on screen are the page or a draft of it. Writing takes it away: an index
+  /// of headings that are being rewritten is worse than no index.
   outline = [],
   /// Drawn beside the title when the page is not being edited: the review
   /// state, who owns it, when it was last touched. Hidden while writing,
@@ -204,7 +204,7 @@ export function DocArticle({
   if (!editing) {
     return (
       <>
-        <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-8">
+        <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-6">
           {breadcrumb}
           <span className="ml-auto flex items-center gap-2">
             {flash ? (
@@ -213,6 +213,7 @@ export function DocArticle({
                 {t.common.saved}
               </span>
             ) : null}
+            <DocOutline headings={outline} />
             {actions}
             {canEdit ? (
               <Button type="button" size="sm" onClick={() => setEditing(true)}>
@@ -224,24 +225,12 @@ export function DocArticle({
           </span>
         </div>
 
-        {/* Positioned, so the index can hover in the corner of the page for
-            the whole of its length rather than scrolling off the top of it. */}
-        <div className="relative px-5 py-6 lg:px-8">
-          <DocOutline headings={outline} />
-
+        <div className="px-5 pt-2 pb-6 lg:px-6">
           {/* Wide enough to hold a table and a code sample without folding
               them, and no wider: a line of prose that runs the whole of a
               1920 screen is a line nobody finds the start of again. Reading
               mode, which has just taken both rails away, gets the extra. */}
-          <article
-            className={cn(
-              // The gutter the floating index stands in, given up by the words
-              // rather than taken from them: a mark hovering over the end of
-              // every line is a mark covering the end of every line.
-              outline.length > 1 && "sm:pr-12",
-              reading ? "max-w-[72rem]" : "max-w-[60rem]",
-            )}
-          >
+          <article className={reading ? "max-w-[72rem]" : "max-w-[60rem]"}>
             <header>
               <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em] text-balance">
                 {committed.title}
@@ -274,7 +263,7 @@ export function DocArticle({
     <form ref={form} onSubmit={submit} noValidate>
       <AttachmentsProvider>
         <DropZone>
-          <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-8">
+          <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-6">
             {breadcrumb}
             {/* Said plainly, because the whole of this screen is a draft and
                 nothing on it has been written down yet. */}
@@ -284,7 +273,7 @@ export function DocArticle({
             </span>
           </div>
 
-          <div className="space-y-3 px-5 py-5 lg:px-8">
+          <div className="space-y-3 px-5 py-5 lg:px-6">
             <FormError>{errors.form}</FormError>
             {conflict ? (
               <div className="flex flex-wrap items-center gap-2">

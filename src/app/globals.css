@@ -205,6 +205,14 @@
   --text-2xl: 30px;
   --text-3xl: 38px;
 
+  /* Headings inside written Markdown, which are a ladder rather than three
+     sizes near the body's. The renderer and the editor both read these, so
+     the written page and the read page cannot drift apart — they had, by two
+     pixels at h2 — and a `###` is a heading rather than a bold sentence. */
+  --prose-h1: 22px;
+  --prose-h2: 18px;
+  --prose-h3: 16px;
+
   /* Radii: controls 8, cards 12, panels (dialogs, menus) 16, chips are pills. */
   --radius-chip: 4px;
   --radius-control: 8px;
@@ -698,17 +706,26 @@
 .tiqo-prose h2,
 .tiqo-prose h3 {
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
 }
 
 .tiqo-prose h1 {
-  font-size: var(--text-lg);
+  font-size: var(--prose-h1);
+  margin-top: 1.5rem;
 }
 .tiqo-prose h2 {
-  font-size: 15px;
+  font-size: var(--prose-h2);
+  margin-top: 1.25rem;
 }
 .tiqo-prose h3 {
-  font-size: var(--text-md);
+  font-size: var(--prose-h3);
+  margin-top: 1rem;
+}
+
+/* A heading at the top of the document has nothing to be spaced away from. */
+.tiqo-prose > :first-child {
+  margin-top: 0;
 }
 
 .tiqo-prose ul,

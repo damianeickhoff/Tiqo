@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import { Bell, Pencil } from "lucide-react";
 import { updateDocCare } from "@/lib/actions/docs";
 import { REVIEW_INTERVALS, buildTree, flattenTree, subtreeIds } from "@/lib/docs";
-import { PanelCard } from "@/components/tickets/panel-card";
+import { PanelCard, PanelRow as Row, PanelValue as Static } from "@/components/tickets/panel-card";
 import { SaveBar, useDraft } from "@/components/settings/draft";
 import { StillCorrectButton, RemindMeButton } from "@/components/docs/doc-actions";
 import { Avatar } from "@/components/avatar";
 import { Select } from "@/components/ui";
 import { useDateFormat, useMessages } from "@/components/shell/instance-context";
-import { cn } from "@/lib/utils";
 
 type Person = { id: string; name: string; avatarVariant?: number | null };
 type Sibling = { id: string; title: string; parentId: string | null; position: number };
@@ -114,7 +113,7 @@ export function DocCare({
     >
       {changing ? (
         <>
-          <div className="space-y-3 px-3.5 py-3">
+          <div className="space-y-0.5 p-2">
             <Row label={t.docs.owner}>
               <Select
                 value={draft.draft.ownerId}
@@ -206,15 +205,15 @@ export function DocCare({
         </>
       ) : (
         <>
-          <dl className="divide-line divide-y">
+          <dl className="space-y-0.5 p-2">
             <Fact label={t.docs.owner}>
               {owner ? (
-                <span className="flex items-center gap-1.5">
+                <Static>
                   <Avatar name={owner.name} variant={owner.avatarVariant ?? 0} size={18} />
                   <span className="truncate">{owner.name}</span>
-                </span>
+                </Static>
               ) : (
-                <span className="text-text-3">{t.docs.noOwner}</span>
+                <Static muted>{t.docs.noOwner}</Static>
               )}
             </Fact>
 
@@ -223,43 +222,49 @@ export function DocCare({
                 "stale after 90 days without confirmation" is what the desk
                 will actually do about it. It is the only place the staleness
                 setting is visible while reading a page. */}
-            <Fact label={t.docs.staleAfter} wrap>
-              {reviewDays === 0 ? t.docs.neverStale : t.docs.staleAfterDays(reviewDays)}
+            <Fact label={t.docs.staleAfter}>
+              <Static wrap>
+                {reviewDays === 0 ? t.docs.neverStale : t.docs.staleAfterDays(reviewDays)}
+              </Static>
             </Fact>
 
             <Fact label={t.docs.lastConfirmed}>
               {reviewedAt ? (
-                <span className="tnum">{day.format(reviewedAt)}</span>
+                <Static className="tnum">{day.format(reviewedAt)}</Static>
               ) : (
-                <span className="text-text-3">{t.docs.neverConfirmed}</span>
+                <Static muted>{t.docs.neverConfirmed}</Static>
               )}
             </Fact>
 
             <Fact label={t.docs.nextReview}>
               {reviewDueAt ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="tnum">{day.format(reviewDueAt)}</span>
+                <Static className="tnum">
+                  {day.format(reviewDueAt)}
                   {reviewIn !== null ? (
                     // Short, because the date beside it is the fact and this is
                     // only how far away it is: the sentence version does not fit
                     // a rail, and truncating it says nothing.
-                    <span className="tag">
+                    <span className="tag ml-0.5 shrink-0">
                       {reviewIn < 0 ? t.docs.daysOver(-reviewIn) : t.docs.daysAway(reviewIn)}
                     </span>
                   ) : null}
-                </span>
+                </Static>
               ) : (
-                <span className="text-text-3">{t.docs.neverStale}</span>
+                <Static muted>{t.docs.neverStale}</Static>
               )}
             </Fact>
 
             <Fact label={t.docs.parent}>
-              {parentTitle ?? <span className="text-text-3">{t.docs.topLevel}</span>}
+              {parentTitle ? (
+                <Static>{parentTitle}</Static>
+              ) : (
+                <Static muted>{t.docs.topLevel}</Static>
+              )}
             </Fact>
           </dl>
 
           {canEdit ? (
-            <div className="flex items-center gap-1.5 px-3.5 pt-1 pb-3">
+            <div className="flex items-center gap-1.5 px-2 pt-1 pb-3">
               <StillCorrectButton docId={docId} className="flex-1 justify-center" />
               {/* Only where there is something to put off. On a page that is
                   not due, a reminder button is a control with no consequence. */}
@@ -279,32 +284,13 @@ export function DocCare({
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+/** The same row as the ticket's, as a definition: this card is a list of
+ *  facts about the page, and a `dl` is what that is. */
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-3">
-      <span className="label">{label}</span>
-      {children}
-    </div>
-  );
-}
-
-/** The rail's own label/value rhythm, at the rail's sizes: the label 12px, the
- *  value 13px. These are facts read in passing beside the page, not the page. */
-function Fact({
-  label,
-  /// A value that is a sentence rather than a name. Cut in half, the rule the
-  /// row exists to state is the half that goes.
-  wrap = false,
-  children,
-}: {
-  label: string;
-  wrap?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-2.5 px-3.5 py-1.5">
-      <dt className="label">{label}</dt>
-      <dd className={cn("min-w-0 text-sm", wrap ? "leading-snug" : "truncate")}>{children}</dd>
+    <div className="grid min-h-9 grid-cols-[78px_minmax(0,1fr)] items-center gap-2">
+      <dt className="text-text-3 pl-2 text-sm">{label}</dt>
+      <dd className="min-w-0">{children}</dd>
     </div>
   );
 }

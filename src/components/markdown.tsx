@@ -92,18 +92,24 @@ function BlockView({ block, anchors }: { block: Block; anchors: Map<Block, strin
   if (block.kind === "rule") return <hr className="border-border-soft my-3" />;
 
   if (block.kind === "heading") {
+    // The ladder is three tokens shared with the editor, so what is written
+    // and what is read are the same three sizes. They used to be picked from
+    // the body's own scale, which put `###` at the size of the paragraph under
+    // it and `#` two pixels above it: bold text rather than a heading.
     const size =
       block.level === 1
-        ? "text-lg mt-4 first:mt-0"
+        ? "text-[length:var(--prose-h1)] mt-6 first:mt-0"
         : block.level === 2
-          ? "text-lg mt-3.5 first:mt-0"
-          : "text-md mt-3 first:mt-0";
+          ? "text-[length:var(--prose-h2)] mt-5 first:mt-0"
+          : "text-[length:var(--prose-h3)] mt-4 first:mt-0";
     // A real heading, so the index can link to it and a screen reader can
-    // list it. The size and weight are the classes it always had — a comment
-    // must not start looking like a document because its markup changed.
+    // list it.
     const Tag = `h${block.level}` as "h1" | "h2" | "h3";
     return (
-      <Tag id={anchors.get(block)} className={`${size} scroll-mt-20 font-bold tracking-[-0.01em]`}>
+      <Tag
+        id={anchors.get(block)}
+        className={`${size} scroll-mt-20 leading-tight font-bold tracking-[-0.015em]`}
+      >
         <InlineView content={block.content} />
       </Tag>
     );
