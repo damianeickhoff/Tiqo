@@ -264,7 +264,7 @@ export async function CiPeek({ id, user }: { id: string; user: SessionUser }) {
  *  below them — a 400px pane on a phone is the page. */
 function Pane({ children }: { children: React.ReactNode }) {
   return (
-    <aside className="bg-bg hidden w-[400px] shrink-0 space-y-3 overflow-y-auto p-3 xl:block">
+    <aside className="hidden w-[340px] shrink-0 space-y-3 overflow-y-auto xl:block">
       {children}
     </aside>
   );

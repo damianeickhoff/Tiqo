@@ -1,15 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import type { ProjectHealth } from "@/generated/prisma/enums";
 import { HEALTH_META } from "@/lib/projects";
-import { PageHeader } from "@/components/shell/page-header";
 import { Avatar } from "@/components/avatar";
 import { EmptyState } from "@/components/ui";
 import { useMessages } from "@/components/shell/instance-context";
-import { NewProjectButton } from "./new-project-button";
 import { cn } from "@/lib/utils";
 
 export type ProjectRow = {
@@ -35,8 +32,6 @@ export type ProjectRow = {
   dueIn: number | null;
 };
 
-type Segment = "active" | "archived" | "all";
-
 /**
  * Every project as one row.
  *
@@ -45,112 +40,29 @@ type Segment = "active" | "archived" | "all";
  * status report rather than an index. It was a stack of cards, which showed the
  * same facts but let no two projects be compared without scrolling between them.
  *
- * Filtered here rather than on the server: a desk has tens of projects, not
- * thousands, and a box that answers on the keystroke is worth more than the
- * round trip it saves.
+ * Which projects these are is settled before they arrive: the view standing in
+ * the views column and the filters in the sheet's header row are both in the
+ * address, and the page answers it.
  */
-export function ProjectsTable({
-  projects,
-  canCreate,
-}: {
-  projects: ProjectRow[];
-  canCreate: boolean;
-}) {
+export function ProjectsTable({ projects }: { projects: ProjectRow[] }) {
   const t = useMessages();
-  const [query, setQuery] = useState("");
-  const [segment, setSegment] = useState<Segment>("active");
 
-  const active = projects.filter((project) => !project.isArchived).length;
-
-  const shown = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return projects.filter((project) => {
-      if (segment === "active" && project.isArchived) return false;
-      if (segment === "archived" && !project.isArchived) return false;
-      if (!needle) return true;
-      return (
-        project.name.toLowerCase().includes(needle) || project.key.toLowerCase().includes(needle)
-      );
-    });
-  }, [projects, query, segment]);
-
-  const SEGMENTS: { id: Segment; label: string }[] = [
-    { id: "active", label: t.projects.filterActive },
-    { id: "archived", label: t.projects.archived },
-    { id: "all", label: t.projects.filterAll },
-  ];
+  if (projects.length === 0) {
+    return (
+      <div className="px-5 py-6 lg:px-6">
+        <EmptyState title={t.projects.noneMatch} body={t.projects.blurbLong} />
+      </div>
+    );
+  }
 
   return (
     <>
-      <PageHeader
-        title={t.projects.title}
-        showBlurb
-        actions={
-          <>
-            <label className="relative hidden sm:block">
-              <Search
-                size={14}
-                aria-hidden
-                className="text-text-3 pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
-              />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t.projects.searchProjects}
-                aria-label={t.projects.searchProjects}
-                className="bg-surface rounded-control focus:border-brand h-8 w-[220px] border border-transparent pr-2.5 pl-8 text-base shadow-[var(--highlight)] transition-[border-color] placeholder:text-[var(--text-3)] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
-              />
-            </label>
-
-            <div
-              role="group"
-              aria-label={t.projects.title}
-              className="bg-surface-2 flex items-center gap-0.5 rounded-full p-0.5"
-            >
-              {SEGMENTS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-current={segment === option.id}
-                  onClick={() => setSegment(option.id)}
-                  className={cn(
-                    "h-7 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-[background-color,color,box-shadow]",
-                    segment === option.id
-                      ? "text-text bg-[var(--seg-on)] shadow-[0_1px_2px_rgba(9,9,11,0.1),0_0_0_1px_rgba(9,9,11,0.04)]"
-                      : "text-text-2 hover:text-text",
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-
-            {canCreate ? <NewProjectButton /> : null}
-          </>
-        }
-      >
-        <span className="tnum font-mono">
-          {t.projects.activeArchived(active, projects.length - active)}
-        </span>
-      </PageHeader>
-
-      {shown.length === 0 ? (
-        <div className="px-5 py-6 lg:px-8">
-          <EmptyState title={t.projects.noneMatch} body={t.projects.blurbLong} />
-        </div>
-      ) : (
-        <>
-          <Columns />
-          <ul>
-            {shown.map((project) => (
-              <Row key={project.id} project={project} />
-            ))}
-          </ul>
-          <p className="text-text-3 px-5 py-4 text-base lg:px-8">
-            {t.projects.listFooter(shown.length)}
-          </p>
-        </>
-      )}
+      <Columns />
+      <ul>
+        {projects.map((project) => (
+          <Row key={project.id} project={project} />
+        ))}
+      </ul>
     </>
   );
 }
@@ -158,10 +70,16 @@ export function ProjectsTable({
 /**
  * The grid every row and the header above it share, so a column heading cannot
  * drift away from the column it names.
+ *
+ * The five facts on the right are narrower than they were: the views column
+ * takes 200px off this table, and the name is the column that was paying for
+ * it. A floor under the name rather than a share of what is left, so a desk
+ * with long project names pushes the table sideways — the queue's answer —
+ * instead of quietly clipping every title to nothing.
  */
 const GRID =
-  "grid grid-cols-[32px_minmax(0,1fr)] items-center gap-4 px-5 lg:px-8 " +
-  "xl:grid-cols-[32px_minmax(0,1fr)_130px_190px_200px_150px_88px]";
+  "grid grid-cols-[32px_minmax(0,1fr)] items-center gap-3 px-5 lg:px-6 " +
+  "xl:grid-cols-[32px_minmax(160px,1fr)_110px_148px_168px_118px_60px]";
 
 function Columns() {
   const t = useMessages();

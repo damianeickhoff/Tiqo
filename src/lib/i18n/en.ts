@@ -1239,6 +1239,8 @@ export const en = {
       total === 0 ? "Nothing to show" : `${from}–${to} of ${total}`,
 
     /* The register beside a pane, and the views people keep of it. */
+    views: "Views",
+    types: "Types",
     modeList: "List",
     modeSplit: "Split",
     savedViews: "Saved views",
@@ -1932,10 +1934,18 @@ export const en = {
     /* The list (round 8). */
     newProject: "New project",
     searchProjects: "Search projects",
-    activeArchived: (active: number, archived: number) =>
-      archived === 0 ? `${active} active` : `${active} active · ${archived} archived`,
     filterActive: "Active",
-    filterAll: "All",
+
+    /* The views column, and the two filters the sheet's header row keeps. */
+    views: "Views",
+    viewLedByMe: "Led by me",
+    viewFiltered: "Filtered",
+    savedViews: "Saved",
+    saveView: "Save current view",
+    viewName: "View name",
+    forgetView: (name: string) => `Forget view ${name}`,
+    anyHealth: "Any health",
+    anyLead: "Any lead",
     colProject: "Project",
     colSettled: "Settled",
     nextMilestone: "Next milestone",
