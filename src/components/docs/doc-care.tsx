@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { Bell, Pencil } from "lucide-react";
 import { updateDocCare } from "@/lib/actions/docs";
 import { REVIEW_INTERVALS, buildTree, flattenTree, subtreeIds } from "@/lib/docs";
-import { PanelCard, PanelRow as Row, PanelValue as Static } from "@/components/tickets/panel-card";
+import { PanelCard, PanelRow as Row, PanelValue } from "@/components/tickets/panel-card";
 import { SaveBar, useDraft } from "@/components/settings/draft";
 import { StillCorrectButton, RemindMeButton } from "@/components/docs/doc-actions";
 import { Avatar } from "@/components/avatar";
 import { Select } from "@/components/ui";
 import { useDateFormat, useMessages } from "@/components/shell/instance-context";
+import { cn } from "@/lib/utils";
 
 type Person = { id: string; name: string; avatarVariant?: number | null };
 type Sibling = { id: string; title: string; parentId: string | null; position: number };
@@ -208,12 +209,12 @@ export function DocCare({
           <dl className="space-y-0.5 p-2">
             <Fact label={t.docs.owner}>
               {owner ? (
-                <Static>
+                <Value>
                   <Avatar name={owner.name} variant={owner.avatarVariant ?? 0} size={18} />
                   <span className="truncate">{owner.name}</span>
-                </Static>
+                </Value>
               ) : (
-                <Static muted>{t.docs.noOwner}</Static>
+                <Value muted>{t.docs.noOwner}</Value>
               )}
             </Fact>
 
@@ -223,22 +224,22 @@ export function DocCare({
                 will actually do about it. It is the only place the staleness
                 setting is visible while reading a page. */}
             <Fact label={t.docs.staleAfter}>
-              <Static wrap>
+              <Value wrap>
                 {reviewDays === 0 ? t.docs.neverStale : t.docs.staleAfterDays(reviewDays)}
-              </Static>
+              </Value>
             </Fact>
 
             <Fact label={t.docs.lastConfirmed}>
               {reviewedAt ? (
-                <Static className="tnum">{day.format(reviewedAt)}</Static>
+                <Value className="tnum">{day.format(reviewedAt)}</Value>
               ) : (
-                <Static muted>{t.docs.neverConfirmed}</Static>
+                <Value muted>{t.docs.neverConfirmed}</Value>
               )}
             </Fact>
 
             <Fact label={t.docs.nextReview}>
               {reviewDueAt ? (
-                <Static className="tnum">
+                <Value className="tnum">
                   {day.format(reviewDueAt)}
                   {reviewIn !== null ? (
                     // Short, because the date beside it is the fact and this is
@@ -248,18 +249,14 @@ export function DocCare({
                       {reviewIn < 0 ? t.docs.daysOver(-reviewIn) : t.docs.daysAway(reviewIn)}
                     </span>
                   ) : null}
-                </Static>
+                </Value>
               ) : (
-                <Static muted>{t.docs.neverStale}</Static>
+                <Value muted>{t.docs.neverStale}</Value>
               )}
             </Fact>
 
             <Fact label={t.docs.parent}>
-              {parentTitle ? (
-                <Static>{parentTitle}</Static>
-              ) : (
-                <Static muted>{t.docs.topLevel}</Static>
-              )}
+              {parentTitle ? <Value>{parentTitle}</Value> : <Value muted>{t.docs.topLevel}</Value>}
             </Fact>
           </dl>
 
@@ -282,6 +279,17 @@ export function DocCare({
       )}
     </PanelCard>
   );
+}
+
+/**
+ * The shared readout, a size down.
+ *
+ * These are facts checked in passing beside the page rather than the ticket's
+ * own settings, and at the ticket's size they were shouting over the labels
+ * that name them. Same weight and colour, so a value is still a value.
+ */
+function Value({ className, ...props }: React.ComponentProps<typeof PanelValue>) {
+  return <PanelValue {...props} className={cn("text-sm", className)} />;
 }
 
 /** The same row as the ticket's, as a definition: this card is a list of
