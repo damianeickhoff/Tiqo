@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { can, canViewDirectory } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { RoleManager } from "@/components/settings/role-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,7 +43,7 @@ export default async function RoleSettingsPage() {
   ]);
 
   return (
-    <div className="space-y-5">
+    <SettingsSheet>
       <SettingsSection title={t.settings.rolesTitle} description={t.settings.rolesBlurb}>
         <RoleManager
           people={people}
@@ -73,6 +74,6 @@ export default async function RoleSettingsPage() {
           </Link>
         </SettingsSection>
       ) : null}
-    </div>
+    </SettingsSheet>
   );
 }

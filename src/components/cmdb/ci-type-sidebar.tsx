@@ -72,7 +72,7 @@ export function CiTypeSidebar({
        the way down reads as a panel that failed to draw. */
     <nav
       aria-label={t.cmdb.type}
-      className="bg-chrome flex shrink-0 flex-col p-2 lg:min-h-0 lg:w-[240px] lg:overflow-y-auto"
+      className="bg-bg flex shrink-0 flex-col p-2 lg:min-h-0 lg:w-[240px] lg:overflow-y-auto"
     >
       <ul className="flex gap-1 overflow-x-auto lg:block lg:space-y-0.5 lg:overflow-visible">
         <li>

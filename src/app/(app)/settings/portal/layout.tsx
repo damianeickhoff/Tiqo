@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { getMessages, getSettings } from "@/lib/settings";
 import { PortalAdminNav } from "@/components/settings/portal-admin-nav";
+import { SettingsSheet } from "@/components/settings/sheet";
 
 /**
  * The portal has enough moving parts — a front page, a catalogue, forms,
@@ -37,7 +38,9 @@ export default async function PortalSettingsLayout({ children }: { children: Rea
 
       <PortalAdminNav />
 
-      {children}
+      {/* The header and the tabs are this area's chrome and stay on the
+          ground; the page under them is the sheet. */}
+      <SettingsSheet className="p-5 lg:p-6">{children}</SettingsSheet>
     </div>
   );
 }

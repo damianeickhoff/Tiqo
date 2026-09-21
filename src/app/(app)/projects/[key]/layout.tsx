@@ -84,116 +84,127 @@ export default async function ProjectLayout({
        * above it that scrolls away pushes its bottom below the fold by its own
        * height until you have scrolled that far. With the head pinned, the
        * rail's box starts exactly where it pins and never overhangs.
+       *
+       * The sticky block itself carries no fill: it is the page's gutter, and
+       * the grey work area shows through it. What the header *is* — identity,
+       * health and tabs — is the card inside, on the same rung and in the same
+       * gutter as the cards below it.
        */}
-      <div className="bg-surface z-30 xl:sticky xl:top-0 xl:h-[var(--project-head)]">
+      <div className="z-30 px-5 pt-5 lg:px-6 xl:sticky xl:top-0 xl:h-[var(--project-head)]">
         {/* Its own stacking context, above the page. Without it the health menu
             opened behind the first card on the overview — later siblings paint
             on top, and the menu belongs to an earlier one. */}
-        <div className="relative z-30 px-5 pt-5 pb-4 lg:px-6">
-          <div className="flex flex-wrap items-center gap-4">
-            <span
-              aria-hidden
-              className="rounded-control flex size-11 shrink-0 items-center justify-center font-mono text-sm font-semibold text-white"
-              style={{ background: project.color }}
-            >
-              {project.key}
-            </span>
+        <div className="card relative z-30">
+          <div className="px-4 pt-4 pb-3 lg:px-5">
+            <div className="flex flex-wrap items-center gap-4">
+              <span
+                aria-hidden
+                className="rounded-control flex size-11 shrink-0 items-center justify-center font-mono text-sm font-semibold text-white"
+                style={{ background: project.color }}
+              >
+                {project.key}
+              </span>
 
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em]">
-                {project.name}
-              </h1>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em]">
+                  {project.name}
+                </h1>
 
-              <div className="text-text-3 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                {project.lead ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    {t.projects.lead}
-                    <Avatar
-                      name={project.lead.name}
-                      variant={project.lead.avatarVariant}
-                      size={16}
-                    />
-                    <span className="text-text-2 font-medium">{project.lead.name}</span>
-                  </span>
+                <div className="text-text-3 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                  {project.lead ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      {t.projects.lead}
+                      <Avatar
+                        name={project.lead.name}
+                        variant={project.lead.avatarVariant}
+                        size={16}
+                      />
+                      <span className="text-text-2 font-medium">{project.lead.name}</span>
+                    </span>
+                  ) : (
+                    <span>{t.projects.noLead}</span>
+                  )}
+
+                  {project.startsOn || project.dueOn ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span className="font-mono text-xs">
+                        {project.startsOn ? day.format(project.startsOn) : "…"}
+                        {" → "}
+                        {project.dueOn ? day.format(project.dueOn) : "…"}
+                      </span>
+                    </>
+                  ) : null}
+
+                  {left !== null && left < 0 && !project.isArchived ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span className="text-negative font-medium">
+                        {t.projects.overdueBy(-left)}
+                      </span>
+                    </>
+                  ) : null}
+
+                  {project.isArchived ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span className="bg-surface-3 rounded-full px-2 py-0.5 text-xs font-medium">
+                        {t.projects.archived}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <ProjectStarButton projectId={project.id} starred={project.stars.length > 0} />
+                {/* The one thing on this header anyone changes from any of its
+                pages: how it is going. Everything else about a project is
+                edited on the overview, where there is room to explain it. */}
+                {admin ? (
+                  <HealthPicker projectId={project.id} health={project.health} />
                 ) : (
-                  <span>{t.projects.noLead}</span>
+                  <span
+                    className="bg-surface inline-flex h-8 items-center gap-2 rounded-full border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)]"
+                    style={{ color: health.color }}
+                  >
+                    <span
+                      aria-hidden
+                      className="size-2 rounded-full"
+                      style={{ background: health.color }}
+                    />
+                    <span className="text-text">{t.projects.healthNames[project.health]}</span>
+                  </span>
                 )}
-
-                {project.startsOn || project.dueOn ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span className="font-mono text-xs">
-                      {project.startsOn ? day.format(project.startsOn) : "…"}
-                      {" → "}
-                      {project.dueOn ? day.format(project.dueOn) : "…"}
-                    </span>
-                  </>
-                ) : null}
-
-                {left !== null && left < 0 && !project.isArchived ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span className="text-negative font-medium">{t.projects.overdueBy(-left)}</span>
-                  </>
-                ) : null}
-
-                {project.isArchived ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span className="bg-surface-3 rounded-full px-2 py-0.5 text-xs font-medium">
-                      {t.projects.archived}
-                    </span>
-                  </>
+                <Link href="/tickets/new" className={buttonClass("primary", "sm")}>
+                  <Plus size={14} strokeWidth={2.5} />
+                  {t.nav.newTicket}
+                </Link>
+                {admin ? (
+                  <ProjectMenu
+                    projectId={project.id}
+                    name={project.name}
+                    isArchived={project.isArchived}
+                  />
                 ) : null}
               </div>
             </div>
-
-            <div className="flex shrink-0 items-center gap-2">
-              <ProjectStarButton projectId={project.id} starred={project.stars.length > 0} />
-              {/* The one thing on this header anyone changes from any of its
-                pages: how it is going. Everything else about a project is
-                edited on the overview, where there is room to explain it. */}
-              {admin ? (
-                <HealthPicker projectId={project.id} health={project.health} />
-              ) : (
-                <span
-                  className="bg-surface inline-flex h-8 items-center gap-2 rounded-full border border-transparent px-2.5 text-sm font-medium shadow-[var(--highlight)]"
-                  style={{ color: health.color }}
-                >
-                  <span
-                    aria-hidden
-                    className="size-2 rounded-full"
-                    style={{ background: health.color }}
-                  />
-                  <span className="text-text">{t.projects.healthNames[project.health]}</span>
-                </span>
-              )}
-              <Link href="/tickets/new" className={buttonClass("primary", "sm")}>
-                <Plus size={14} strokeWidth={2.5} />
-                {t.nav.newTicket}
-              </Link>
-              {admin ? (
-                <ProjectMenu
-                  projectId={project.id}
-                  name={project.name}
-                  isArchived={project.isArchived}
-                />
-              ) : null}
-            </div>
           </div>
-        </div>
 
-        {/* Below xl there is no rail, so the tabs stick on their own the way a
-            ticket's toolbar does. From xl up the block above carries them. */}
-        <div className="bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end px-5 backdrop-blur-md lg:top-0 lg:px-6 xl:static">
-          <ProjectTabs
-            projectKey={project.key}
-            counts={{
-              work: project._count.tickets,
-              milestones: project._count.milestones,
-              people: peopleCount,
-            }}
-          />
+          {/* Below xl there is no rail, so the tabs stick on their own the way
+              a ticket's toolbar does. From xl up the block above carries them.
+              The rounding is the card's, so the strip's fill does not square
+              off the two corners it sits in. */}
+          <div className="bg-surface/90 rounded-b-card sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-end px-4 backdrop-blur-md lg:top-0 lg:px-5 xl:static">
+            <ProjectTabs
+              projectKey={project.key}
+              counts={{
+                work: project._count.tickets,
+                milestones: project._count.milestones,
+                people: peopleCount,
+              }}
+            />
+          </div>
         </div>
       </div>
 

@@ -23,7 +23,9 @@ export default async function SettingsLayout({ children }: { children: React.Rea
         {t.settings.blurb}
       </PageHeader>
 
-      <div className="px-5 py-5 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12 lg:px-6">
+      {/* The navigation sits on the ground beside the page's sheet, so the gap
+          between them is the ground showing through rather than a gutter. */}
+      <div className="px-5 py-5 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-6 lg:px-6">
         <SettingsNav user={user} />
         {/* No narrow cap: a settings form that stops at 960px leaves a third of
             a wide screen empty while its own tables scroll sideways. */}

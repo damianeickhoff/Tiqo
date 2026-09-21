@@ -99,12 +99,15 @@ export default async function PeoplePage() {
   });
 
   return (
-    <PeopleTable
-      people={rows}
-      viewerId={user.id}
-      action={
-        canCreatePeople(user) ? <NewPerson roles={roles} canGrantMaster={user.isMaster} /> : null
-      }
-    />
+    // One list of people is one object: it fills the work area with one sheet.
+    <div className="sheet flex min-h-full flex-col">
+      <PeopleTable
+        people={rows}
+        viewerId={user.id}
+        action={
+          canCreatePeople(user) ? <NewPerson roles={roles} canGrantMaster={user.isMaster} /> : null
+        }
+      />
+    </div>
   );
 }

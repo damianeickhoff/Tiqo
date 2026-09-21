@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { TeamManager } from "@/components/settings/team-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,18 +42,20 @@ export default async function TeamSettingsPage() {
   ]);
 
   return (
-    <SettingsSection title={t.settings.teamsTitle} description={t.settings.teamsBlurb}>
-      <TeamManager
-        teams={teams.map((team) => ({
-          id: team.id,
-          name: team.name,
-          description: team.description,
-          color: team.color,
-          members: team.members,
-          tickets: team._count.tickets,
-        }))}
-        staff={staff}
-      />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.settings.teamsTitle} description={t.settings.teamsBlurb}>
+        <TeamManager
+          teams={teams.map((team) => ({
+            id: team.id,
+            name: team.name,
+            description: team.description,
+            color: team.color,
+            members: team.members,
+            tickets: team._count.tickets,
+          }))}
+          staff={staff}
+        />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

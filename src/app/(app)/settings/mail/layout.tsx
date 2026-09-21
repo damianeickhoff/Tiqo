@@ -7,6 +7,7 @@ import { appUrl } from "@/lib/mail";
 import { TEMPLATE_KINDS } from "@/lib/mail-templates";
 import { MailHealthStrip } from "@/components/settings/mail-health";
 import { MailTabs } from "@/components/settings/mail-tabs";
+import { SettingsSheet } from "@/components/settings/sheet";
 
 /**
  * Mail settings: the health strip, then the tabs, then whichever of them you
@@ -56,7 +57,9 @@ export default async function MailSettingsLayout({ children }: { children: React
           fifty is all it shows. */}
       <MailTabs wording={TEMPLATE_KINDS.length} log={Math.min(logged, 50)} />
 
-      <div className="min-w-0">{children}</div>
+      {/* The strip and the tabs are chrome for this area and stay on the
+          ground; the page under them is the sheet. */}
+      <SettingsSheet>{children}</SettingsSheet>
     </div>
   );
 }

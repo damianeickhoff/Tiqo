@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CornerUpLeft,
@@ -22,13 +23,14 @@ import {
   History,
   Merge,
   Send,
+  Sparkles,
   Star,
   StickyNote,
   Trash2,
   X,
 } from "lucide-react";
 import { addComment, updateTicket } from "@/lib/actions/tickets";
-import { AttachChips, AttachmentsProvider, DropZone } from "@/components/tickets/file-picker";
+import { AttachButton, AttachmentsProvider, DropZone } from "@/components/tickets/file-picker";
 import {
   deleteTicket,
   forwardTicket,
@@ -37,6 +39,8 @@ import {
   toggleStar,
 } from "@/lib/actions/ticket-ops";
 import { ActivityFeed, type TimelineEvent } from "@/components/tickets/activity";
+import { AnswerPicker } from "@/components/tickets/answer-picker";
+import { StatusRing } from "@/components/tickets/glyphs";
 import { TicketAssetsDialog } from "@/components/cmdb/ticket-assets-dialog";
 import type { TicketAsset } from "@/lib/ticket-assets";
 import { useLocale, useMessages } from "@/components/shell/instance-context";
@@ -48,6 +52,10 @@ import { cn } from "@/lib/utils";
 
 type Composer = "reply" | "note" | null;
 type Dialog = "forward" | "merge" | "delete" | "activity" | "assets" | null;
+
+/** A status as the composer's pill needs it: enough to draw the ring and name
+ *  it, which is all the pill ever shows. */
+export type ComposerStatus = { id: string; name: string; color: string; settles: boolean };
 
 export type ForwardRecipient = {
   id: string;
@@ -78,6 +86,15 @@ type Ctx = {
   canDelete: boolean;
   canNote: boolean;
   isClosed: boolean;
+  /// The desk's statuses and the one this ticket is in now, for the composer's
+  /// pill: sending a reply and moving the ticket is one decision, so the pill
+  /// is part of the send rather than a second trip to the rail. Empty on a
+  /// step page, which has no status of its own to set.
+  statuses: ComposerStatus[];
+  statusId: string | null;
+  /// Who a reply is addressed to, for the line beside the Reply/Note segment.
+  /// Empty where the composer is not answering anybody in particular.
+  requesterName: string;
   /// Which assets the ticket is about, already carrying what else is open
   /// around them. Behind a toolbar button rather than on the rail — the rail is
   /// full, and this is consulted rather than watched.
@@ -123,6 +140,9 @@ export function TicketActionsProvider({
   canDelete = false,
   canNote,
   isClosed = false,
+  statuses = [],
+  statusId = null,
+  requesterName = "",
   assets = [],
   canEditAssets = false,
   viewerName,
@@ -146,6 +166,9 @@ export function TicketActionsProvider({
   canDelete?: boolean;
   canNote: boolean;
   isClosed?: boolean;
+  statuses?: ComposerStatus[];
+  statusId?: string | null;
+  requesterName?: string;
   assets?: TicketAsset[];
   canEditAssets?: boolean;
   viewerName: string;
@@ -174,6 +197,9 @@ export function TicketActionsProvider({
         canDelete,
         canNote,
         isClosed,
+        statuses,
+        statusId,
+        requesterName,
         assets,
         canEditAssets,
         viewerName,
@@ -226,8 +252,8 @@ const TOOL =
   "text-sm font-medium text-text-2 " +
   "transition-[background-color,color] duration-150 hover:bg-surface-2 hover:text-text";
 
-/** The right-hand group: the plan, the trail and the way through the queue
- *  are raised, so they read as places to go rather than things to do. */
+/** Every control in the toolbar wears this: the bar sits on the grey ground
+ *  with nothing behind it, so a button without a fill has no edge at all. */
 const TOOL_OUTLINE =
   "inline-flex h-8 items-center gap-1.5 rounded-control border border-transparent bg-surface px-2 " +
   "text-sm font-medium text-text-2 shadow-[var(--highlight)] " +
@@ -286,7 +312,10 @@ export function TicketToolbar() {
   }
 
   return (
-    <div className="bg-surface/90 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1 px-4 backdrop-blur-md lg:top-0 lg:px-5">
+    // No fill and no edge of its own: the bar sits on the grey ground, and the
+    // buttons are what it is made of. The ground colour is only here so a
+    // scrolled card does not show through while it is stuck.
+    <div className="bg-bg/85 sticky top-[var(--bar)] z-30 flex h-[var(--toolbar)] items-center gap-1.5 px-4 backdrop-blur-md lg:top-0 lg:px-5">
       {refused ? (
         <p
           role="alert"
@@ -302,8 +331,8 @@ export function TicketToolbar() {
         aria-pressed={t.starred}
         title={t.starred ? m.ticket.starRemove : m.ticket.starAdd}
         className={cn(
-          TOOL,
-          "w-7 justify-center px-0",
+          TOOL_OUTLINE,
+          "w-8 justify-center px-0",
           t.starred ? "text-brand-deep bg-[var(--brand-tint)]" : "text-text-3 hover:text-text",
         )}
       >
@@ -316,22 +345,14 @@ export function TicketToolbar() {
       </button>
 
       {t.canNote ? (
-        <button
-          type="button"
-          onClick={() => t.openComposer("note")}
-          className={cn(TOOL, "text-text-2 hover:text-text")}
-        >
+        <button type="button" onClick={() => t.openComposer("note")} className={TOOL_OUTLINE}>
           <StickyNote size={14} />
           {m.ticket.addNote}
         </button>
       ) : null}
 
       {t.canEdit ? (
-        <button
-          type="button"
-          onClick={() => t.openDialog("forward")}
-          className={cn(TOOL, "text-text-2 hover:text-text")}
-        >
+        <button type="button" onClick={() => t.openDialog("forward")} className={TOOL_OUTLINE}>
           <Forward size={14} />
           {m.ticket.forward}
         </button>
@@ -343,21 +364,14 @@ export function TicketToolbar() {
             type="button"
             onClick={close}
             disabled={pending || t.isClosed || !t.closingStatusId}
-            className={cn(
-              TOOL,
-              "text-text-2 hover:text-text disabled:opacity-40 disabled:hover:shadow-[var(--shadow-sm)]",
-            )}
+            className={cn(TOOL_OUTLINE, "disabled:opacity-40")}
             title={t.isClosed ? "This ticket is already closed" : "Close this ticket"}
           >
             <CheckCircle2 size={14} />
             {m.common.close}
           </button>
 
-          <button
-            type="button"
-            onClick={() => t.openDialog("merge")}
-            className={cn(TOOL, "text-text-2 hover:text-text")}
-          >
+          <button type="button" onClick={() => t.openDialog("merge")} className={TOOL_OUTLINE}>
             <Merge size={14} />
             {m.ticket.merge}
           </button>
@@ -368,7 +382,7 @@ export function TicketToolbar() {
         <button
           type="button"
           onClick={() => t.openDialog("delete")}
-          className={cn(TOOL, "text-text-2 hover:border-negative/40 hover:text-negative")}
+          className={cn(TOOL_OUTLINE, "hover:text-negative")}
         >
           <Trash2 size={14} />
           {m.common.delete}
@@ -495,6 +509,113 @@ function ComposerSubmit({ label }: { label: string }) {
   );
 }
 
+/** The quiet verbs under the writing box: what goes with the message. */
+const COMPOSER_TOOL =
+  "inline-flex h-8 items-center gap-1.5 rounded-control px-2 " +
+  "text-sm font-medium text-text-2 " +
+  "transition-[background-color,color] duration-150 hover:bg-surface-2 hover:text-text";
+
+/**
+ * Reply or note: one box with two audiences, and the segment is where you say
+ * which. Switching keeps every word already typed — they are the same draft.
+ */
+function ModeSegment() {
+  const t = useTicket();
+  const m = useMessages();
+  const modes = t.canNote ? (["reply", "note"] as const) : (["reply"] as const);
+
+  return (
+    <span className="bg-surface-2 rounded-control inline-flex shrink-0 p-0.5">
+      {modes.map((mode) => (
+        <button
+          key={mode}
+          type="button"
+          onClick={() => t.openComposer(mode)}
+          aria-pressed={t.composer === mode}
+          className={cn(
+            "rounded-control h-7 px-2.5 text-sm font-medium transition-colors",
+            t.composer === mode
+              ? "bg-surface text-text shadow-[var(--highlight)]"
+              : "text-text-3 hover:text-text",
+          )}
+        >
+          {mode === "reply" ? m.ticket.reply : m.ticket.note}
+        </button>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * Where the ticket will be once this is sent.
+ *
+ * Choosing here writes nothing — it is part of the send, so the pill is tinted
+ * while it holds an unsent choice and goes back to the ticket's own status when
+ * the composer is closed.
+ */
+function StatusPill({ value, onPick }: { value: string | null; onPick: (id: string) => void }) {
+  const t = useTicket();
+  const m = useMessages();
+  const [open, setOpen] = useState(false);
+  const current = t.statuses.find((status) => status.id === value) ?? null;
+  const dirty = value !== t.statusId;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((on) => !on)}
+        aria-label={m.ticket.statusOnSend}
+        aria-expanded={open}
+        className={cn(
+          "rounded-control flex h-8 items-center gap-1.5 px-2 text-sm font-medium transition-colors",
+          dirty
+            ? "text-brand-deep bg-[var(--brand-tint)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--brand)_45%,transparent)]"
+            : "bg-surface-2 text-text-2 hover:text-text",
+        )}
+      >
+        <StatusRing status={current} />
+        <span className="max-w-[14ch] truncate">{current?.name ?? m.tickets.noStatus}</span>
+        <ChevronDown size={13} className="text-text-3 shrink-0" aria-hidden />
+      </button>
+
+      {open ? (
+        <>
+          {/* A click anywhere else puts the list away, and nothing under it is
+              pressed on the way. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-40 cursor-default"
+          />
+          <ul className="animate-rise border-line bg-surface rounded-card absolute right-0 bottom-full z-50 mb-1.5 max-h-56 w-56 overflow-y-auto border p-1 shadow-[var(--shadow-md)]">
+            {t.statuses.map((status) => (
+              <li key={status.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onPick(status.id);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "hover:bg-surface-2 rounded-control flex w-full items-center gap-2 px-2 py-1.5 text-left text-base transition-colors",
+                    status.id === value && "font-medium",
+                  )}
+                >
+                  <StatusRing status={status} />
+                  <span className="min-w-0 truncate">{status.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * The reply box only exists once someone asks for it — the buttons below the
  * conversation are the resting state, which is what keeps a long thread from
@@ -529,9 +650,14 @@ export function ConversationComposer() {
   // pixels short of the bottom. Landing in the right place beats gliding to the
   // wrong one, and the composer has its own entrance animation either way.
   useEffect(() => {
-    if (t.composer) {
-      containerRef.current?.scrollIntoView({ block: "end" });
-    }
+    if (!t.composer) return;
+    // `end` alone lands the box's bottom edge at the bottom of the scrollport,
+    // which is right only when the box is shorter than the port. An open
+    // composer with a picker in it is not, and the top of it — the switch, the
+    // first line of what you are writing — ended up above the fold. `nearest`
+    // brings the whole thing into view where it fits and the top of it where
+    // it does not, which is the half worth seeing.
+    containerRef.current?.scrollIntoView({ block: "nearest" });
   }, [t.composer]);
 
   // A posted comment closes the box again.
@@ -543,6 +669,51 @@ export function ConversationComposer() {
 
   const isNote = t.composer === "note";
 
+  /// The status this reply will leave the ticket in. Null while nobody has
+  /// touched the pill, which is what makes Send behave exactly as it always
+  /// did. It is a draft until Send: picking one writes nothing (CLAUDE.md),
+  /// the pill only says what is about to happen.
+  const [statusDraft, setStatusDraft] = useState<string | null>(null);
+  /// The article picker, which is open over the composer rather than in it.
+  const [picking, setPicking] = useState(false);
+
+  // Closing the composer abandons the chosen status along with the words.
+  // Adjusted while rendering rather than in an effect: it is state derived from
+  // the box being open, and an effect would render the stale pill once first.
+  const open = t.composer !== null;
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (statusDraft !== null) setStatusDraft(null);
+  }
+
+  // "This is still blocking something" is a warning, not a refusal: it is said
+  // once and the next press carries permission to go on.
+  const statusWarn = errors.statusWarn;
+
+  /**
+   * A published answer, put into the reply in full, with a link to it after it.
+   *
+   * The answer itself rather than a link to it: somebody who asked a question
+   * wants the steps in front of them, not an errand. The link still goes in, at
+   * the end, for whoever wants the page — and because an answer that is later
+   * corrected is corrected there.
+   *
+   * Appended rather than spliced at the caret: the editor owns its own
+   * selection and exposes no way in.
+   */
+  function insertAnswer(answer: { slug: string; title: string; body: string }) {
+    // The whole address, not a path: this reply is read on the portal and in
+    // an inbox, and a relative link is nothing at all in an e-mail. The
+    // instance's own public address where it has been configured, the address
+    // this page was served from otherwise.
+    const base = (process.env.NEXT_PUBLIC_APP_URL || window.location.origin).replace(/\/+$/, "");
+    const url = `${base}/portal/kb/${answer.slug}`;
+    const piece = `${answer.body.trim()}\n\n[${m.ticket.answerLink(answer.title)}](${url})`;
+    setBody(body.trim() ? `${body.trimEnd()}\n\n${piece}` : piece);
+    setPicking(false);
+  }
+
   return (
     // The sticky box has to be the conversation column's last child: a wrapper
     // sized to the bar would be its own containing block, leaving sticky no room
@@ -550,7 +721,7 @@ export function ConversationComposer() {
     // tall enough that pinning it would cover the thread it replies to.
     <div
       ref={containerRef}
-      className={cn("z-20 scroll-mb-4", t.composer ? "relative" : "sticky bottom-4")}
+      className={cn("z-20 scroll-mb-8", t.composer ? "relative" : "sticky bottom-8")}
     >
       {t.composer ? (
         <form
@@ -568,16 +739,32 @@ export function ConversationComposer() {
           <input type="hidden" name="ticketId" value={t.ticketId} />
           {t.stepId ? <input type="hidden" name="stepId" value={t.stepId} /> : null}
           {isNote ? <input type="hidden" name="isInternal" value="on" /> : null}
+          {/* The draft status rides with the reply, and only when it is one:
+              a send that changes nothing posts exactly what it always did. */}
+          {statusDraft && statusDraft !== t.statusId ? (
+            <input type="hidden" name="statusId" value={statusDraft} />
+          ) : null}
+          {statusWarn ? <input type="hidden" name="statusAnyway" value="on" /> : null}
 
           <AttachmentsProvider>
             <DropZone className="-m-1 space-y-3 p-1">
-              <div className="flex items-center justify-between">
-                <p className="label">{isNote ? m.ticket.internalNote : m.ticket.reply}</p>
+              {/* Who is about to read this, beside the control that decides it.
+                  A note and a reply are the same box with two audiences, and
+                  which one you are in is the thing worth being certain of. */}
+              <div className="flex items-center gap-2.5">
+                <ModeSegment />
+                <p className="text-text-3 min-w-0 flex-1 truncate text-sm">
+                  {isNote
+                    ? m.ticket.noteAudience
+                    : t.requesterName
+                      ? m.ticket.toRequester(t.requesterName)
+                      : m.ticket.replyHint}
+                </p>
                 <button
                   type="button"
                   onClick={t.closeComposer}
                   aria-label={m.common.cancel}
-                  className="text-text-3 hover:text-text transition-colors"
+                  className="text-text-3 hover:text-text shrink-0 transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -590,23 +777,8 @@ export function ConversationComposer() {
                 value={body}
                 onChange={setBody}
                 placeholder={isNote ? m.ticket.notePlaceholder : m.ticket.replyPlaceholder}
-              />
-              <FieldError>{errors.body}</FieldError>
-              <FieldError>{errors.files}</FieldError>
-              <FormError>{errors.form}</FormError>
-
-              {/* Said once, where the files would land. The composer takes a
-                  pasted or dropped screenshot exactly as the new-ticket form
-                  does, and a capability nobody is told about is one nobody
-                  uses — but it goes under the box rather than beside the
-                  Post button, where it would compete with the verb. */}
-              <AttachChips />
-              <p className="text-text-3 text-sm">{m.ticket.attachHint}</p>
-
-              <div className="border-border-soft flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t pt-3">
-                <p className="text-text-3 text-sm">
-                  {isNote ? m.ticket.noteHint : m.ticket.replyHint}
-                  <span className="ml-1.5 hidden sm:inline">
+                hint={
+                  <>
                     {m.ticket.pressKeys}{" "}
                     <kbd className="bg-surface-3 rounded px-1 py-0.5 font-mono text-xs">Alt</kbd>
                     {" + "}
@@ -614,12 +786,37 @@ export function ConversationComposer() {
                       Enter
                     </kbd>{" "}
                     {m.ticket.toPost}
-                  </span>
-                </p>
-                <ComposerSubmit label={isNote ? m.ticket.addNote : m.ticket.postReply} />
+                  </>
+                }
+              />
+              <FieldError>{errors.body}</FieldError>
+              <FieldError>{errors.files}</FieldError>
+              <FormError>{errors.form}</FormError>
+              <FormError>{statusWarn}</FormError>
+
+              {/* The verbs of the reply: what goes with it on the left, what
+                  happens to the ticket on the right. */}
+              <div className="flex flex-wrap items-center gap-2">
+                <AttachButton showLabel className={COMPOSER_TOOL} />
+
+                <button type="button" onClick={() => setPicking(true)} className={COMPOSER_TOOL}>
+                  <Sparkles size={14} />
+                  {m.ticket.insertAnswer}
+                </button>
+
+                <div className="ml-auto flex items-center gap-2">
+                  {t.canEdit && t.statuses.length > 0 ? (
+                    <StatusPill value={statusDraft ?? t.statusId} onPick={setStatusDraft} />
+                  ) : null}
+                  <ComposerSubmit label={isNote ? m.ticket.addNote : m.ticket.send} />
+                </div>
               </div>
             </DropZone>
           </AttachmentsProvider>
+
+          {picking ? (
+            <AnswerPicker onPick={insertAnswer} onClose={() => setPicking(false)} />
+          ) : null}
         </form>
       ) : (
         <ConversationActions />
@@ -638,14 +835,19 @@ function ConversationActions() {
   const m = useMessages();
 
   return (
-    <div className="card flex items-center gap-2 py-1.5 pr-1.5 pl-2.5 shadow-[var(--shadow-float)]">
-      <Avatar name={t.viewerName} variant={t.viewerAvatar} size={24} className="shrink-0" />
+    // A shade narrower than the thread and standing well clear of the bottom:
+    // the inset on both sides and the gap underneath are what say the bar is
+    // floating over the conversation rather than sitting at the end of it. A
+    // note is no longer a second button — the composer has a switch for that,
+    // which is one decision later and one control fewer here.
+    <div className="card mx-auto flex w-[90%] items-center gap-2 py-1 pr-1 pl-2.5 shadow-[var(--shadow-float)]">
+      <Avatar name={t.viewerName} variant={t.viewerAvatar} size={22} className="shrink-0" />
 
       {/* The whole line is the reply control: click anywhere to start writing. */}
       <button
         type="button"
         onClick={() => t.openComposer("reply")}
-        className="text-text-3 hover:text-text-2 h-8 min-w-0 flex-1 truncate text-left text-base transition-colors"
+        className="text-text-3 hover:text-text-2 h-7 min-w-0 flex-1 truncate text-left text-sm transition-colors"
       >
         {m.ticket.replyPlaceholder}
       </button>
@@ -654,17 +856,6 @@ function ConversationActions() {
         <CornerUpLeft size={14} />
         {m.ticket.reply}
       </button>
-
-      {t.canNote ? (
-        <button
-          type="button"
-          onClick={() => t.openComposer("note")}
-          className={cn(TOOL, "text-text-2 hover:text-text")}
-        >
-          <StickyNote size={14} />
-          {m.ticket.addNote}
-        </button>
-      ) : null}
 
       {t.canEdit ? (
         <button

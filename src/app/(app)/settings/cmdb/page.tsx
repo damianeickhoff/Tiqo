@@ -10,6 +10,7 @@ import { attrKeyOf, availableColumns } from "@/lib/ci-columns";
 import type { FieldSpec } from "@/lib/cmdb";
 import { CiTypeDesigner, type DesignerType } from "@/components/settings/ci-type-designer";
 import { buttonClass, EmptyState } from "@/components/ui";
+import { SettingsSheet } from "@/components/settings/sheet";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getMessages();
@@ -98,7 +99,7 @@ export default async function CmdbSettingsPage({ searchParams }: { searchParams:
   });
 
   return (
-    <>
+    <SettingsSheet>
       <CiTypeDesigner
         // Remounted when the attributes are added to or taken away: those are
         // list-level commands and the draft is built from the rows that exist,
@@ -124,6 +125,6 @@ export default async function CmdbSettingsPage({ searchParams }: { searchParams:
           {t.cmdb.importLink}
         </Link>
       </div>
-    </>
+    </SettingsSheet>
   );
 }

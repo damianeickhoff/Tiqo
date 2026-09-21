@@ -55,7 +55,7 @@ export default async function MailLogPage() {
   const t = await getMessages();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-5 py-5 lg:px-6">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Counter label={t.mail.countSent} value={sent} tone="text-positive" />
         <Counter label={t.mail.countReceived} value={received} tone="text-[var(--p-medium)]" />

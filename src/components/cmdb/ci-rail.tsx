@@ -28,7 +28,10 @@ export async function CiNearby({
   const t = await getMessages();
 
   return (
-    <PanelCard title={t.cmdb.nearbyTitle} action={<span className="text-text-3 text-xs">{t.cmdb.oneHop}</span>}>
+    <PanelCard
+      title={t.cmdb.nearbyTitle}
+      action={<span className="text-text-3 text-xs">{t.cmdb.oneHop}</span>}
+    >
       <p className="text-text-2 flex items-start gap-2 px-3.5 py-3 text-sm leading-relaxed">
         <span className="text-brand-deep mt-0.5 shrink-0">
           <TriangleAlert size={14} />

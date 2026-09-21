@@ -214,7 +214,10 @@ export const ciTypeDesignSchema = ciTypeSchema.extend({
     .nullable()
     .default(null)
     .transform((value) => value || null),
-  fields: z.array(ciTypeFieldSchema.extend({ id: z.string().min(1) })).max(60).default([]),
+  fields: z
+    .array(ciTypeFieldSchema.extend({ id: z.string().min(1) }))
+    .max(60)
+    .default([]),
 });
 
 export const ciItemSchema = z.object({

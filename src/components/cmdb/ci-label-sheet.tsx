@@ -67,7 +67,7 @@ export function CiLabelSheet({ labels, back }: { labels: CiLabel[]; back: string
               </svg>
             ) : null}
             <div className="min-w-0">
-              <p className="truncate text-md font-semibold">{label.name}</p>
+              <p className="text-md truncate font-semibold">{label.name}</p>
               <p className="truncate text-sm text-black/60">{label.typeName}</p>
               {label.subtitle ? (
                 <p className="truncate font-mono text-xs text-black/60">{label.subtitle}</p>

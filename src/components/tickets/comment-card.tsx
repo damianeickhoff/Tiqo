@@ -79,7 +79,7 @@ export function CommentCard({
   return (
     <li
       id={`comment-${comment.id}`}
-      className={cn("relative scroll-mt-24 py-3", depth > 0 && "ml-6 sm:ml-10")}
+      className={cn("relative scroll-mt-24", depth > 0 ? "mt-1 ml-6 sm:ml-10" : "px-4 py-3.5")}
     >
       {/* The hover scope is this comment's own body, not the whole item: a
           named group is a descendant selector, so with it on the <li> every
@@ -93,13 +93,15 @@ export function CommentCard({
         />
 
         <div className="min-w-0 flex-1 space-y-2">
-          {/* A reply is flat on the page; an internal note is a washed block
-              with an amber edge, so the two can never be mistaken. */}
+          {/* A reply is flat on the card it sits in — the divider above it is
+              its edge. Only an internal note keeps a block of its own, on the
+              brand wash, so the two can never be mistaken. */}
           <div
             className={cn(
-              "rounded-card relative border px-4 py-3",
-              comment.isInternal ? "" : "bg-surface border-transparent shadow-[var(--highlight)]",
-              comment.pinnedAt && "ring-brand/40 ring-2 ring-offset-2 ring-offset-[var(--surface)]",
+              "relative",
+              comment.isInternal && "rounded-card border px-3.5 py-3",
+              comment.pinnedAt &&
+                "ring-brand/40 rounded-card ring-2 ring-offset-4 ring-offset-[var(--surface)]",
             )}
             style={
               comment.isInternal
@@ -159,7 +161,7 @@ export function CommentCard({
                   the corner, revealed on hover — present when wanted, invisible
                   while reading. */}
               {editing ? null : (
-                <span className="bg-surface rounded-control absolute -top-7 right-3 z-10 flex shrink-0 overflow-visible opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
+                <span className="bg-surface rounded-control absolute -top-4 right-0 z-10 flex shrink-0 overflow-visible opacity-0 shadow-[var(--shadow-float)] transition-opacity group-hover/comment:opacity-100 focus-within:opacity-100">
                   <button
                     type="button"
                     onClick={() => setPickerOpen((open) => !open)}

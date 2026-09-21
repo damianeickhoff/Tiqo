@@ -101,7 +101,8 @@ export function qrMatrix(text: string): QrMatrix | null {
   // The data snakes up and down the two-module columns from the bottom right,
   // stepping over everything already placed.
   const stream: number[] = [];
-  for (const codeword of codewords) for (let at = 7; at >= 0; at -= 1) stream.push((codeword >> at) & 1);
+  for (const codeword of codewords)
+    for (let at = 7; at >= 0; at -= 1) stream.push((codeword >> at) & 1);
 
   let cursor = 0;
   for (let right = size - 1; right >= 1; right -= 2) {
@@ -298,7 +299,11 @@ function penalty(modules: boolean[][], size: number): number {
   for (let y = 0; y < size - 1; y += 1) {
     for (let x = 0; x < size - 1; x += 1) {
       const cell = modules[y]![x];
-      if (cell === modules[y]![x + 1] && cell === modules[y + 1]![x] && cell === modules[y + 1]![x + 1]) {
+      if (
+        cell === modules[y]![x + 1] &&
+        cell === modules[y + 1]![x] &&
+        cell === modules[y + 1]![x + 1]
+      ) {
         score += 3;
       }
     }

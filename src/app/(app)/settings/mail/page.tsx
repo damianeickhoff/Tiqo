@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getMailSettings, getMessages } from "@/lib/settings";
 import { appUrl } from "@/lib/mail";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { MailCollectingForm, MailSendingForm } from "@/components/settings/mail-forms";
 import { MailPollingCard } from "@/components/settings/mail-polling";
 
@@ -25,7 +26,7 @@ export default async function MailConnectionPage() {
   const [mail, t] = await Promise.all([getMailSettings(), getMessages()]);
 
   return (
-    <div className="space-y-5">
+    <SettingsSheet>
       <SettingsSection title={t.mail.sendTitle} description={t.mail.sendBlurb}>
         <MailSendingForm
           settings={{
@@ -69,6 +70,6 @@ export default async function MailConnectionPage() {
           summary={mail.lastPollSummary}
         />
       </SettingsSection>
-    </div>
+    </SettingsSheet>
   );
 }

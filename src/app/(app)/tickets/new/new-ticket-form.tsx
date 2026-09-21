@@ -24,7 +24,6 @@ import { useClock, useDateFormat, useMessages } from "@/components/shell/instanc
 import {
   Button,
   buttonClass,
-  Card,
   Field,
   FieldError,
   FormError,
@@ -114,12 +113,14 @@ export function NewTicketForm({
   }
 
   return (
-    // One card, three columns: what happened, how it should be handled, and who
-    // it involves. The old two-column split left the right half mostly empty.
+    // One sheet, three columns: what happened, how it should be handled, and
+    // who it involves. The old two-column split left the right half mostly
+    // empty. A sheet rather than a card because raising a ticket is one object,
+    // and it is what steps the fields inside it down to wells.
     <form action={formAction} className="mx-auto max-w-6xl">
       <AttachmentsProvider>
         <DropZone>
-          <Card className="animate-rise overflow-hidden">
+          <div className="sheet animate-rise overflow-hidden">
             <div className="grid gap-x-8 gap-y-6 p-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <div className="space-y-5">
                 <FormError>{errors.form}</FormError>
@@ -427,7 +428,7 @@ export function NewTicketForm({
               <p className="text-text-3 mr-auto text-base">{t.newTicket.changeLater}</p>
               <Submit />
             </div>
-          </Card>
+          </div>
         </DropZone>
       </AttachmentsProvider>
     </form>

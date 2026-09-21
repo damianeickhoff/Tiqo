@@ -17,12 +17,11 @@ import {
   ticketVisibilityFilter,
 } from "@/lib/permissions";
 import { PRIORITY_META, shortAge } from "@/lib/tickets";
-import { clockTime, describeHours, minutesLeftToday } from "@/lib/clock";
+import { describeHours } from "@/lib/clock";
 import { planProgress } from "@/lib/plan";
 import { approvalGate } from "@/lib/approvals";
 import { Avatar } from "@/components/avatar";
 import { PersonLink } from "@/components/person-link";
-import { CopyValue } from "@/components/copy-value";
 import { PriorityBars, StatusRing } from "@/components/tickets/indicators";
 import { Reference } from "@/components/tickets/ticket-row";
 import { TicketProperties } from "@/components/tickets/ticket-properties";
@@ -546,9 +545,10 @@ export default async function TicketPage({ params }: { params: Params }) {
   const recipients = roster.filter((person) => person.id !== user.id);
   const requesterOptions = roster;
 
-  // The requester's own hours where they have given them; otherwise the desk's
-  // stand in, since it is the desk's clock that decides whether a reply now
-  // will be read now. With neither, there is nothing to say and nothing is said.
+  // The requester's own hours, and only theirs. Standing the desk's hours in
+  // for somebody who has given none said "in office until 17:00" about a person
+  // whose day nobody has ever written down — a confident answer to a question
+  // the database cannot answer. Without hours there is nothing to say.
   const workHours =
     ticket.reporter.workDays.length > 0
       ? {
@@ -558,18 +558,16 @@ export default async function TicketPage({ params }: { params: Params }) {
           end: ticket.reporter.workEnd,
           timeZone: clock.hours.timeZone,
         }
-      : clock.hours;
-  const hours = describeHours(workHours);
-  const inOffice = hours.open;
-  const hoursText = hours.open === null ? t.ticket.noFixedHours : `${hours.days} ${hours.range}`;
-  // Only while their day is nearly over. "In office" is the answer to "is a
-  // reply now worth writing"; the closing time is only news when it is about
-  // to stop being true, and printing it all day is a clock nobody asked for.
-  const closingSoon = inOffice ? minutesLeftToday(workHours) : null;
-  const closesAt = closingSoon !== null && closingSoon <= 60 ? clockTime(workHours.end) : null;
+      : null;
+  const inOffice = workHours ? describeHours(workHours).open : null;
 
   const canEdit = canEditTicket(user);
   const priorityColor = PRIORITY_META[ticket.priority].color;
+
+  // What the conversation's heading counts. Notes are counted apart because
+  // they are the half of the thread the requester never sees.
+  const noteCount = comments.filter((comment) => comment.isInternal).length;
+  const replyCount = comments.length - noteCount;
 
   // The phases the plan actually has, in the order it works them — what a
   // request for approval can be pointed at.
@@ -601,6 +599,9 @@ export default async function TicketPage({ params }: { params: Params }) {
       canDelete={can(user, "ticket.delete")}
       canNote={canWriteInternalNote(user)}
       isClosed={ticket.status?.settles ?? false}
+      statuses={allStatuses}
+      statusId={ticket.statusId}
+      requesterName={ticket.reporter.name}
       viewerName={user.name}
       viewerAvatar={user.avatarVariant}
       starred={Boolean(star)}
@@ -617,8 +618,8 @@ export default async function TicketPage({ params }: { params: Params }) {
           wide screens, pinned under the toolbar, so the thread and the
           settings scroll independently. */}
       <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="min-w-0 px-5 py-5 lg:px-8">
-          <div className="space-y-5">
+        <div className="min-w-0 px-5 py-5 lg:px-6 xl:pr-2">
+          <div className="space-y-3.5">
             {/* Above the request itself: for the person holding the decision
                 this is the most important thing on the page, and nobody else
                 sees it at all. */}
@@ -631,151 +632,154 @@ export default async function TicketPage({ params }: { params: Params }) {
               />
             ) : null}
 
-            <header>
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
-                <Reference reference={ticket.reference} />
-                <span
-                  className="flex items-baseline gap-1.5 text-sm font-medium"
-                  style={{ color: priorityColor }}
-                >
-                  <PriorityBars
-                    priority={ticket.priority}
-                    title={t.vocab.priority[ticket.priority]}
+            {/* The request: what was asked, and everything that names it. The
+                reference, the status, the tags, the byline and the title are
+                the card's own head; the words the requester wrote are the
+                section under the first divider. One card, because they are one
+                thing — the request — and a title floating above a bordered
+                block was the page's loudest seam. */}
+            <section className="card overflow-hidden">
+              <header className="px-4 pt-3.5 pb-4">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+                  <Reference reference={ticket.reference} />
+                  <span
+                    className="flex items-baseline gap-1.5 text-sm font-medium"
+                    style={{ color: priorityColor }}
+                  >
+                    <PriorityBars
+                      priority={ticket.priority}
+                      title={t.vocab.priority[ticket.priority]}
+                    />
+                    {t.vocab.priority[ticket.priority]}
+                  </span>
+                  <span aria-hidden className="text-text-3">
+                    ·
+                  </span>
+                  <span className="text-text-2 flex items-center gap-1.5 text-sm">
+                    <StatusRing status={ticket.status} />
+                    {ticket.status?.name ?? t.tickets.noStatus}
+                  </span>
+                  <span aria-hidden className="text-text-3">
+                    ·
+                  </span>
+                  <span className="text-text-3 text-sm">{t.vocab.type[ticket.type]}</span>
+                  <TargetChip ticket={ticket} />
+                </div>
+
+                <div className="mt-2.5">
+                  <EditableText
+                    ticketId={ticket.id}
+                    field="title"
+                    value={ticket.title}
+                    canEdit={canEdit || ticket.reporterId === user.id}
+                    as="title"
+                    className="text-xl leading-tight font-semibold tracking-[-0.02em] text-balance"
                   />
-                  {t.vocab.priority[ticket.priority]}
-                </span>
-                <span aria-hidden className="text-text-3">
-                  ·
-                </span>
-                <span className="text-text-2 flex items-center gap-1.5 text-sm">
-                  <StatusRing status={ticket.status} />
-                  {ticket.status?.name ?? t.tickets.noStatus}
-                </span>
-                <span aria-hidden className="text-text-3">
-                  ·
-                </span>
-                <span className="text-text-3 text-sm">{t.vocab.type[ticket.type]}</span>
-                <TargetChip ticket={ticket} />
-              </div>
+                </div>
 
-              <div className="mt-2.5">
-                <EditableText
-                  ticketId={ticket.id}
-                  field="title"
-                  value={ticket.title}
-                  canEdit={canEdit || ticket.reporterId === user.id}
-                  as="title"
-                  className="text-xl leading-tight font-semibold tracking-[-0.02em] text-balance"
-                />
-              </div>
-
-              {/* One line for the provenance of the ticket: who raised it, when,
+                {/* One line for the provenance of the ticket: who raised it, when,
                   and who has it now. An agent can file on someone's behalf, so
                   who typed it stays separate from who it is about. */}
-              <p className="text-text-3 mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
-                <span>{t.ticket.createdBy}</span>
-                <Avatar name={creatorName} variant={creator.avatarVariant} size={16} />
-                <PersonLink
-                  id={creator.id}
-                  name={creatorName}
-                  className="text-text-2 font-medium"
-                />
-                {creatorName !== ticket.reporter.name ? (
-                  <>
-                    <span>{t.ticket.onBehalfOf}</span>
+                <p className="text-text-3 mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
+                  <span>{t.ticket.createdBy}</span>
+                  <Avatar name={creatorName} variant={creator.avatarVariant} size={16} />
+                  <PersonLink
+                    id={creator.id}
+                    name={creatorName}
+                    className="text-text-2 font-medium"
+                  />
+                  {creatorName !== ticket.reporter.name ? (
+                    <>
+                      <span>{t.ticket.onBehalfOf}</span>
+                      <Avatar
+                        name={ticket.reporter.name}
+                        variant={ticket.reporter.avatarVariant}
+                        size={16}
+                      />
+                      <PersonLink
+                        id={ticket.reporter.id}
+                        name={ticket.reporter.name}
+                        className="text-text-2 font-medium"
+                      />
+                    </>
+                  ) : null}
+                  <span>{t.common.ago(shortAge(ticket.createdAt, undefined, t))}</span>
+                  <span aria-hidden>·</span>
+                  <span>
+                    {t.ticket.lastUpdated.toLowerCase()}{" "}
+                    {t.common.ago(shortAge(ticket.updatedAt, undefined, t))}
+                  </span>
+                  {ticket.labels.length > 0 ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      {ticket.labels.map((label) => (
+                        <span
+                          key={label.id}
+                          className="text-text-2 inline-flex h-[18px] items-center gap-1 rounded-full px-1.5 text-xs font-medium"
+                          style={{ background: "color-mix(in oklab, var(--text) 6%, transparent)" }}
+                        >
+                          {label.name}
+                        </span>
+                      ))}
+                    </>
+                  ) : null}
+                </p>
+
+                {ticket.mergedInto ? (
+                  <p className="bg-surface-2 text-text-2 rounded-control mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-base">
+                    <Merge size={14} className="text-text-3" />
+                    {t.ticket.mergedInto}{" "}
+                    <Link
+                      href={`/tickets/${ticket.mergedInto.number}`}
+                      className="text-brand-deep font-semibold hover:underline"
+                    >
+                      {ticket.mergedInto.reference}
+                    </Link>
+                  </p>
+                ) : null}
+              </header>
+
+              {/* The words themselves, under a faint divider: a section of the
+                request card, not a block of its own. Who wrote them and when
+                sit at the right of the section's heading. */}
+              <div className="group/body border-line border-t">
+                <div className="flex min-h-[38px] flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pt-2.5 pb-1">
+                  <p className="label">{t.ticket.request}</p>
+                  <span className="flex min-w-0 items-center gap-2 text-sm">
                     <Avatar
                       name={ticket.reporter.name}
                       variant={ticket.reporter.avatarVariant}
-                      size={16}
+                      size={18}
                     />
                     <PersonLink
                       id={ticket.reporter.id}
                       name={ticket.reporter.name}
-                      className="text-text-2 font-medium"
+                      className="font-medium"
                     />
-                  </>
-                ) : null}
-                <span>{t.common.ago(shortAge(ticket.createdAt, undefined, t))}</span>
-                <span aria-hidden>·</span>
-                <span>
-                  {t.ticket.lastUpdated.toLowerCase()}{" "}
-                  {t.common.ago(shortAge(ticket.updatedAt, undefined, t))}
-                </span>
-                {ticket.labels.length > 0 ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    {ticket.labels.map((label) => (
-                      <span
-                        key={label.id}
-                        className="text-text-2 inline-flex h-[18px] items-center gap-1 rounded-full px-1.5 text-xs font-medium"
-                        style={{ background: "color-mix(in oklab, var(--text) 6%, transparent)" }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </>
-                ) : null}
-              </p>
-
-              {ticket.mergedInto ? (
-                <p className="bg-surface-2 text-text-2 rounded-control mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-base">
-                  <Merge size={14} className="text-text-3" />
-                  {t.ticket.mergedInto}{" "}
-                  <Link
-                    href={`/tickets/${ticket.mergedInto.number}`}
-                    className="text-brand-deep font-semibold hover:underline"
-                  >
-                    {ticket.mergedInto.reference}
-                  </Link>
-                </p>
-              ) : null}
-            </header>
-
-            {/* The request itself, washed and ringed in the priority's colour —
-                the one block on the page that says how much it matters before
-                you have read a word of it. The wash is faint on purpose: it has
-                to read as a tint of the page, not as a coloured card. */}
-            <div
-              className="group/body source-panel relative overflow-hidden border"
-              style={{
-                background: `color-mix(in oklab, ${priorityColor} 7%, var(--surface))`,
-                borderColor: `color-mix(in oklab, ${priorityColor} 45%, transparent)`,
-              }}
-            >
-              <p className="label mb-3">{t.ticket.request}</p>
-              <div className="mb-3 flex items-center gap-2.5">
-                <Avatar
-                  name={ticket.reporter.name}
-                  variant={ticket.reporter.avatarVariant}
-                  size={24}
-                />
-                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-sm">
-                  <PersonLink
-                    id={ticket.reporter.id}
-                    name={ticket.reporter.name}
-                    className="font-semibold"
+                    <span className="text-text-3">
+                      {t.ticket.raisedThisOn(dateFormat.format(ticket.createdAt))}
+                    </span>
+                  </span>
+                </div>
+                <div className="px-4 pb-4">
+                  <EditableText
+                    ticketId={ticket.id}
+                    field="description"
+                    value={ticket.description}
+                    canEdit={canEdit || ticket.reporterId === user.id}
+                    as="body"
+                    className="text-md block leading-[1.7]"
+                    placeholder={t.ticket.noDescription}
                   />
-                  <p className="text-text-3">
-                    {t.ticket.raisedThisOn(dateFormat.format(ticket.createdAt))}
-                  </p>
+                  <AttachmentList
+                    attachments={ticket.attachments}
+                    viewerId={user.id}
+                    canModerate={can(user, "comment.moderate")}
+                    body={ticket.description}
+                  />
                 </div>
               </div>
-              <EditableText
-                ticketId={ticket.id}
-                field="description"
-                value={ticket.description}
-                canEdit={canEdit || ticket.reporterId === user.id}
-                as="body"
-                className="text-md block leading-[1.7]"
-                placeholder={t.ticket.noDescription}
-              />
-              <AttachmentList
-                attachments={ticket.attachments}
-                viewerId={user.id}
-                canModerate={can(user, "comment.moderate")}
-                body={ticket.description}
-              />
-            </div>
+            </section>
 
             {ticket.type === "CHANGE" && plan.length > 0 ? (
               <PlanCard
@@ -786,15 +790,27 @@ export default async function TicketPage({ params }: { params: Params }) {
               />
             ) : null}
 
-            <ConversationTimeline
-              items={timeline}
-              ticketId={ticket.id}
-              currentUserId={user.id}
-              canDeleteAny={can(user, "comment.moderate")}
-              locale={settings.locale}
-              dateLocale={dateLocaleOf(settings)}
-              requesterFirstName={requesterFirstName}
-            />
+            {/* The second card: everything said since, with the count of it in
+                the heading. */}
+            <section className="card overflow-hidden">
+              <div className="flex h-[38px] items-center justify-between gap-3 px-4">
+                <h2 className="label">{t.ticket.conversation}</h2>
+                <span className="text-text-3 text-sm">
+                  {t.ticket.conversationCount(replyCount, noteCount)}
+                </span>
+              </div>
+              <div className="border-line border-t">
+                <ConversationTimeline
+                  items={timeline}
+                  ticketId={ticket.id}
+                  currentUserId={user.id}
+                  canDeleteAny={can(user, "comment.moderate")}
+                  locale={settings.locale}
+                  dateLocale={dateLocaleOf(settings)}
+                  requesterFirstName={requesterFirstName}
+                />
+              </div>
+            </section>
 
             <ConversationComposer />
           </div>
@@ -809,8 +825,23 @@ export default async function TicketPage({ params }: { params: Params }) {
             has nowhere left to go; the scrollbar track is always reserved, and
             the right padding is short by its width so the cards sit the same
             distance from both edges. */}
-        <aside className="bg-chrome rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--toolbar)] xl:h-[calc(100dvh-var(--bar)-var(--toolbar))] xl:overflow-y-auto xl:overscroll-contain xl:pr-0.5">
+        <aside className="bg-bg rail-scroll flex flex-col gap-3 p-3 xl:sticky xl:top-[var(--toolbar)] xl:h-[calc(100dvh-var(--bar)-var(--toolbar))] xl:overflow-y-auto xl:overscroll-contain xl:pr-0.5">
+          {/* Keyed on the values it holds, so a status set from somewhere else
+              — a reply sent with one, the toolbar's Close — reaches the rail.
+              The card keeps its own committed copy of the draft and cannot
+              hear about a change it did not make; keyed this way it is rebuilt
+              only when one of those values really moved, so an edit in progress
+              survives everything else the page revalidates for. */}
           <TicketProperties
+            key={[
+              ticket.statusId,
+              ticket.priority,
+              ticket.type,
+              ticket.assigneeId,
+              ticket.teamId,
+              ticket.projectId,
+              ticket.milestoneId,
+            ].join("·")}
             ticketId={ticket.id}
             ticketNumber={ticket.number}
             statusId={ticket.statusId}
@@ -837,6 +868,98 @@ export default async function TicketPage({ params }: { params: Params }) {
             }
             readOnly={!canEdit}
           />
+
+          {/* Who this is about, as a contact card: enough to reach them without
+              opening their page. */}
+          <PanelCard
+            title={t.ticket.requester}
+            action={
+              <span className="flex items-center gap-2.5">
+                {staff ? (
+                  <Link
+                    href={`/tickets?q=${encodeURIComponent(ticket.reporter.email)}`}
+                    className="text-brand-deep text-xs font-medium transition-colors hover:underline"
+                  >
+                    {t.ticket.otherRequests(otherRequests)}
+                  </Link>
+                ) : null}
+                {canEdit ? (
+                  <RequesterPicker
+                    ticketId={ticket.id}
+                    currentId={ticket.reporterId}
+                    people={requesterOptions}
+                  />
+                ) : null}
+              </span>
+            }
+          >
+            {/* Who they are and nothing else. The address and the number were
+                two rows of small print above the two buttons that use them,
+                and their hours were a line nobody read — whether a reply now
+                will be read now is the dot beside the name, which is the whole
+                of what the hours were for. */}
+            <div className="flex items-center gap-2.5 px-3.5 py-3">
+              <Avatar
+                name={ticket.reporter.name}
+                variant={ticket.reporter.avatarVariant}
+                size={36}
+              />
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className="flex items-center gap-1.5">
+                  <PersonLink
+                    id={ticket.reporter.id}
+                    name={ticket.reporter.name}
+                    className="text-md min-w-0 truncate font-semibold"
+                  />
+                  {inOffice === null ? null : (
+                    <span
+                      aria-label={inOffice ? t.ticket.inOffice : t.ticket.outOfHours}
+                      title={inOffice ? t.ticket.inOffice : t.ticket.outOfHours}
+                      className="size-2 shrink-0 rounded-full"
+                      style={{ background: inOffice ? "var(--positive)" : "var(--text-3)" }}
+                    />
+                  )}
+                </div>
+                <p className="text-text-2 mt-0.5 truncate text-sm">
+                  {[
+                    ticket.reporter.jobTitle,
+                    [ticket.reporter.department, ticket.reporter.company]
+                      .filter(Boolean)
+                      .join(", "),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || ticket.reporter.role.name}
+                </p>
+              </div>
+            </div>
+
+            <div className="border-line flex gap-1 border-t px-2 py-1.5">
+              <a
+                href={`mailto:${ticket.reporter.email}`}
+                className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium transition-colors"
+              >
+                <Mail size={13} />
+                {t.ticket.emailAction}
+              </a>
+              {ticket.reporter.phone ? (
+                <a
+                  href={`tel:${ticket.reporter.phone.replace(/\s/g, "")}`}
+                  className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium transition-colors"
+                >
+                  <Phone size={13} />
+                  {t.ticket.callAction}
+                </a>
+              ) : null}
+              <PersonLink
+                id={ticket.reporter.id}
+                name={ticket.reporter.name}
+                className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium"
+              >
+                <UserRound size={13} />
+                {t.ticket.profileAction}
+              </PersonLink>
+            </div>
+          </PanelCard>
 
           <DeadlineBlock ticketId={ticket.id} ticket={ticket} canEdit={canEdit} />
 
@@ -869,131 +992,6 @@ export default async function TicketPage({ params }: { params: Params }) {
               internal: Boolean(file.comment?.isInternal),
             }))}
           />
-
-          {/* Who this is about, as a contact card: enough to reach them without
-              opening their page. */}
-          <PanelCard
-            title={t.ticket.requester}
-            action={
-              <span className="flex items-center gap-2.5">
-                {staff ? (
-                  <Link
-                    href={`/tickets?q=${encodeURIComponent(ticket.reporter.email)}`}
-                    className="text-brand-deep text-xs font-medium transition-colors hover:underline"
-                  >
-                    {t.ticket.otherRequests(otherRequests)}
-                  </Link>
-                ) : null}
-                {canEdit ? (
-                  <RequesterPicker
-                    ticketId={ticket.id}
-                    currentId={ticket.reporterId}
-                    people={requesterOptions}
-                  />
-                ) : null}
-              </span>
-            }
-          >
-            <div className="flex items-center gap-2.5 px-3.5 py-3">
-              <Avatar
-                name={ticket.reporter.name}
-                variant={ticket.reporter.avatarVariant}
-                size={36}
-              />
-              <div className="min-w-0 flex-1 leading-tight">
-                {/* The pill rides on the name's line so the job title beneath
-                    gets the whole width — it is the longer of the two, and it
-                    was the one being truncated. */}
-                <div className="flex items-center gap-2">
-                  <PersonLink
-                    id={ticket.reporter.id}
-                    name={ticket.reporter.name}
-                    className="text-md min-w-0 truncate font-semibold"
-                  />
-                  {inOffice === null ? null : (
-                    // Amber once their day is nearly over: the pill is there to
-                    // say whether writing now will be read now, and "yes, but
-                    // only just" is the case worth catching the eye.
-                    <span
-                      className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={
-                        {
-                          "--pill": closesAt
-                            ? "var(--p-high)"
-                            : inOffice
-                              ? "var(--positive)"
-                              : "var(--text-3)",
-                          color: "var(--pill)",
-                          background: "color-mix(in oklab, var(--pill) 12%, transparent)",
-                        } as React.CSSProperties
-                      }
-                    >
-                      <span aria-hidden className="size-1.5 rounded-full bg-current" />
-                      {inOffice ? t.ticket.inOffice : t.ticket.outOfHours}
-                      {closesAt ? ` · ${t.ticket.untilTime(closesAt)}` : null}
-                    </span>
-                  )}
-                </div>
-                <p className="text-text-2 mt-0.5 truncate text-sm">
-                  {[ticket.reporter.jobTitle, ticket.reporter.department]
-                    .filter(Boolean)
-                    .join(" · ") || ticket.reporter.role.name}
-                </p>
-              </div>
-            </div>
-
-            <dl className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-x-2.5 gap-y-1.5 px-3.5 pb-3 text-base">
-              {ticket.reporter.company ? (
-                <>
-                  <dt className="text-text-3 text-sm">{t.people.company}</dt>
-                  <dd className="truncate">{ticket.reporter.company}</dd>
-                </>
-              ) : null}
-              {/* Tapped, these hand you the value. Writing to somebody is
-                  what the row of buttons underneath is for. */}
-              <dt className="text-text-3 text-sm">{t.auth.email}</dt>
-              <dd className="min-w-0 font-mono text-sm">
-                <CopyValue value={ticket.reporter.email} />
-              </dd>
-              {ticket.reporter.phone ? (
-                <>
-                  <dt className="text-text-3 text-sm">{t.ticket.phone}</dt>
-                  <dd className="min-w-0 font-mono text-sm">
-                    <CopyValue value={ticket.reporter.phone} />
-                  </dd>
-                </>
-              ) : null}
-              <dt className="text-text-3 text-sm">{t.ticket.hoursLabel}</dt>
-              <dd className="truncate">{hoursText}</dd>
-            </dl>
-
-            <div className="border-line flex gap-1 border-t px-2 py-1.5">
-              <a
-                href={`mailto:${ticket.reporter.email}`}
-                className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium transition-colors"
-              >
-                <Mail size={13} />
-                {t.ticket.emailAction}
-              </a>
-              {ticket.reporter.phone ? (
-                <a
-                  href={`tel:${ticket.reporter.phone.replace(/\s/g, "")}`}
-                  className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium transition-colors"
-                >
-                  <Phone size={13} />
-                  {t.ticket.callAction}
-                </a>
-              ) : null}
-              <PersonLink
-                id={ticket.reporter.id}
-                name={ticket.reporter.name}
-                className="text-text-2 hover:bg-surface-2 hover:text-text rounded-control flex h-7 flex-1 items-center justify-center gap-1.5 text-sm font-medium"
-              >
-                <UserRound size={13} />
-                {t.ticket.profileAction}
-              </PersonLink>
-            </div>
-          </PanelCard>
 
           {/* Only the four most recent — the full trail is behind "All", which
               opens the same dialog the toolbar does. */}

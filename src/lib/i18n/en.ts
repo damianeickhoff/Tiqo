@@ -13,6 +13,7 @@ export const en = {
     saved: "Saved",
     cancel: "Cancel",
     delete: "Delete",
+    remove: "Remove",
     edit: "Edit",
     close: "Close",
     add: "Add",
@@ -109,7 +110,9 @@ export const en = {
     home: "Tiqo home",
     signOut: "Sign out",
     yourProfile: "Your profile",
-    yourAvatar: "Your avatar",
+    yourAvatar: "Your picture",
+    addPhoto: "Upload",
+    replacePhoto: "Replace",
     collapse: "Collapse sidebar",
     expand: "Expand sidebar",
     groupWork: "Work",
@@ -305,6 +308,12 @@ export const en = {
     viewMyGroups: "My operator groups",
     viewUnassigned: "Unassigned",
     viewEverything: "Everything",
+    savedViews: "Saved",
+    saveView: "Save current view",
+    viewName: "View name",
+    forgetView: (name: string) => `Forget view ${name}`,
+    viewFiltered: "Filtered",
+    sortBy: "Sort",
     prev: "Previous",
     next: "Next",
     filtering: "Filtering by",
@@ -489,6 +498,27 @@ export const en = {
     removeEntryBlurb: "The trail is the record of what happened here. There is no undo.",
     replyHint: "The requester will see this.",
     noteHint: "Hidden from the requester.",
+
+    /* The composer's own row of controls. Who is about to read this is said
+       beside the Reply/Note segment rather than under the box, because it is
+       what the segment decides. */
+    toRequester: (name: string) => `to ${name} · updates go to the portal and their e-mail`,
+    noteAudience: "internal · only the desk sees this",
+    /// The segment's own word for the note side of the composer. "Add note" is
+    /// a verb and belongs on the button that does it.
+    note: "Note",
+    send: "Send",
+    statusOnSend: "Status when this is sent",
+    insertAnswer: "Insert answer",
+    answerLink: (title: string) => `Read it on the portal: ${title}`,
+    insertAnswerTitle: "Insert a published answer",
+    insertAnswerBlurb:
+      "The answer's title and a link to it go into what you are writing. Only published answers are offered.",
+    searchAnswers: "Search the published answers…",
+    noAnswers: "No published answer matches that.",
+    /// The rail's second card: everything about the ticket that is not its
+    /// status or its priority.
+    details: "Details",
     mergeBlurb: "The conversation moves to the ticket you pick, and this one is closed.",
     deleteBlurb: "This removes the ticket, its conversation and its activity trail for good.",
 
@@ -2150,7 +2180,27 @@ export const en = {
     usePreset: (name: string) => `Use ${name}`,
     previewButton: "Button",
     previewTint: "Tint",
+    avatarTitle: "Pictures of people",
+    avatarBlurb:
+      "Everybody can upload a picture of themselves from the account menu. This is what the rest look like until they do.",
+    avatarInitials: "Initials",
+    avatarInitialsHint: "Their initials on a colour",
+    avatarSilhouette: "Silhouette",
+    avatarSilhouetteHint: "The same plain figure for everyone",
+    avatarSample: "Sam Reply",
     previewHero: "The portal's front page",
+    cannedTitleSection: "Pre-defined answers",
+    cannedBlurb:
+      "The replies your desk sends over and over. An operator picks one in the composer and can edit it before sending.",
+    cannedTitle: "What it is called",
+    cannedBody: "What it says",
+    cannedTitlePlaceholder: "Password reset",
+    cannedBodyPlaceholder:
+      "We have reset your password. You will be asked to choose a new one when you next sign in.",
+    addCannedReply: "Add an answer",
+    noCannedReplies: "No pre-defined answers yet.",
+    cannedPick: "Pre-defined answers",
+    cannedNone: "Nothing set up yet",
     previewHeroGreeting: "Hello, Sam",
     previewHeroLine: "What do you need?",
     closeSendsHere: "The Close button sends tickets here",
@@ -2542,6 +2592,8 @@ export const en = {
     nameArticle: "Give the article a title.",
     nameAnnouncement: "Give the notice a title.",
     nameCategory: "Give the section a name.",
+    nameCannedReply: "Give the answer a name.",
+    emptyCannedReply: "An answer with nothing in it has nothing to send.",
     nameForm: "Give the form a name.",
     labelField: "Give the question a label.",
     nameField: "Give the question a name.",

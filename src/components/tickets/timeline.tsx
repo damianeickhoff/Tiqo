@@ -154,11 +154,7 @@ export function ConversationTimeline({
   const t = messagesFor(locale);
 
   if (items.length === 0) {
-    return (
-      <p className="border-line text-text-3 rounded-card text-md border border-dashed px-4 py-8 text-center">
-        {t.ticket.nothingHappened}
-      </p>
-    );
+    return <p className="text-text-3 text-md px-4 py-8 text-center">{t.ticket.nothingHappened}</p>;
   }
 
   const pinned = pinnedIn(
@@ -184,7 +180,7 @@ export function ConversationTimeline({
   return (
     <>
       {pinned.length > 0 ? (
-        <div className="border-brand/35 rounded-card mb-4 border bg-[var(--brand-tint)] px-4 py-3">
+        <div className="border-line border-b bg-[var(--brand-tint)] px-4 py-3">
           <p className="text-brand-deep mb-1.5 flex items-center gap-1.5 text-xs font-semibold tracking-[0.06em] uppercase">
             <Pin size={11} strokeWidth={2.5} />
             {t.ticket.pinnedHeading}
@@ -205,7 +201,11 @@ export function ConversationTimeline({
         </div>
       ) : null}
 
-      <ol className="space-y-1">
+      {/* Faint dividers rather than a box each: the thread is one card now, and
+          the rows inside it are separated the way rows in a card are. The
+          direct-child selector leaves a comment's own replies alone — they are
+          nested in their parent's list, not siblings in this one. */}
+      <ol className="[&>li+li]:border-line [&>li+li]:border-t">
         {groups.map((group) =>
           group.kind === "comment" ? (
             <CommentCard
@@ -217,7 +217,7 @@ export function ConversationTimeline({
               requesterFirstName={requesterFirstName}
             />
           ) : (
-            <li key={group.items[0]!.id} className="border-line my-2 border-y py-1">
+            <li key={group.items[0]!.id} className="px-4 py-1.5">
               <ul>
                 {group.items.map((item) => (
                   <li

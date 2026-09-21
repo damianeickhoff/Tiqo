@@ -348,7 +348,9 @@ export default async function DocPage({
       ) : null}
 
       <div className={reading ? "" : "xl:grid xl:grid-cols-[minmax(0,1fr)_320px]"}>
-        <div className="min-w-0">
+        {/* A page being read or written is one object, so it is one sheet on
+            the work area's ground. The rail beside it stays cards. */}
+        <div className="sheet m-3 min-w-0">
           <DocArticle
             docId={doc.id}
             title={doc.title}

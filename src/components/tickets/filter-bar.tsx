@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Columns3, ListFilter, RotateCcw, Search, X } from "lucide-react";
+import { ListFilter, Search, X } from "lucide-react";
 import { PRIORITY_ORDER, TYPE_ORDER } from "@/lib/tickets";
-import { resetColumns } from "@/components/table/resizable-columns";
-import { QUEUE_COLUMNS_KEY } from "@/components/tickets/ticket-table";
 import { useMessages } from "@/components/shell/instance-context";
-import type { Messages } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type FilterOption = { id: string; label: string };
@@ -31,40 +28,25 @@ const KEYS = [
 ] as const;
 
 /**
- * What counts as narrowing the queue, and so what the button has to own up to.
+ * What the button owns up to: the narrowing that has no control of its own in
+ * the row, because it is a question most desks never ask.
  *
- * Not `scope`, which is the view you are in rather than a filter on it; not
- * `q`, which has a box of its own that says what it is holding; and not the
- * order, which changes what is first rather than what is there.
+ * The five in the row — status, priority, type, project, assignee — say what
+ * they are set to where they stand, so they need no count. Not `scope`, which
+ * is the view you are in rather than a filter on it; not `q`, which has a box
+ * of its own; not the order, which changes what is first rather than what is
+ * there.
  */
-const FILTERS = [
-  "status",
-  "priority",
-  "type",
-  "team",
-  "project",
-  "assignee",
-  "approval",
-  "open",
-  "blocked",
-] as const;
+const EXTRAS = ["team", "approval", "open", "blocked"] as const;
 
 /**
- * The four or five questions an operator actually starts from, as one click
- * each.
+ * The secondary filters, in the sheet's own header row.
  *
- * Views set several parameters at once and replace whatever was there, which is
- * the point: "unassigned" means unassigned, not "unassigned as well as the
- * three filters I forgot were on".
+ * Which view you are in is the views column's business now; this row is only
+ * how the view is narrowed once you are standing in it — five questions where
+ * the answer is worth showing, one button for the rest, and the box that finds
+ * a ticket by its words or its reference.
  */
-const VIEWS = [
-  { id: "open", label: "viewAllOpen", params: { open: "1" } },
-  { id: "mine", label: "viewMine", params: { open: "1", assignee: "me" } },
-  { id: "groups", label: "viewMyGroups", params: { open: "1", scope: "team" } },
-  { id: "unassigned", label: "viewUnassigned", params: { open: "1", assignee: "none" } },
-  { id: "all", label: "viewEverything", params: {} },
-] as const;
-
 export function FilterBar({
   statuses,
   projects,
@@ -95,62 +77,64 @@ export function FilterBar({
     router.push(`/tickets?${query.toString()}`);
   }
 
-  function go(next: Record<string, string>) {
-    const query = new URLSearchParams(next);
-    router.push(`/tickets?${query.toString()}`);
-  }
-
-  /** Everything the address is narrowing by, in the order the panel lists it,
-   *  each with the words to show and the key that turns it off. */
-  const chips = FILTERS.filter((key) => value(key)).map((key) => ({
-    key,
-    label: chipLabel(key, value(key), t, { statuses, projects, assignees, teams }),
-  }));
-
+  const extras = EXTRAS.filter((key) => value(key)).length;
   const active = KEYS.filter(
     (key) => key !== "page" && key !== "sort" && key !== "dir" && value(key),
   );
 
-  // A view is current when the URL says exactly what the view says — no more.
-  const current = VIEWS.find((view) => {
-    const keys = Object.keys(view.params);
-    return (
-      active.length === keys.length &&
-      keys.every((key) => value(key) === view.params[key as keyof typeof view.params])
-    );
-  });
-
   return (
-    <div className="bg-surface/90 sticky top-0 z-20 flex flex-wrap items-center gap-2 px-5 py-2 backdrop-blur-md lg:px-6">
-      {/* Where you are, before what you are narrowing: a segmented control. */}
-      <div
-        role="group"
-        aria-label={t.tickets.views}
-        className="bg-surface-2 flex items-center gap-0.5 rounded-full p-0.5"
-      >
-        {VIEWS.map((view) => (
-          <button
-            key={view.id}
-            type="button"
-            aria-current={current?.id === view.id}
-            onClick={() => go(view.params)}
-            className={cn(
-              "h-8 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-[background-color,color,box-shadow]",
-              current?.id === view.id
-                ? "text-text bg-[var(--seg-on)] shadow-[0_1px_2px_rgba(9,9,11,0.1),0_0_0_1px_rgba(9,9,11,0.04)]"
-                : "text-text-2 hover:text-text",
-            )}
-          >
-            {t.tickets[view.label]}
-          </button>
-        ))}
-      </div>
+    <div className="border-line flex min-h-[52px] flex-wrap items-center gap-2 border-b px-4 py-2">
+      <Picker
+        label={t.ticket.status}
+        value={value("status")}
+        onChange={(next) => setParam("status", next)}
+        none={t.tickets.anyStatus}
+        options={statuses.map((status) => ({ id: status.id, label: status.name }))}
+      />
 
-      <span aria-hidden className="bg-line mx-1 hidden h-5 w-px sm:block" />
+      <Picker
+        label={t.ticket.priority}
+        value={value("priority")}
+        onChange={(next) => setParam("priority", next)}
+        none={t.tickets.anyPriority}
+        options={PRIORITY_ORDER.map((priority) => ({
+          id: priority,
+          label: t.vocab.priority[priority],
+        }))}
+      />
 
-      {/* One button rather than a row of eight dropdowns. Eight of them were
-          eight questions asked of everybody all the time, most of which most
-          desks never answer; this asks one, and says how many are answered. */}
+      <Picker
+        label={t.ticket.type}
+        value={value("type")}
+        onChange={(next) => setParam("type", next)}
+        none={t.tickets.anyType}
+        options={TYPE_ORDER.map((type) => ({ id: type, label: t.vocab.type[type] }))}
+      />
+
+      <Picker
+        label={t.ticket.project}
+        value={value("project")}
+        onChange={(next) => setParam("project", next)}
+        none={t.tickets.allProjects}
+        options={projects}
+      />
+
+      {showAssignee ? (
+        <Picker
+          label={t.ticket.assignee}
+          value={value("assignee")}
+          onChange={(next) => setParam("assignee", next)}
+          none={t.tickets.anyone}
+          options={[
+            { id: "me", label: t.tickets.assignedToMe },
+            { id: "none", label: t.tickets.unassigned },
+            ...assignees,
+          ]}
+        />
+      ) : null}
+
+      {/* The rest, behind one button rather than four more dropdowns nobody
+          asked for. The count says how many are on. */}
       <div className="relative">
         <button
           type="button"
@@ -158,17 +142,17 @@ export function FilterBar({
           aria-expanded={open}
           onClick={() => setOpen((was) => !was)}
           className={cn(
-            "flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-sm font-medium whitespace-nowrap transition-colors",
-            chips.length
+            "rounded-control flex h-7 items-center gap-1.5 border px-2.5 text-sm font-medium whitespace-nowrap transition-colors",
+            extras
               ? "text-brand-deep border-transparent bg-[var(--brand-tint)]"
-              : "text-text-2 hover:text-text bg-surface border-transparent shadow-[var(--highlight)]",
+              : "text-text-2 hover:text-text bg-surface-2 border-transparent",
           )}
         >
           <ListFilter size={13} strokeWidth={2} />
           {t.tickets.filters}
-          {chips.length ? (
+          {extras ? (
             <span className="bg-brand tnum flex size-4 items-center justify-center rounded-full text-[10px] font-semibold text-[var(--brand-ink)]">
-              {chips.length}
+              {extras}
             </span>
           ) : null}
         </button>
@@ -187,64 +171,22 @@ export function FilterBar({
               aria-label={t.tickets.filters}
               className="animate-rise bg-surface rounded-card absolute left-0 z-50 mt-2 w-72 p-3 shadow-[var(--shadow-float)]"
             >
-              <div className="grid gap-2.5">
-                <Picker
-                  label={t.ticket.status}
-                  value={value("status")}
-                  onChange={(next) => setParam("status", next)}
-                  none={t.tickets.anyStatus}
-                  options={statuses.map((status) => ({ id: status.id, label: status.name }))}
-                />
-
-                <Picker
-                  label={t.ticket.priority}
-                  value={value("priority")}
-                  onChange={(next) => setParam("priority", next)}
-                  none={t.tickets.anyPriority}
-                  options={PRIORITY_ORDER.map((priority) => ({
-                    id: priority,
-                    label: t.vocab.priority[priority],
-                  }))}
-                />
-
-                <Picker
-                  label={t.ticket.type}
-                  value={value("type")}
-                  onChange={(next) => setParam("type", next)}
-                  none={t.tickets.anyType}
-                  options={TYPE_ORDER.map((type) => ({ id: type, label: t.vocab.type[type] }))}
-                />
-
-                <Picker
-                  label={t.ticket.team}
+              <label className="grid gap-1">
+                <span className="label">{t.ticket.team}</span>
+                <select
                   value={value("team")}
-                  onChange={(next) => setParam("team", next)}
-                  none={t.tickets.anyGroup}
-                  options={[{ id: "none", label: t.tickets.noGroup }, ...teams]}
-                />
-
-                <Picker
-                  label={t.ticket.project}
-                  value={value("project")}
-                  onChange={(next) => setParam("project", next)}
-                  none={t.tickets.allProjects}
-                  options={projects}
-                />
-
-                {showAssignee ? (
-                  <Picker
-                    label={t.ticket.assignee}
-                    value={value("assignee")}
-                    onChange={(next) => setParam("assignee", next)}
-                    none={t.tickets.anyone}
-                    options={[
-                      { id: "me", label: t.tickets.assignedToMe },
-                      { id: "none", label: t.tickets.unassigned },
-                      ...assignees,
-                    ]}
-                  />
-                ) : null}
-              </div>
+                  onChange={(event) => setParam("team", event.target.value)}
+                  className="select-chevron bg-surface-2 text-text rounded-control focus:border-brand h-8 w-full cursor-pointer appearance-none border border-transparent pr-7 pl-2.5 text-base transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+                >
+                  <option value="">{t.tickets.anyGroup}</option>
+                  <option value="none">{t.tickets.noGroup}</option>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
               <div className="border-line mt-3 grid gap-1 border-t pt-2">
                 <Check
@@ -276,158 +218,43 @@ export function FilterBar({
         ) : null}
       </div>
 
-      <ColumnsMenu />
-
-      {/* What is on, where it can be taken off again. A count on a button says
-          how many; only the chips say which. */}
-      {chips.map((chip) => (
-        <button
-          key={chip.key}
-          type="button"
-          onClick={() => setParam(chip.key, "")}
-          aria-label={t.tickets.removeFilter(chip.label)}
-          className="bg-surface text-text-2 hover:text-text flex h-8 items-center gap-1.5 rounded-full border border-transparent pr-2 pl-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
-        >
-          {chip.label}
-          <X size={12} strokeWidth={2.5} className="text-text-3" />
-        </button>
-      ))}
-
       {active.length ? (
         <button
           type="button"
           onClick={() => router.push("/tickets")}
-          className="text-text-2 hover:text-text flex h-8 items-center gap-1 rounded-full px-2 text-sm font-medium transition-colors"
+          className="text-text-2 hover:text-text flex h-7 items-center gap-1 rounded-full px-2 text-sm font-medium transition-colors"
         >
           <X size={12} strokeWidth={2.5} />
           {t.tickets.clear}
         </button>
       ) : null}
 
-      <div className="ml-auto flex items-center gap-2">
-        <form
-          className="relative"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const input = event.currentTarget.elements.namedItem("q") as HTMLInputElement;
-            setParam("q", input.value.trim());
-          }}
-        >
-          <Search
-            size={13}
-            className="text-text-3 pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
-          />
-          <input
-            name="q"
-            defaultValue={value("q")}
-            placeholder={t.tickets.searchAll}
-            aria-label={t.tickets.searchAll}
-            className="bg-surface placeholder:text-text-3 focus:border-brand h-8 w-48 rounded-full border border-transparent pr-3 pl-7 text-sm shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-56"
-          />
-        </form>
-      </div>
-    </div>
-  );
-}
-
-/**
- * What can be done to the columns themselves.
- *
- * One item so far, and it is the one a drag needs behind it: a double-click on
- * a handle puts that column back, and this puts all of them back for somebody
- * who has dragged the table somewhere they cannot read.
- */
-function ColumnsMenu() {
-  const t = useMessages();
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((was) => !was)}
-        className="text-text-2 hover:text-text bg-surface flex h-8 items-center gap-1.5 rounded-full border border-transparent px-2.5 text-sm font-medium whitespace-nowrap shadow-[var(--highlight)] transition-colors"
+      <form
+        className="relative ml-auto"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const input = event.currentTarget.elements.namedItem("q") as HTMLInputElement;
+          setParam("q", input.value.trim());
+        }}
       >
-        <Columns3 size={13} strokeWidth={2} />
-        {t.tickets.columns}
-      </button>
-
-      {open ? (
-        <>
-          <button
-            type="button"
-            aria-hidden
-            tabIndex={-1}
-            className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="menu"
-            className="animate-rise bg-surface rounded-card absolute left-0 z-50 mt-2 w-52 p-1 shadow-[var(--shadow-float)]"
-          >
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                resetColumns(QUEUE_COLUMNS_KEY);
-                setOpen(false);
-              }}
-              className="hover:bg-surface-2 rounded-control flex w-full items-center gap-2.5 px-2.5 py-2 text-left text-base font-medium transition-colors"
-            >
-              <RotateCcw size={14} className="text-text-3" />
-              {t.tickets.resetColumns}
-            </button>
-          </div>
-        </>
-      ) : null}
+        <Search
+          size={13}
+          className="text-text-3 pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
+        />
+        <input
+          name="q"
+          defaultValue={value("q")}
+          placeholder={t.tickets.searchAll}
+          aria-label={t.tickets.searchAll}
+          className="bg-surface-2 placeholder:text-text-3 focus:border-brand rounded-control h-7 w-48 border border-transparent pr-3 pl-7 text-sm transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none lg:w-56"
+        />
+      </form>
     </div>
   );
 }
 
-/** What a filter that is on should be called on its chip: the words somebody
- *  chose, not the id that was stored. */
-function chipLabel(
-  key: (typeof FILTERS)[number],
-  value: string,
-  t: Messages,
-  lists: {
-    statuses: { id: string; name: string }[];
-    projects: FilterOption[];
-    assignees: FilterOption[];
-    teams: FilterOption[];
-  },
-) {
-  switch (key) {
-    case "status":
-      return lists.statuses.find((status) => status.id === value)?.name ?? t.ticket.status;
-    case "priority":
-      return t.vocab.priority[value as keyof typeof t.vocab.priority] ?? t.ticket.priority;
-    case "type":
-      return t.vocab.type[value as keyof typeof t.vocab.type] ?? t.ticket.type;
-    case "team":
-      return value === "none"
-        ? t.tickets.noGroup
-        : (lists.teams.find((team) => team.id === value)?.label ?? t.ticket.team);
-    case "project":
-      return lists.projects.find((project) => project.id === value)?.label ?? t.ticket.project;
-    case "assignee":
-      return value === "me"
-        ? t.tickets.assignedToMe
-        : value === "none"
-          ? t.tickets.unassigned
-          : (lists.assignees.find((person) => person.id === value)?.label ?? t.ticket.assignee);
-    case "approval":
-      return value === "me" ? t.tickets.waitingOnMe : t.tickets.waitingDecision;
-    case "open":
-      return t.tickets.openOnly;
-    case "blocked":
-      return t.links.blocked;
-  }
-}
-
-/** One question in the panel: what it is asking, and what it is answered with. */
+/** One question in the row: what it is asking, and what it is answered with.
+ *  Its own name is the "any…" option, so the row reads without labels. */
 function Picker({
   label,
   value,
@@ -442,21 +269,22 @@ function Picker({
   options: FilterOption[];
 }) {
   return (
-    <label className="grid gap-1">
-      <span className="label">{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="select-chevron bg-surface text-text rounded-control focus:border-brand h-8 w-full cursor-pointer appearance-none border-transparent pr-7 pl-2.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
-      >
-        <option value="">{none}</option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <select
+      aria-label={label}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className={cn(
+        "select-chevron bg-surface-2 rounded-control focus:border-brand h-7 max-w-[180px] cursor-pointer appearance-none border border-transparent pr-7 pl-2.5 text-sm transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none",
+        value ? "text-text font-medium" : "text-text-2",
+      )}
+    >
+      <option value="">{none}</option>
+      {options.map((option) => (
+        <option key={option.id} value={option.id}>
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 }
 

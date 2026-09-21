@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { PlanManager } from "@/components/settings/plan-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,8 +32,10 @@ export default async function PlanSettingsPage() {
   ]);
 
   return (
-    <SettingsSection title={t.plan.templatesTitle} description={t.plan.templatesBlurb}>
-      <PlanManager templates={templates} />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.plan.templatesTitle} description={t.plan.templatesBlurb}>
+        <PlanManager templates={templates} />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

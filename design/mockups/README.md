@@ -56,3 +56,24 @@ is the layer; `src/portal/make12.mjs` patches `gen.mjs` into `gen12.mjs`
 and writes the queue boards; `src/portal/canvas12.mjs` lays page 4 of the
 canvas. Build: `node src/portal/make12.mjs && node src/portal/gen12.mjs
 boards && node src/portal/canvas12.mjs`.
+
+## Round 13 — the surface ladder on the desk
+
+After the fill layer was built, white cards landed on the desk's white
+panel on pages made of blocks. `boards/DeskFill13.html` shows the ticket page
+and settings › statuses two ways: A, every block a card on the ground
+(`Ticket13*`, `Settings13*`; rejected as too fragmented) and B, the main
+region as one sheet with sections and wells, side regions as cards on the
+ground (`Ticket14*`, `Settings14*`; chosen). Generator
+`src/portal/gen13.mjs boards`. The rule (ground → sheet → well, one rung per
+step) is in the viewer's brief and in `docs/plans/signal-round-12.md`.
+
+## Round 14 — the overview pages in the frame
+
+Tickets, projects and assets read as a box in a box once the frame landed
+(white frame, grey rim, white sheet). `boards/Overview14.html` shows three
+answers on all three pages, both themes: A head and filters on the ground
+with the table as the sheet; B the inset panel becomes the sheet on
+one-object pages; C a views column on the ground beside the sheet, the same
+on every overview. Boards `Overview14{Tickets,Projects,Assets}{A,B,C}*`,
+generator `src/portal/gen14.mjs boards`.

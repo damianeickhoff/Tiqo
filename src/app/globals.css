@@ -18,13 +18,12 @@
 :root {
   color-scheme: light;
 
-  /* Contrast by fill, not by line (round 12). The ground is a soft grey and
-     everything that matters sits on it as a white surface: the rail and the
-     bar are on the ground, the working area is a white panel, cards are white
-     with a low shadow and no border. --chrome is the ground now; it stays a
-     token because the settings preview and a dozen rails read it. */
-  --bg: #f1f1f4;
-  --chrome: var(--bg);
+  /* Contrast by fill, not by line (round 12, ground decided round 13). The
+     chrome is white and the work area is the grey: the rail and the bar are
+     --chrome and read as one L-shaped frame, the work area is a panel of --bg
+     inset into it, and cards are white with a hairline-and-shadow, no border. */
+  --bg: #f7f7f9;
+  --chrome: var(--surface);
   --surface: #ffffff;
   --surface-2: #f4f4f6;
   --surface-3: #e7e7ec;
@@ -82,9 +81,12 @@
      washed red that white disappears into. */
   --negative-ink: #ffffff;
 
-  /* Elevation. Cards sit on a grey ground with no hairline, so the shadow is
-     what separates them: a tight contact shadow and a long soft one. */
-  --highlight: 0 1px 2px rgba(9, 9, 11, 0.04), 0 10px 30px -14px rgba(9, 9, 11, 0.14);
+  /* Elevation. On the lighter ground a shadow alone no longer holds a card's
+     edge, so the first layer is a faint hairline, then a tight contact shadow
+     and a long soft one. */
+  --highlight:
+    0 0 0 1px rgba(9, 9, 11, 0.05), 0 1px 2px rgba(9, 9, 11, 0.04),
+    0 8px 24px -12px rgba(9, 9, 11, 0.1);
   --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.05);
   /* A card that lifts on hover. */
   --shadow-md: 0 2px 4px rgba(9, 9, 11, 0.06), 0 24px 48px -20px rgba(9, 9, 11, 0.22);
@@ -115,7 +117,7 @@
    * would hang that far below the fold, which is only visible once you try to
    * scroll to the end of it.
    */
-  --project-head: 136px;
+  --project-head: 148px;
 }
 
 /*
@@ -130,10 +132,10 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0a0a0c;
-  --chrome: var(--bg);
-  --surface: #151519;
-  --surface-2: #1d1d23;
+  --bg: #0e0e11;
+  --chrome: #111114;
+  --surface: #17171b;
+  --surface-2: #202025;
   --surface-3: #26262d;
 
   --line: rgba(255, 255, 255, 0.06);
@@ -176,9 +178,9 @@
   --info: #5b7cf0;
   --negative-ink: #2a0a11;
 
-  /* Dark surfaces swallow a soft shadow; a 1px inner top light does the
-     lifting, and a deep drop shadow keeps the card off the ground. */
-  --highlight: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 30px -16px rgba(0, 0, 0, 0.7);
+  /* Dark surfaces swallow a soft shadow; a faint hairline does the lifting,
+     and a deep drop shadow keeps the card off the ground. */
+  --highlight: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 30px -16px rgba(0, 0, 0, 0.7);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 24px 48px -20px rgba(0, 0, 0, 0.9);
   --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4), 0 18px 40px -20px rgba(0, 0, 0, 0.85);
@@ -361,6 +363,15 @@
 
   [data-doc-reading] .doc-shell {
     grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* A page that is one object — a queue, a register, a list of people — fills
+     the work area with a single sheet instead of putting its parts on the
+     ground as cards. Same fill and edge as a card, the panel's radius. */
+  .sheet {
+    background: var(--surface);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--highlight);
   }
 
   /* No border: on the grey ground the white fill is the card's edge. */
@@ -572,6 +583,41 @@
 }
 
 @layer utilities {
+  /*
+   * The surface ladder, inside a sheet.
+   *
+   * A block sits one rung above its parent and never on the same rung, so a
+   * control on a sheet cannot keep the sheet's own white: it steps down to a
+   * well. A card drawn inside a sheet is not a card either — it is a well —
+   * and a control inside *that* steps back up to white, so a field in a
+   * nested group is never grey on grey.
+   *
+   * This lives in the utilities layer because that is where the fills it has
+   * to beat are written: `bg-surface` on a control is a single class, and a
+   * component-layer rule would lose to it whatever its specificity.
+   *
+   * Colour, checkbox and radio inputs are left alone — their fill is their
+   * value, not their surface.
+   */
+  .sheet input:where(:not([type="color"]):not([type="checkbox"]):not([type="radio"])),
+  .sheet textarea,
+  .sheet select {
+    background: var(--surface-2);
+    box-shadow: none;
+  }
+
+  .sheet .card {
+    background: var(--surface-2);
+    box-shadow: none;
+  }
+
+  .sheet .card input:where(:not([type="color"]):not([type="checkbox"]):not([type="radio"])),
+  .sheet .card textarea,
+  .sheet .card select {
+    background: var(--surface);
+    box-shadow: var(--highlight);
+  }
+
   /* Entrance stagger. Set --i on each child for its place in the sequence. */
   .animate-rise {
     animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;

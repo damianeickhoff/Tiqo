@@ -81,7 +81,20 @@ function Row({
 }
 
 /**
- * The two things asked first, given the top of the card and twice the room:
+ * The rail's first card: the status and the priority, side by side.
+ *
+ * A card of its own with no title, because the two questions asked of a ticket
+ * more often than all the others together should be answerable by looking at
+ * the top of the rail, not by reading a heading first.
+ */
+function TwoUp({ children }: { children: React.ReactNode }) {
+  // `shrink-0` for the same reason PanelCard has it: the rail is a flex column
+  // of a fixed height, and without it the cards are squeezed to fit.
+  return <section className="card grid shrink-0 grid-cols-2 overflow-hidden">{children}</section>;
+}
+
+/**
+ * The two things asked first, given the top of the rail and twice the room:
  * a caption, then the value with its glyph.
  *
  * The select is laid over the whole cell at zero opacity rather than styled
@@ -108,14 +121,16 @@ function Cell({
   return (
     <div
       className={cn(
-        "relative flex min-w-0 flex-col gap-1.5 px-3.5 py-2.5",
+        "relative flex min-w-0 flex-col gap-1.5 px-4 py-3",
         "focus-within:ring-[3px] focus-within:ring-[var(--brand-tint)] focus-within:outline-none",
         divided && "border-line border-l",
         dirty && "bg-[var(--brand-tint)]",
         children && "hover:bg-surface-2",
       )}
     >
-      <span className="text-text-3 text-xs">{label}</span>
+      <span className="text-text-3 text-[11px] leading-none font-semibold tracking-[0.06em] uppercase">
+        {label}
+      </span>
       <span className="flex min-w-0 items-center gap-2 text-base font-medium">
         {value}
         {children ? (
@@ -199,7 +214,7 @@ function ReadOnlyProperties({
 
   return (
     <>
-      <div className="border-line grid grid-cols-2 border-b">
+      <TwoUp>
         <Cell
           label={t.ticket.status}
           value={
@@ -228,34 +243,36 @@ function ReadOnlyProperties({
             </>
           }
         />
-      </div>
+      </TwoUp>
 
-      <div className="space-y-0.5 p-2">
-        <Row label={t.ticket.type}>
-          <Static>{t.vocab.type[type]}</Static>
-        </Row>
-        <Row label={t.ticket.assignee}>
-          <Static muted={!assigneeName}>{assigneeName ?? t.tickets.unassigned}</Static>
-        </Row>
-        <Row label={t.ticket.team}>
-          <Static muted={!teamName}>{teamName ?? t.tickets.unrouted}</Static>
-        </Row>
-        <Row label={t.ticket.project}>
-          <Static muted={!projectName}>{projectName ?? t.common.none}</Static>
-          {projectKey ? <ProjectLink projectKey={projectKey} /> : null}
-        </Row>
-        <Row label={t.ticket.tags}>
-          <span className="flex flex-wrap gap-1 px-2 py-1">
-            {applied.length === 0 ? (
-              <span className="text-text-3 text-base">{t.common.none}</span>
-            ) : (
-              applied.map((label) => <TagChip key={label.id} tag={label} />)
-            )}
-          </span>
-        </Row>
+      <PanelCard title={t.ticket.details}>
+        <div className="space-y-0.5 p-2">
+          <Row label={t.ticket.type}>
+            <Static>{t.vocab.type[type]}</Static>
+          </Row>
+          <Row label={t.ticket.assignee}>
+            <Static muted={!assigneeName}>{assigneeName ?? t.tickets.unassigned}</Static>
+          </Row>
+          <Row label={t.ticket.team}>
+            <Static muted={!teamName}>{teamName ?? t.tickets.unrouted}</Static>
+          </Row>
+          <Row label={t.ticket.project}>
+            <Static muted={!projectName}>{projectName ?? t.common.none}</Static>
+            {projectKey ? <ProjectLink projectKey={projectKey} /> : null}
+          </Row>
+          <Row label={t.ticket.tags}>
+            <span className="flex flex-wrap gap-1 px-2 py-1">
+              {applied.length === 0 ? (
+                <span className="text-text-3 text-base">{t.common.none}</span>
+              ) : (
+                applied.map((label) => <TagChip key={label.id} tag={label} />)
+              )}
+            </span>
+          </Row>
 
-        <p className="text-text-3 px-2 pt-1 text-xs">{t.ticket.onlyOperators}</p>
-      </div>
+          <p className="text-text-3 px-2 pt-1 text-xs">{t.ticket.onlyOperators}</p>
+        </div>
+      </PanelCard>
     </>
   );
 }
@@ -536,21 +553,19 @@ export function TicketProperties({
   // agent list is empty for them, so a select would misreport the assignee.
   if (readOnly) {
     return (
-      <PanelCard title={t.ticket.properties}>
-        <ReadOnlyProperties
-          statusName={statusName}
-          statuses={statuses}
-          statusId={statusId}
-          priority={priority}
-          type={type}
-          assigneeName={assigneeName}
-          teamName={teamName}
-          projectName={projectName}
-          projectKey={projectKey}
-          labels={labels}
-          labelIds={labelIds}
-        />
-      </PanelCard>
+      <ReadOnlyProperties
+        statusName={statusName}
+        statuses={statuses}
+        statusId={statusId}
+        priority={priority}
+        type={type}
+        assigneeName={assigneeName}
+        teamName={teamName}
+        projectName={projectName}
+        projectKey={projectKey}
+        labels={labels}
+        labelIds={labelIds}
+      />
     );
   }
 
@@ -581,21 +596,13 @@ export function TicketProperties({
         : `${diffs[0]} · ${t.ticket.andMore(diffs.length - 1)}`;
 
   return (
-    <PanelCard
-      title={t.ticket.properties}
-      action={
-        draft.dirty ? (
-          <span className="text-brand-deep flex items-center gap-1.5 text-xs font-medium">
-            <span aria-hidden className="bg-brand size-1.5 rounded-full" />
-            {t.ticket.unsavedCount(diffs.length)}
-          </span>
-        ) : null
-      }
-    >
-      {/* The two questions asked about a ticket more often than all the others
-          together, so they get the head of the card rather than a place in the
-          queue of rows below. */}
-      <div className="border-line grid grid-cols-2 border-b">
+    // Two cards, one draft. The two questions asked about a ticket more often
+    // than all the others together get a card to themselves at the top of the
+    // rail; everything else is Details underneath. A change in either belongs
+    // to the same edit, so the footer that saves it lives on the second card
+    // and saves both.
+    <>
+      <TwoUp>
         <Cell
           label={t.ticket.status}
           dirty={changed("statusId")}
@@ -656,139 +663,153 @@ export function TicketProperties({
             ))}
           </select>
         </Cell>
-      </div>
+      </TwoUp>
 
-      <div className="space-y-0.5 p-2">
-        <Row label={t.ticket.type} dirty={changed("type")}>
-          <select
-            aria-label={t.ticket.type}
-            value={form.type}
-            onChange={(event) => set({ type: event.target.value as TicketType })}
-            className={PILL_SELECT}
-          >
-            {TYPE_ORDER.map((value) => (
-              <option key={value} value={value}>
-                {t.vocab.type[value]}
-              </option>
-            ))}
-          </select>
-        </Row>
-
-        <Row label={t.ticket.assignee} dirty={changed("assigneeId")}>
-          <select
-            aria-label={t.ticket.assignee}
-            value={form.assigneeId}
-            onChange={(event) => set({ assigneeId: event.target.value })}
-            className={cn(PILL_SELECT, !form.assigneeId && "text-text-3 font-normal")}
-          >
-            <option value="">{t.tickets.unassigned}</option>
-            {agents.map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </select>
-        </Row>
-
-        {/* The team that owns the work. Handing it to another team is what
-            escalation looks like here — no tiers, just a different desk. */}
-        <Row label={t.ticket.team} dirty={changed("teamId")}>
-          <select
-            aria-label={t.ticket.team}
-            value={form.teamId}
-            onChange={(event) => set({ teamId: event.target.value })}
-            className={cn(PILL_SELECT, !form.teamId && "text-text-3 font-normal")}
-          >
-            <option value="">{t.tickets.unrouted}</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
-          </select>
-        </Row>
-
-        {/* A ticket may belong to a project, and may stop belonging to one — so
-            "None" is a real choice here, not just the starting state. */}
-        <Row label={t.ticket.project} dirty={changed("projectId")}>
-          <select
-            aria-label={t.ticket.project}
-            value={form.projectId}
-            onChange={(event) => set({ projectId: event.target.value })}
-            className={cn(PILL_SELECT, !form.projectId && "text-text-3 font-normal")}
-          >
-            <option value="">{t.ticket.noProject}</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-          {/* Named and reachable. The select answers "which project"; without
-              this the answer is a dead end and the way there is the sidebar and
-              a search. Only for the project already saved — a project chosen in
-              a draft is not somewhere this ticket is yet. */}
-          {projectKey && form.projectId === projectId ? (
-            <ProjectLink projectKey={projectKey} />
-          ) : null}
-        </Row>
-
-        {/* Only where there is something to file it against. A picker with one
-            empty option in it is a question nobody can answer. */}
-        {milestones.length > 0 ? (
-          <Row label={t.projects.inMilestone} dirty={changed("milestoneId")}>
+      <PanelCard
+        title={t.ticket.details}
+        action={
+          draft.dirty ? (
+            <span className="text-brand-deep flex items-center gap-1.5 text-xs font-medium">
+              <span aria-hidden className="bg-brand size-1.5 rounded-full" />
+              {t.ticket.unsavedCount(diffs.length)}
+            </span>
+          ) : null
+        }
+      >
+        <div className="space-y-0.5 p-2">
+          <Row label={t.ticket.type} dirty={changed("type")}>
             <select
-              aria-label={t.projects.inMilestone}
-              value={form.milestoneId}
-              onChange={(event) => set({ milestoneId: event.target.value })}
-              className={cn(PILL_SELECT, !form.milestoneId && "text-text-3 font-normal")}
+              aria-label={t.ticket.type}
+              value={form.type}
+              onChange={(event) => set({ type: event.target.value as TicketType })}
+              className={PILL_SELECT}
             >
-              <option value="">{t.projects.noMilestone}</option>
-              {milestones.map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.title}
-                  {row.reachedAt ? ` · ${t.projects.reached}` : ""}
+              {TYPE_ORDER.map((value) => (
+                <option key={value} value={value}>
+                  {t.vocab.type[value]}
                 </option>
               ))}
             </select>
           </Row>
-        ) : null}
 
-        {/* A read-only row: the plan is edited on its own page, and this is the
-            way there. Only a change has one. */}
-        {plan ? (
-          <Row label={t.plan.title}>
-            <Link
-              href={`/tickets/${ticketNumber}/plan`}
-              className="hover:bg-surface-2 rounded-control flex h-8 min-w-0 flex-1 items-center gap-1.5 px-2 text-base font-medium transition-colors"
+          <Row label={t.ticket.assignee} dirty={changed("assigneeId")}>
+            <select
+              aria-label={t.ticket.assignee}
+              value={form.assigneeId}
+              onChange={(event) => set({ assigneeId: event.target.value })}
+              className={cn(PILL_SELECT, !form.assigneeId && "text-text-3 font-normal")}
             >
-              <Layers size={13} className="text-text-3 shrink-0" />
-              <span className="truncate">{plan.name ?? t.plan.title}</span>
-              <span className="text-text-3 tnum ml-auto shrink-0 pl-1.5 font-mono text-xs">
-                {plan.settled}/{plan.total}
-              </span>
-            </Link>
+              <option value="">{t.tickets.unassigned}</option>
+              {agents.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.name}
+                </option>
+              ))}
+            </select>
           </Row>
-        ) : null}
 
-        {/* Applied tags only, plus one control to add another. Listing every tag
+          {/* The team that owns the work. Handing it to another team is what
+            escalation looks like here — no tiers, just a different desk. */}
+          <Row label={t.ticket.team} dirty={changed("teamId")}>
+            <select
+              aria-label={t.ticket.team}
+              value={form.teamId}
+              onChange={(event) => set({ teamId: event.target.value })}
+              className={cn(PILL_SELECT, !form.teamId && "text-text-3 font-normal")}
+            >
+              <option value="">{t.tickets.unrouted}</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </Row>
+
+          {/* A ticket may belong to a project, and may stop belonging to one — so
+            "None" is a real choice here, not just the starting state. */}
+          <Row label={t.ticket.project} dirty={changed("projectId")}>
+            <select
+              aria-label={t.ticket.project}
+              value={form.projectId}
+              onChange={(event) => set({ projectId: event.target.value })}
+              className={cn(PILL_SELECT, !form.projectId && "text-text-3 font-normal")}
+            >
+              <option value="">{t.ticket.noProject}</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            {/* Named and reachable. The select answers "which project"; without
+              this the answer is a dead end and the way there is the sidebar and
+              a search. Only for the project already saved — a project chosen in
+              a draft is not somewhere this ticket is yet. */}
+            {projectKey && form.projectId === projectId ? (
+              <ProjectLink projectKey={projectKey} />
+            ) : null}
+          </Row>
+
+          {/* Only where there is something to file it against. A picker with one
+            empty option in it is a question nobody can answer. */}
+          {milestones.length > 0 ? (
+            <Row label={t.projects.inMilestone} dirty={changed("milestoneId")}>
+              <select
+                aria-label={t.projects.inMilestone}
+                value={form.milestoneId}
+                onChange={(event) => set({ milestoneId: event.target.value })}
+                className={cn(PILL_SELECT, !form.milestoneId && "text-text-3 font-normal")}
+              >
+                <option value="">{t.projects.noMilestone}</option>
+                {milestones.map((row) => (
+                  <option key={row.id} value={row.id}>
+                    {row.title}
+                    {row.reachedAt ? ` · ${t.projects.reached}` : ""}
+                  </option>
+                ))}
+              </select>
+            </Row>
+          ) : null}
+
+          {/* A read-only row: the plan is edited on its own page, and this is the
+            way there. Only a change has one. */}
+          {plan ? (
+            <Row label={t.plan.title}>
+              <Link
+                href={`/tickets/${ticketNumber}/plan`}
+                className="hover:bg-surface-2 rounded-control flex h-8 min-w-0 flex-1 items-center gap-1.5 px-2 text-base font-medium transition-colors"
+              >
+                <Layers size={13} className="text-text-3 shrink-0" />
+                <span className="truncate">{plan.name ?? t.plan.title}</span>
+                <span className="text-text-3 tnum ml-auto shrink-0 pl-1.5 font-mono text-xs">
+                  {plan.settled}/{plan.total}
+                </span>
+              </Link>
+            </Row>
+          ) : null}
+
+          {/* Applied tags only, plus one control to add another. Listing every tag
             in the instance turned this into a wall as soon as the library grew,
             and gave no way to find one by typing. */}
-        <Row label={t.ticket.tags}>
-          <TagField
-            all={labels}
-            applied={labelIds}
-            disabled={tagPending}
-            onToggle={toggleLabel}
-            onCreate={createTag}
-            error={tagError}
-          />
-        </Row>
-      </div>
+          <Row label={t.ticket.tags}>
+            <TagField
+              all={labels}
+              applied={labelIds}
+              disabled={tagPending}
+              onToggle={toggleLabel}
+              onCreate={createTag}
+              error={tagError}
+            />
+          </Row>
+        </div>
 
-      {/* No footer at all while there is nothing to save: a Save button that is
-          always there but almost always disabled teaches people to ignore it. */}
-      <SaveBar draft={draft} save={save} variant="footer" summary={summary} hideWhenIdle />
-    </PanelCard>
+        {/* No footer at all while there is nothing to save: a Save button that is
+          always there but almost always disabled teaches people to ignore it.
+          It is the second card's footer and the first card's too — the draft
+          is one. */}
+        <SaveBar draft={draft} save={save} variant="footer" summary={summary} hideWhenIdle />
+      </PanelCard>
+    </>
   );
 }

@@ -172,6 +172,10 @@ export default async function StepPage({ params }: { params: Params }) {
     // forwards.
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
+  // What the conversation's heading counts, as on the ticket page.
+  const noteCount = comments.filter((comment) => comment.isInternal).length;
+  const replyCount = comments.length - noteCount;
+
   const people = canEdit
     ? await prisma.user.findMany({
         where: {
@@ -234,52 +238,57 @@ export default async function StepPage({ params }: { params: Params }) {
       viewerAvatar={user.avatarVariant}
       recipients={roster}
     >
-      <header className="bg-surface px-5 py-6 lg:px-8">
-        <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
-          <div className="animate-rise min-w-0 flex-1">
-            <p className="text-text-3 flex flex-wrap items-center gap-2 text-base">
-              <span className="bg-surface-3 text-text-2 rounded-control px-1.5 py-0.5 font-mono text-sm font-medium">
-                {step.ticket.reference}
-              </span>
-              <span className="truncate">{step.ticket.title}</span>
-              {step.phase ? (
-                <span className="text-brand-deep rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-sm font-semibold">
-                  {t.plan.inPhase(step.phase)}
-                </span>
-              ) : null}
-            </p>
+      <div className="grid gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-6">
+        <div className="space-y-3.5">
+          {/* The step, as the ticket page draws the request: one card at the
+              head of the column rather than a white band across the grey work
+              area, which the surface ladder has no rung for. */}
+          <header className="card animate-rise overflow-hidden">
+            <div className="flex flex-wrap items-end gap-x-6 gap-y-3 px-4 pt-3.5 pb-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-text-3 flex flex-wrap items-center gap-2 text-base">
+                  <span className="bg-surface-3 text-text-2 rounded-control px-1.5 py-0.5 font-mono text-sm font-medium">
+                    {step.ticket.reference}
+                  </span>
+                  <span className="truncate">{step.ticket.title}</span>
+                  {step.phase ? (
+                    <span className="text-brand-deep rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-sm font-semibold">
+                      {t.plan.inPhase(step.phase)}
+                    </span>
+                  ) : null}
+                </p>
 
-            <h1 className="mt-2 flex flex-wrap items-center gap-3 text-2xl leading-tight font-extrabold tracking-[-0.025em]">
-              {isStepSettled(step) ? <Check size={22} className="text-positive shrink-0" /> : null}
-              {step.title}
-            </h1>
+                <h1 className="mt-1.5 flex flex-wrap items-center gap-2.5 text-xl leading-tight font-semibold tracking-[-0.02em]">
+                  {isStepSettled(step) ? (
+                    <Check size={20} className="text-positive shrink-0" />
+                  ) : null}
+                  {step.title}
+                </h1>
 
-            {block ? (
-              <p className="text-text-2 mt-2 flex items-center gap-1.5 text-base">
-                <Lock size={13} />
-                {block.reason === "change"
-                  ? t.plan.lockedByChange
-                  : block.reason === "approval"
-                    ? t.plan.lockedByApproval
-                    : block.reason === "phase"
-                      ? t.plan.lockedByPhase
-                      : t.plan.lockedByStep(blocker?.title ?? "")}
-              </p>
-            ) : null}
-          </div>
+                {block ? (
+                  <p className="text-text-2 mt-2 flex items-center gap-1.5 text-base">
+                    <Lock size={13} />
+                    {block.reason === "change"
+                      ? t.plan.lockedByChange
+                      : block.reason === "approval"
+                        ? t.plan.lockedByApproval
+                        : block.reason === "phase"
+                          ? t.plan.lockedByPhase
+                          : t.plan.lockedByStep(blocker?.title ?? "")}
+                  </p>
+                ) : null}
+              </div>
 
-          <Link
-            href={`/tickets/${step.ticket.number}/plan`}
-            className={buttonClass("outline", "sm")}
-          >
-            <ArrowLeft size={13} />
-            {t.plan.backToPlan}
-          </Link>
-        </div>
-      </header>
+              <Link
+                href={`/tickets/${step.ticket.number}/plan`}
+                className={buttonClass("outline", "sm")}
+              >
+                <ArrowLeft size={13} />
+                {t.plan.backToPlan}
+              </Link>
+            </div>
+          </header>
 
-      <div className="grid gap-5 px-5 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
-        <div className="space-y-5">
           {/* Ahead of everything: a step nobody can move is the only thing
               worth reading about it until the block is gone. */}
           <ApprovalPrompt approvals={approvals} viewerId={user.id} />
@@ -306,16 +315,26 @@ export default async function StepPage({ params }: { params: Params }) {
             <StepDescription stepId={step.id} description={step.description} canEdit={canEdit} />
           </Card>
 
-          <p className="label">{t.plan.conversation}</p>
-
-          <ConversationTimeline
-            items={timeline}
-            ticketId={step.ticket.id}
-            currentUserId={user.id}
-            canDeleteAny={can(user, "comment.moderate")}
-            locale={settings.locale}
-            dateLocale={dateLocaleOf(settings)}
-          />
+          {/* The same card the ticket page gives the thread: the replies are
+              flat rows now, and flat rows need an edge around them. */}
+          <section className="card overflow-hidden">
+            <div className="flex h-[38px] items-center justify-between gap-3 px-4">
+              <h2 className="label">{t.plan.conversation}</h2>
+              <span className="text-text-3 text-sm">
+                {t.ticket.conversationCount(replyCount, noteCount)}
+              </span>
+            </div>
+            <div className="border-line border-t">
+              <ConversationTimeline
+                items={timeline}
+                ticketId={step.ticket.id}
+                currentUserId={user.id}
+                canDeleteAny={can(user, "comment.moderate")}
+                locale={settings.locale}
+                dateLocale={dateLocaleOf(settings)}
+              />
+            </div>
+          </section>
 
           <ConversationComposer />
         </div>

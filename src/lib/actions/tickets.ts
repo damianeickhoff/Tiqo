@@ -633,6 +633,30 @@ export async function addComment(_prev: FormState, formData: FormData): Promise<
     stepId = parent.stepId;
   }
 
+  // "Send and set to Waiting on requester": the status left in the composer's
+  // pill travels with the reply. It is written through `updateTicket` — the
+  // same door the rail's own card uses — so the checks, the trail entry and the
+  // mail are the ones a rail edit would have produced, rather than a second
+  // version of them living here.
+  //
+  // Before the comment, not after: a refused move then leaves nothing behind
+  // and keeps every word that was typed.
+  const postedStatusId = String(formData.get("statusId") ?? "") || null;
+  if (postedStatusId && postedStatusId !== ticket.statusId) {
+    const moved = await updateTicket(
+      ticket.id,
+      { statusId: postedStatusId },
+      formData.get("statusAnyway") === "on",
+    );
+    if (!moved.ok) {
+      // The "this is still blocking something" warning is not a refusal — it is
+      // said once, and the next press carries permission to go on. Named apart
+      // from a plain failure so the composer knows which of the two it got.
+      const key = "warn" in moved ? "statusWarn" : "form";
+      return { errors: { [key]: moved.error } };
+    }
+  }
+
   const [comment] = await prisma.$transaction([
     prisma.comment.create({
       data: {
@@ -938,4 +962,42 @@ export async function toggleCommentPin(commentId: string) {
 
   refreshTicket(comment.ticket.number);
   return { ok: true as const };
+}
+
+/**
+ * The published answers, for the composer's "Insert answer".
+ *
+ * Published only, and searched by the words somebody would type — the title,
+ * the sentence under it, the keywords the answer was filed with. Pointing a
+ * requester at a draft would be pointing them at a page they cannot open.
+ *
+ * Eight at a time: this is a way to find the one answer already in your head,
+ * not a way to read the library.
+ */
+export async function searchAnswers(query: string) {
+  await requireUser();
+
+  const term = query.trim();
+  return prisma.portalArticle.findMany({
+    where: {
+      isPublished: true,
+      ...(term
+        ? {
+            OR: [
+              { title: { contains: term, mode: "insensitive" as const } },
+              { summary: { contains: term, mode: "insensitive" as const } },
+              { keywords: { has: term.toLowerCase() } },
+            ],
+          }
+        : {}),
+    },
+    // Without a term this is "the answers people actually open", which is the
+    // best guess there is at the one being reached for.
+    orderBy: [{ views: "desc" }, { title: "asc" }],
+    take: 8,
+    // The body travels with it: what goes into a reply is the answer itself,
+    // and fetching it on the click would be a round trip between picking and
+    // seeing it land.
+    select: { id: true, slug: true, title: true, summary: true, body: true },
+  });
 }

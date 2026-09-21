@@ -8,8 +8,9 @@ import type { SortDir } from "@/components/table/sort";
 import { requireUser } from "@/lib/auth";
 import { canWriteInternalNote, isStaff, ticketVisibilityFilter } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
-import { PageHeader } from "@/components/shell/page-header";
 import { FilterBar } from "@/components/tickets/filter-bar";
+import { QueueHead } from "@/components/tickets/queue-head";
+import { QueueViews } from "@/components/tickets/queue-views";
 import { TicketRow } from "@/components/tickets/ticket-row";
 import { TicketColumns } from "@/components/tickets/ticket-columns";
 import { TicketTable } from "@/components/tickets/ticket-table";
@@ -164,7 +165,20 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
 
   const t = await getMessages();
 
-  const [tickets, total, projects, agents, statuses, teams, myTeams] = await Promise.all([
+  /** What each built-in view holds right now, so the column can say so.
+   *
+   *  The same conditions the views themselves set, asked as counts: a column of
+   *  views whose numbers came from anywhere else would be a column that lies
+   *  the moment a filter changes shape. "Everything" is the whole of what this
+   *  person may see, which is what the view shows.
+   */
+  const visible = ticketVisibilityFilter(user);
+  const stillOpen: Prisma.TicketWhereInput = {
+    ...visible,
+    status: { is: { settles: false } },
+  };
+
+  const [tickets, total, projects, agents, statuses, teams, myTeams, counts] = await Promise.all([
     prisma.ticket.findMany({
       where,
       orderBy: ORDERS[sort](dir),
@@ -234,6 +248,24 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
     }),
     prisma.team.findMany({ orderBy: { position: "asc" }, select: { id: true, name: true } }),
     prisma.team.count({ where: { members: { some: { id: user.id } } } }),
+    Promise.all([
+      prisma.ticket.count({ where: stillOpen }),
+      prisma.ticket.count({ where: { ...stillOpen, assigneeId: user.id } }),
+      prisma.ticket.count({
+        where: {
+          ...stillOpen,
+          OR: [{ assigneeId: user.id }, { team: { is: { members: { some: { id: user.id } } } } }],
+        },
+      }),
+      prisma.ticket.count({ where: { ...stillOpen, assigneeId: null } }),
+      prisma.ticket.count({ where: visible }),
+    ]).then(([open, mine, groups, unassigned, all]) => ({
+      open,
+      mine,
+      groups,
+      unassigned,
+      all,
+    })),
   ]);
 
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -266,72 +298,83 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
     // grown one would hang its last rows below the window. Only from `lg`:
     // below it the whole desk is one scrolling column and the queue is a part
     // of it, so the table scrolls sideways only.
+    // The head and the views stay on the ground; the sheet is the table region
+    // and nothing else — the filters that narrow it are its own header row.
     <div className="flex flex-col lg:h-[calc(100dvh-var(--bar))] lg:min-h-0">
-      <PageHeader
-        eyebrow={isStaff(user) ? t.tickets.eyebrow : t.tickets.yourTickets}
-        title={t.tickets.title}
-      >
-        {t.tickets.shown(from, to, total)}
-      </PageHeader>
-
-      <Suspense fallback={<div className="bg-surface h-[61px]" />}>
-        <FilterBar
-          statuses={statuses}
-          projects={projects.map((p) => ({ id: p.id, label: `${p.key} · ${p.name}` }))}
-          assignees={agents.map((a) => ({ id: a.id, label: a.name }))}
-          teams={teams.map((group) => ({ id: group.id, label: group.name }))}
-          showAssignee={isStaff(user)}
-        />
+      <Suspense fallback={<div className="h-[52px]" />}>
+        <QueueHead total={total} />
       </Suspense>
 
-      <TicketTable className="min-h-0 flex-1">
-        {tickets.length === 0 ? (
-          <div className="px-5 py-6 lg:px-6">
-            <EmptyState
-              title={t.tickets.emptyTitle}
-              // The one empty result that is not about the filters: asking for
-              // your groups' work when you are on no group can only ever return
-              // nothing, and the filters give no clue why.
-              body={scope === "team" && myTeams === 0 ? t.tickets.emptyNoDesk : t.tickets.emptyBody}
-              action={
-                <Link href="/tickets/new" className={buttonClass("primary", "md")}>
-                  {t.nav.newTicket}
-                </Link>
-              }
-            />
-          </div>
-        ) : (
-          <>
-            {/* Flush, not a card: the queue is the page, and a frame around it
-                only took twenty pixels from every row. */}
-            <TicketColumns sort={sort} dir={dir} query={current.toString()} />
-            <ul>
-              {tickets.map((ticket, i) => (
-                <TicketRow
-                  key={ticket.id}
-                  ticket={{
-                    ...ticket,
-                    replies: ticket._count.comments,
-                    attachments: ticket._count.attachments,
-                    blocked: ticket.linksIn.length > 0,
-                  }}
-                  index={i}
-                />
-              ))}
-            </ul>
-          </>
-        )}
-      </TicketTable>
+      <div className="flex min-h-0 flex-1 flex-col gap-2 pb-5 lg:flex-row lg:gap-5 lg:pr-5">
+        <Suspense fallback={<div className="lg:w-[200px]" />}>
+          <QueueViews counts={counts} />
+        </Suspense>
 
-      {/* Outside the scroller: a pager that slid away sideways with the columns
-          would be a pager nobody could find. */}
-      {pages > 1 ? (
-        <nav className="flex shrink-0 items-center justify-between gap-3 px-5 py-3 lg:px-6">
-          <Step href={pageHref(page - 1)} disabled={page === 1} label={t.tickets.prev} />
-          <p className="text-text-3 tnum text-base">{`${page} / ${pages}`}</p>
-          <Step href={pageHref(page + 1)} disabled={page === pages} label={t.tickets.next} />
-        </nav>
-      ) : null}
+        <div className="sheet mx-3 flex min-w-0 flex-col overflow-hidden lg:mx-0 lg:min-h-0 lg:flex-1">
+          <Suspense fallback={<div className="h-[52px]" />}>
+            <FilterBar
+              statuses={statuses}
+              projects={projects.map((p) => ({ id: p.id, label: `${p.key} · ${p.name}` }))}
+              assignees={agents.map((a) => ({ id: a.id, label: a.name }))}
+              teams={teams.map((group) => ({ id: group.id, label: group.name }))}
+              showAssignee={isStaff(user)}
+            />
+          </Suspense>
+
+          <TicketTable className="min-h-0 flex-1">
+            {tickets.length === 0 ? (
+              <div className="px-5 py-6 lg:px-6">
+                <EmptyState
+                  title={t.tickets.emptyTitle}
+                  // The one empty result that is not about the filters: asking for
+                  // your groups' work when you are on no group can only ever return
+                  // nothing, and the filters give no clue why.
+                  body={
+                    scope === "team" && myTeams === 0 ? t.tickets.emptyNoDesk : t.tickets.emptyBody
+                  }
+                  action={
+                    <Link href="/tickets/new" className={buttonClass("primary", "md")}>
+                      {t.nav.newTicket}
+                    </Link>
+                  }
+                />
+              </div>
+            ) : (
+              <>
+                {/* Flush, not a card: the queue is the page, and a frame around it
+                only took twenty pixels from every row. */}
+                <TicketColumns sort={sort} dir={dir} query={current.toString()} />
+                <ul>
+                  {tickets.map((ticket, i) => (
+                    <TicketRow
+                      key={ticket.id}
+                      ticket={{
+                        ...ticket,
+                        replies: ticket._count.comments,
+                        attachments: ticket._count.attachments,
+                        blocked: ticket.linksIn.length > 0,
+                      }}
+                      index={i}
+                    />
+                  ))}
+                </ul>
+              </>
+            )}
+          </TicketTable>
+
+          {/* Inside the sheet but outside the scroller: a footer that slid away
+              sideways with the columns would be one nobody could find. The
+              range is here rather than in the head because it is a fact about
+              the page you are on, not about the view you are in. */}
+          <nav className="border-line text-text-3 flex shrink-0 items-center gap-3 border-t px-4 py-2 text-sm">
+            <p className="tnum">{t.tickets.shown(from, to, total)}</p>
+            <div className="ml-auto flex items-center gap-2">
+              <Step href={pageHref(page - 1)} disabled={page === 1} label={t.tickets.prev} />
+              <Step href={pageHref(page + 1)} disabled={page === pages} label={t.tickets.next} />
+            </div>
+          </nav>
+        </div>
+      </div>
     </div>
   );
 }
@@ -340,13 +383,13 @@ export default async function TicketsPage({ searchParams }: { searchParams: Sear
 function Step({ href, disabled, label }: { href: string; disabled: boolean; label: string }) {
   if (disabled) {
     return (
-      <span className="text-text-3 rounded-control h-9 border border-transparent px-3 text-base leading-9 opacity-50 shadow-[var(--highlight)]">
+      <span className="text-text-3 rounded-control h-8 border border-transparent px-2.5 text-sm leading-8 opacity-50 shadow-[var(--highlight)]">
         {label}
       </span>
     );
   }
   return (
-    <Link href={href} className={buttonClass("outline", "md")}>
+    <Link href={href} className={buttonClass("outline", "sm")}>
       {label}
     </Link>
   );

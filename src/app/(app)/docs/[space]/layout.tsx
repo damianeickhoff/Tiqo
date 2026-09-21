@@ -65,7 +65,7 @@ export default async function SpaceLayout({
           that already begins under the bar, so offsetting by it again pushed
           the rail down a bar's worth on any page long enough to scroll and
           left a strip of the wrong colour above it. */}
-      <aside className="doc-tree bg-chrome flex flex-col gap-3 px-4 py-4 lg:sticky lg:top-0 lg:h-[calc(100vh-var(--bar))]">
+      <aside className="doc-tree bg-bg flex flex-col gap-3 px-4 py-4 lg:sticky lg:top-0 lg:h-[calc(100vh-var(--bar))]">
         <Link
           href="/docs"
           className="text-text-3 hover:text-text -ml-1 inline-flex items-center gap-1 text-sm font-medium transition-colors"

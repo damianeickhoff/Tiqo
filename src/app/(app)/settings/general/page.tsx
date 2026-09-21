@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getMessages, getSettings } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { BrandColorForm } from "@/components/settings/brand-color-form";
+import { AvatarFallbackForm } from "@/components/settings/avatar-fallback-form";
 import { LocaleForm } from "@/components/settings/locale-form";
 import { SelfRegistrationToggle } from "@/components/settings/self-registration-toggle";
 
@@ -14,9 +16,13 @@ export default async function GeneralSettingsPage() {
   const [settings, t] = await Promise.all([getSettings(), getMessages()]);
 
   return (
-    <div className="space-y-5">
+    <SettingsSheet>
       <SettingsSection title={t.settings.brandTitle} description={t.settings.brandBlurb}>
         <BrandColorForm current={settings.brandColor} />
+      </SettingsSection>
+
+      <SettingsSection title={t.settings.avatarTitle} description={t.settings.avatarBlurb}>
+        <AvatarFallbackForm current={settings.avatarFallback} sample={t.settings.avatarSample} />
       </SettingsSection>
 
       <SettingsSection
@@ -34,6 +40,6 @@ export default async function GeneralSettingsPage() {
       >
         <SelfRegistrationToggle open={settings.selfRegistration} />
       </SettingsSection>
-    </div>
+    </SettingsSheet>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { TagManager } from "@/components/settings/tag-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,15 +23,17 @@ export default async function TagSettingsPage() {
   });
 
   return (
-    <SettingsSection title={t.settings.tagsTitle} description={t.settings.tagsBlurb}>
-      <TagManager
-        tags={tags.map((tag) => ({
-          id: tag.id,
-          name: tag.name,
-          color: tag.color,
-          tickets: tag._count.tickets,
-        }))}
-      />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.settings.tagsTitle} description={t.settings.tagsBlurb}>
+        <TagManager
+          tags={tags.map((tag) => ({
+            id: tag.id,
+            name: tag.name,
+            color: tag.color,
+            tickets: tag._count.tickets,
+          }))}
+        />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

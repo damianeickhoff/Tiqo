@@ -135,7 +135,7 @@ export function SideNav({
                     "group rounded-control text-md relative flex h-10 items-center transition-[background-color,color] duration-150",
                     collapsed ? "w-9 justify-center" : "gap-3 px-2.5",
                     active
-                      ? "bg-surface text-text font-semibold shadow-[var(--highlight)]"
+                      ? "bg-surface-2 text-text font-semibold"
                       : "text-text-2 hover:bg-surface-2 hover:text-text font-medium",
                   )}
                 >

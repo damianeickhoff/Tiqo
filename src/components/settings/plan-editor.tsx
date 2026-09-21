@@ -442,7 +442,7 @@ export function PlanEditor({
           </p>
         </div>
 
-        <aside className="bg-chrome flex flex-col gap-3 p-3">
+        <aside className="bg-surface-2 flex flex-col gap-3 p-3">
           {activeStep ? (
             <StepInspector
               key={activeStep.id}

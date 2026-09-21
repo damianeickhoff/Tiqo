@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getMessages, getPriorityTargets, getSettings } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { TicketDefaultsForm } from "@/components/settings/ticket-defaults-form";
 import { PriorityTargetsForm } from "@/components/settings/priority-targets-form";
 import { StatusManager } from "@/components/settings/status-manager";
+import { CannedManager } from "@/components/settings/canned-manager";
 import { BusinessHoursForm } from "@/components/settings/business-hours-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TicketSettingsPage() {
-  const [settings, targets, projects, statuses, t] = await Promise.all([
+  const [settings, targets, projects, statuses, cannedReplies, t] = await Promise.all([
     getSettings(),
     getPriorityTargets(),
     prisma.project.findMany({
@@ -36,11 +38,15 @@ export default async function TicketSettingsPage() {
         _count: { select: { tickets: true } },
       },
     }),
+    prisma.cannedReply.findMany({
+      orderBy: { position: "asc" },
+      select: { id: true, title: true, body: true, isActive: true },
+    }),
     getMessages(),
   ]);
 
   return (
-    <div className="space-y-5">
+    <SettingsSheet>
       <SettingsSection title={t.settings.defaultsTitle} description={t.settings.defaultsBlurb}>
         <TicketDefaultsForm
           defaultType={settings.defaultType}
@@ -80,12 +86,19 @@ export default async function TicketSettingsPage() {
       </SettingsSection>
 
       <SettingsSection
+        title={t.settings.cannedTitleSection}
+        description={t.settings.cannedBlurb}
+      >
+        <CannedManager replies={cannedReplies} />
+      </SettingsSection>
+
+      <SettingsSection
         title={t.settings.businessTitle}
         index={3}
         description={t.settings.businessBlurb}
       >
         <BusinessHoursForm settings={settings} />
       </SettingsSection>
-    </div>
+    </SettingsSheet>
   );
 }

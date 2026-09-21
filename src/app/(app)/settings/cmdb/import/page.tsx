@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { canManageCis } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { CiImport } from "@/components/settings/ci-import";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,8 +38,10 @@ export default async function CmdbImportPage() {
   });
 
   return (
-    <SettingsSection title={t.cmdb.importTitle} description={t.cmdb.importBlurb}>
-      <CiImport types={types} />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.cmdb.importTitle} description={t.cmdb.importBlurb}>
+        <CiImport types={types} />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

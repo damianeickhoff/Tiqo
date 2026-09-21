@@ -10,7 +10,7 @@
 export default function Loading() {
   return (
     <div aria-busy className="lg:flex">
-      <div className="bg-chrome hidden lg:block lg:w-[220px]" />
+      <div className="bg-bg hidden lg:block lg:w-[220px]" />
 
       <div className="min-w-0 flex-1">
         <div className="h-[45px]" />

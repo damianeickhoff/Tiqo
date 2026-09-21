@@ -98,5 +98,10 @@ export default async function ProjectsPage() {
     };
   });
 
-  return <ProjectsTable projects={rows} canCreate={canManageProjects(user)} />;
+  return (
+    // The register of projects is one object: one sheet filling the work area.
+    <div className="sheet flex min-h-full flex-col">
+      <ProjectsTable projects={rows} canCreate={canManageProjects(user)} />
+    </div>
+  );
 }

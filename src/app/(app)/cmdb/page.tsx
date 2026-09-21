@@ -364,7 +364,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
       <PageHeader title={t.cmdb.title} />
 
       <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
-        <Suspense fallback={<div className="bg-chrome shrink-0 lg:w-[240px]" />}>
+        <Suspense fallback={<div className="bg-bg shrink-0 lg:w-[240px]" />}>
           <CiTypeSidebar
             types={types.map((type) => ({
               key: type.key,
@@ -383,7 +383,9 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
         </Suspense>
 
         <div className="flex min-w-0 flex-1 lg:min-h-0">
-          <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
+          {/* The register itself is the one object on this page — one sheet.
+              The types beside it and the pane are on the ground. */}
+          <div className="sheet flex min-w-0 flex-1 flex-col lg:min-h-0">
             <Suspense fallback={<div className="bg-surface h-[61px] shrink-0" />}>
               <CiFilterBar
                 teams={teams.map((group) => ({ id: group.id, label: group.name }))}
@@ -539,10 +541,7 @@ export default async function CmdbPage({ searchParams }: { searchParams: SearchP
           {split && peek ? (
             <>
               <CiPeekKeys ids={rows.map((item) => item.id)} current={peek} />
-              <Suspense
-                key={peek}
-                fallback={<div className="bg-chrome hidden w-[400px] xl:block" />}
-              >
+              <Suspense key={peek} fallback={<div className="bg-bg hidden w-[400px] xl:block" />}>
                 <CiPeek id={peek} user={user} />
               </Suspense>
             </>

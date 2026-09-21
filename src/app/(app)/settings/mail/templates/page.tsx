@@ -48,5 +48,9 @@ export default async function MailTemplatesPage() {
     };
   });
 
-  return <MailTemplatesTable templates={templates} />;
+  return (
+    <div className="px-5 py-5 lg:px-6">
+      <MailTemplatesTable templates={templates} />
+    </div>
+  );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getMessages } from "@/lib/settings";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { BlockedWordManager } from "@/components/settings/blocked-word-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,8 +18,10 @@ export default async function BlockedWordsPage() {
   });
 
   return (
-    <SettingsSection title={t.settings.wordsTitle} description={t.settings.wordsBlurb}>
-      <BlockedWordManager words={words} />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.settings.wordsTitle} description={t.settings.wordsBlurb}>
+        <BlockedWordManager words={words} />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

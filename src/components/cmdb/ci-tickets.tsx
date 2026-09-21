@@ -63,7 +63,11 @@ export async function CiTickets({
       action={
         <span className="flex items-center gap-2">
           <span className="bg-surface-2 flex gap-0.5 rounded-full p-0.5">
-            <Toggle href={`/cmdb/${itemId}`} on={!all} label={`${t.cmdb.openHeading} ${open.length}`} />
+            <Toggle
+              href={`/cmdb/${itemId}`}
+              on={!all}
+              label={`${t.cmdb.openHeading} ${open.length}`}
+            />
             <Toggle
               href={`/cmdb/${itemId}?tickets=all`}
               on={all}

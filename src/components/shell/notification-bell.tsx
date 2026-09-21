@@ -177,7 +177,7 @@ export function NotificationBell({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={unread > 0 ? t.notifications.unreadCount(unread) : t.notifications.title}
-        className="hover:bg-surface-3 text-text-2 hover:text-text relative flex size-9 items-center justify-center rounded-full transition-colors"
+        className="bg-surface-2 hover:bg-surface-3 text-text-2 hover:text-text relative flex size-9 items-center justify-center rounded-full transition-colors"
       >
         <Bell size={17} />
         {unread > 0 ? (

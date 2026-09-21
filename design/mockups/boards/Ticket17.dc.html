@@ -1,0 +1,263 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"><style>:root{
+    --bg:#0a0a0c; --surface:#151519; --surface-2:#1d1d23; --surface-3:#26262d; --paper:#121216; --seg-on:#2b2b33;
+    --line:rgba(255,255,255,.06); --line-strong:rgba(255,255,255,.14);
+    --card:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 30px -16px rgba(0,0,0,.7);
+    --lift:0 1px 0 rgba(255,255,255,.06) inset, 0 24px 48px -20px rgba(0,0,0,.9);
+    --hl:none;
+    --text:#fafafa; --text-2:#a4a4ae; --text-3:#6f6f7a;
+    --brand:#febe2e; --brand-2:#e9a017; --brand-hover:#ffcb54; --brand-ink:#1c1300; --brand-deep:#fcc94a; --brand-tint:rgba(254,190,46,.14); --brand-wash:#1c180d;
+    --p-low:#34d399; --p-medium:#818cf8; --p-high:#fb923c; --p-urgent:#fb7185;
+    --positive:#34d399; --negative:#f87171; --info:#5b7cf0;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 40px -12px rgba(0,0,0,.8);
+    --hero-shadow:0 30px 60px -30px rgba(0,0,0,.9);
+  } html,body{height:960px;overflow:hidden} 
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Geist, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: var(--brand-deep); text-decoration: none; } a:hover { color: var(--text); }
+  .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Mono", monospace; font-variant-numeric: tabular-nums; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .t3 { color: var(--text-3); } .t2 { color: var(--text-2); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); line-height: 1; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--hl); }
+  .hair { border-top: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(9,9,11,.1); }
+  .pv { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text); max-width: 100%; white-space: nowrap; }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .pv.dirty { background: var(--brand-tint); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent); }
+  .prow { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; min-height: 30px; gap: 8px; }
+  .prow .pl { font-size: 12px; color: var(--text-3); padding-left: 8px; }
+  .ev { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 5px 0; font-size: 12.5px; color: var(--text-2); }
+  .ev .dot { width: 20px; height: 20px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text-3); margin-left: 4px; }
+  .ev .dot svg { width: 12px; height: 12px; }
+  .ev b { color: var(--text); font-weight: 600; }
+  .btn.outline { border-color: var(--line); background: var(--surface); color: var(--text); box-shadow: var(--hl); }
+  .btn.ghost { color: var(--text-2); }
+  .btn.sm { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 7px; }
+  kbd { font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; line-height: 1; background: var(--surface-2); }
+  .input { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font-size: 13px; box-shadow: var(--hl); }
+  .input .ph { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input { white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+  .chip.on { background: var(--surface-3); color: var(--text); border-color: transparent; }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 0; }
+  .seg .chip { border: 0; background: transparent; height: 26px; }
+  .seg .chip.on { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 2px rgba(9,9,11,.1), 0 0 0 1px rgba(9,9,11,.04); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 7px; border-radius: 999px; background: color-mix(in oklab, var(--text) 6%, transparent); font-size: 11px; font-weight: 500; color: var(--text-2); }
+  .ref { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .ref b { font-weight: 600; }
+  .ref.inc b { color: var(--p-urgent); } .ref.chg b { color: var(--brand-deep); } .ref.qst b { color: var(--p-medium); }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { display: block; width: 3px; border-radius: 1px; background: var(--c); opacity: .22; }
+  .bars i.on { opacity: 1; }
+  .bars i:nth-child(1){height:5px} .bars i:nth-child(2){height:8px} .bars i:nth-child(3){height:11px} .bars i:nth-child(4){height:14px}
+  .ring { display: inline-block; width: 14px; height: 14px; }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: color-mix(in oklab, var(--c) 16%, transparent); overflow: visible; }
+  .spine i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--c); }
+  .spine.hot i::after { content: ""; position: absolute; left: -2px; right: -2px; top: -3px; height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 8px 2px var(--c); }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 10px; font-weight: 600; color: #fff; width: 22px; height: 22px; letter-spacing: .02em; }
+  .empty-avatar { width: 22px; height: 22px; border-radius: 999px; border: 1px dashed var(--line-strong); }
+  /* shell */
+  .shell { width: 1440px; height: 900px; display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; overflow: hidden; background: var(--bg); }
+  .rail { grid-row: 1 / span 2; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 4px; background: var(--chrome); }
+  .bar { height: 48px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 12px; background: var(--chrome); }
+  .nav a.on { background: var(--surface-3); }
+  .rail .nav a.on { background: color-mix(in oklab, var(--text) 7%, transparent); }
+  .main { overflow: hidden; position: relative; }
+  .nav a { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--text-2); font-weight: 500; position: relative; }
+  .nav a.on { background: var(--surface-3); color: var(--text); }
+  .nav a.on::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; background: var(--brand); border-radius: 0 2px 2px 0; }
+  .nav a .n { margin-left: auto; font-size: 11px; color: var(--text-3); font-family: "Geist Mono", monospace; }
+  .nav a kbd { margin-left: auto; opacity: 0; }
+  .nav a:hover kbd { opacity: 1; }
+  .nav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .pagehead { height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .pagehead h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  svg.i { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+ 
+  :root { --chrome: var(--bg); --highlight: var(--card); --shadow: var(--lift); }
+  .shell { background: var(--bg); height: 100%; }
+  .rail { border-right: 0; background: var(--bg); }
+  .bar { border-bottom: 0; background: var(--bg); }
+  .rail .nav a.on { background: var(--surface); box-shadow: var(--card); }
+  .card { border: 0; box-shadow: var(--card); border-radius: 12px; }
+  .input { border-color: transparent; background: var(--surface); box-shadow: var(--card); }
+  .btn.outline { border-color: transparent; box-shadow: var(--card); }
+  .chip { border-color: transparent; background: var(--surface); box-shadow: var(--card); }
+  .chip.on { background: var(--text); color: var(--bg); box-shadow: none; }
+  .seg { background: var(--surface); box-shadow: var(--card); } .seg .chip { box-shadow: none; background: transparent; } .seg .chip.on { background: var(--text); color: var(--bg); }
+  .pv:hover, .pv.open { background: var(--surface-2); }
+  .well { background: var(--surface-2); border-radius: 10px; }
+  .main { overflow: auto; }
+  .toolbar { display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 24px; }
+  .toolbar .btn.ghost { background: var(--surface); box-shadow: var(--card); color: var(--text); }
+  /* the ground, three ways (options H–J on top of C) */
+  .g-light { --bg: #f7f7f9; --card: 0 0 0 1px rgba(9,9,11,.05), 0 1px 2px rgba(9,9,11,.04), 0 8px 24px -12px rgba(9,9,11,.10); }
+  .g-light.dark { --bg: #0e0e11; --surface: #17171b; --card: 0 0 0 1px rgba(255,255,255,.06), 0 12px 30px -16px rgba(0,0,0,.7); }
+  .g-cool { --bg: #eef0f5; }
+  .g-cool.dark { --bg: #0a0b10; --surface: #15161c; --surface-2: #1d1e26; }
+  .g-chrome { --bg: #f4f4f6; }
+  .g-chrome .rail, .g-chrome .bar { background: var(--surface); }
+  .g-chrome .rail { border-right: 1px solid var(--line); }
+  .g-chrome .bar { border-bottom: 1px solid var(--line); }
+  .g-chrome .rail .nav a.on { background: var(--surface-2); box-shadow: none; }
+  .g-chrome .bar .input, .g-chrome .bar .btn.ghost { box-shadow: none; background: var(--surface-2); }
+  .g-chrome.dark { --bg: #0a0a0c; }
+  .g-chrome.dark .rail, .g-chrome.dark .bar { background: #101013; }
+  /* the chosen shape: white chrome as one L-shaped frame, the work area an inset rounded panel on the lighter grey */
+  .g-final { --bg: #f7f7f9; --card: 0 0 0 1px rgba(9,9,11,.05), 0 1px 2px rgba(9,9,11,.04), 0 8px 24px -12px rgba(9,9,11,.10); background: var(--surface); }
+  .g-final .rail, .g-final .bar { background: var(--surface); border: 0; }
+  .g-final .main { margin: 0 12px 12px 0; border-radius: 14px; background: var(--bg); }
+  .g-final .rail .nav a.on { background: var(--surface-2); box-shadow: none; }
+  .g-final .bar .input, .g-final .bar .btn.ghost { box-shadow: none; background: var(--surface-2); }
+  .g-final.dark { --bg: #0e0e11; --surface: #17171b; --surface-2: #202025; --card: 0 0 0 1px rgba(255,255,255,.06), 0 12px 30px -16px rgba(0,0,0,.7); background: #111114; }
+  .g-final.dark .rail, .g-final.dark .bar { background: #111114; }
+  .page { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; padding: 0 20px 20px 24px; align-items: start; }
+  .stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .ch { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 16px; font-weight: 600; font-size: 13px; }
+  .msg { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 14px 16px; }
+  .msg + .msg { border-top: 1px solid var(--line); }
+  .msg .who { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .msg .who b { font-weight: 600; }
+  .msg .who .when { margin-left: auto; color: var(--text-3); font-size: 11.5px; }
+  .msg .body { margin-top: 6px; font-size: 13px; line-height: 1.5; color: var(--text); }
+  .msg.note { background: var(--brand-wash); }
+  .ev { padding: 6px 16px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; }
+  .two > div { padding: 12px 16px; }
+  .two > div + div { border-left: 1px solid var(--line); }
+  .two .l { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .two .v { margin-top: 6px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  .snav { width: 200px; padding: 8px 0 0 24px; }
+  .snav a { display: flex; align-items: center; height: 30px; padding: 0 10px; border-radius: 8px; color: var(--text-2); font-size: 13px; }
+  .snav a.on { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: var(--card); }
+  .snav .sec { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 14px 10px 6px; }
+  .srow { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 14px 16px; align-items: start; }
+  .srow + .srow { border-top: 1px solid var(--line); }
+  .srow .k { font-weight: 500; font-size: 13px; } .srow .d { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .trow { display: grid; grid-template-columns: 24px 190px 1fr 80px 100px 50px; gap: 12px; align-items: center; min-height: 42px; padding: 6px 16px; font-size: 12.5px; }
+  .trow + .trow { border-top: 1px solid var(--line); }
+  /* option B: the main region is one sheet; its blocks lose their own card and become sections */
+  .sheet .blk { box-shadow: none; border-radius: 0; background: transparent; }
+  .sheet .blk + .blk { border-top: 1px solid var(--line); }
+  .sheet .blk.composer { background: var(--surface-2); border-radius: 12px; margin: 4px 16px 16px; border-top: 0; }
+  .sheet .blk .thead { border-radius: 0; }
+  .sheet .composer .well { background: var(--surface); }
+  /* options C–F: three cards — request (title inside), conversation, reply */
+  .req .reqhead { padding: 12px 16px 12px; }
+  .req .reqhead > div { padding: 0; }
+  .req .descsec { border-top: 1px solid var(--line); }
+  .v-tintreq .req { background: var(--brand-wash); }
+  .v-tintreq .req .descsec { border-top-color: color-mix(in oklab, var(--brand) 22%, transparent); }
+  .v-tintreq .req .chip { background: var(--surface) !important; }
+  .v-tintreply .composer { background: var(--brand-wash); }
+  .v-tintreply .composer .well { background: var(--surface); }
+  .v-tintreply .composer .seg { background: var(--surface); }
+  .v-edge .req { box-shadow: inset 4px 0 0 var(--p-urgent), var(--card); }
+  .v-edge .composer { box-shadow: inset 4px 0 0 var(--brand), var(--card); }
+  .v-band .req .reqhead { background: var(--brand); color: var(--brand-ink); border-radius: 12px 12px 0 0; }
+  .v-band .req .reqhead .t3, .v-band .req .reqhead .ref, .v-band .req .reqhead .ref b { color: rgba(28,19,0,.65) !important; }
+  .v-band .req .reqhead .tag { background: rgba(28,19,0,.12); color: var(--brand-ink); }
+  .v-band .req .reqhead svg circle, .v-band .req .reqhead svg path { stroke: var(--brand-ink); }
+  .v-band .req .reqhead span[style*="color:var(--text-2)"] { color: var(--brand-ink) !important; }
+  .v-band .req .descsec { border-top: 0; }
+  .thead { display: grid; grid-template-columns: 24px 190px 1fr 80px 100px 50px; gap: 12px; height: 30px; align-items: center; padding: 0 16px; background: var(--surface-2); border-radius: 12px 12px 0 0; }
+</style></head><body><div class="shell g-final dark">
+  <aside class="rail">
+    <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 6px;margin-bottom:8px">
+      <svg width="22" height="22" viewBox="0 0 32 32" style="flex:none"><defs><mask id="n22"><rect width="32" height="32" rx="8" fill="#fff"/><circle cx="32" cy="16" r="4.5"/><circle cx="0" cy="16" r="4.5"/></mask></defs><rect width="32" height="32" rx="8" fill="var(--brand)" mask="url(#n22)"/><g fill="var(--brand-ink)"><rect x="9" y="17" width="3.2" height="6" rx="1.2" opacity=".5"/><rect x="14.4" y="13" width="3.2" height="10" rx="1.2" opacity=".72"/><rect x="19.8" y="9" width="3.2" height="14" rx="1.2"/></g></svg><span style="font-weight:700;font-size:14px;letter-spacing:-.02em">Tiqo</span>
+      <span class="t3" style="margin-left:auto;display:flex"><svg class="i " viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg></span>
+    </div>
+    <nav class="nav" style="display:flex;flex-direction:column;gap:2px">
+      <div class="sec" style="padding-top:2px">Work</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 8.5 4 3.5h8l1.5 5v4h-11z"/><path d="M2.5 8.5h3.2l1 2h2.6l1-2h3.2"/></svg><span>Dashboard</span><kbd>G D</kbd></a>
+      <a class="on"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg><span>Tickets</span><span class="n">23</span></a>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v7h-11z"/></svg><span>Projects</span><kbd>G P</kbd></a>
+      <div class="sec">Organisation</div>
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13c0-2 1.6-3.5 3.5-3.5S9.5 11 9.5 13"/><path d="M10.5 3.6a2.2 2.2 0 0 1 0 3.9M11 9.6c1.5.4 2.5 1.8 2.5 3.4"/></svg><span>People</span><kbd>G U</kbd></a>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px" class="nav">
+      <a class=""><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.8M8 12.4v1.8M1.8 8h1.8M12.4 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3"/></svg><span>Settings</span><kbd>G S</kbd></a>
+      <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 6px;border-top:1px solid var(--line);margin-top:8px">
+        <span class="avatar" style="background:#6366f1;width:24px;height:24px;font-size:10px" title="Ada Admin">AA</span>
+        <div style="min-width:0;line-height:1.2"><div style="font-weight:600;font-size:12.5px">Ada Admin</div><div class="t3" style="font-size:11px">Admin · desk open</div></div>
+      </div>
+    </div>
+  </aside><header class="bar"><div style="display:flex;align-items:center;gap:6px;font-size:13px"><span class="t3">Tickets</span><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span><span style="color:var(--text);font-weight:500">INC-2609 0117</span></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px"><div class="input" style="width:260px;height:30px"><span class="t3" style="display:flex"><svg class="i " viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></svg></span><span class="ph">Search tickets, people, projects</span><kbd style="margin-left:auto">⌘K</kbd></div><span class="btn primary" style="height:30px"><svg class="i " viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New</span><span class="btn ghost" style="width:30px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3z"/><path d="M6.5 14.5h3"/></svg></span><span class="avatar" style="background:#6366f1;width:26px;height:26px;font-size:11px" title="Ada Admin">AA</span></div></header><div class="main">
+    <div class="toolbar">
+      <span class="btn primary sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="M6.5 3.5 2.5 7l4 3.5"/><path d="M2.5 7h6a5 5 0 0 1 5 5v.5"/></svg>Reply<kbd style="background:transparent;border-color:rgba(0,0,0,.25);color:var(--brand-ink);opacity:.7">R</kbd></span>
+      <span class="btn outline sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>Note</span>
+      <span class="btn outline sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.5 2.2-4.2 5-4.2s5 1.7 5 4.2"/></svg>Assign</span>
+      <span class="btn outline sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="m3 8.5 3 3 7-7"/></svg>Resolve</span>
+      <span class="btn ghost sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg></span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:4px">
+        <span class="btn ghost sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><path d="m8 2.5 6 3-6 3-6-3z"/><path d="m2 8.5 6 3 6-3M2 11.5l6 3 6-3"/></svg>Plan</span>
+        <span class="btn ghost sm" style="height:28px"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/></svg>Activity</span>
+        <span style="width:1px;height:18px;background:var(--line-strong);margin:0 6px"></span>
+        <span class="btn ghost sm" style="height:28px;width:28px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="m10 4-4 4 4 4"/></svg></span>
+        <span class="mono t3" style="font-size:11.5px">3 / 23</span>
+        <span class="btn ghost sm" style="height:28px;width:28px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+      </span>
+    </div><div class="page"><div class="stack v-three"><div class="card blk req"><div class="reqhead">
+    <div style="padding:6px 0 2px">
+      <div style="display:flex;align-items:center;gap:10px"><span class="ref inc"><b>INC</b>-2609 0117</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="2.2" stroke-dasharray="17.28 31.42" transform="rotate(-90 7 7)"/></svg>In progress</span><span class="tag">network</span><span class="t3" style="font-size:12px;margin-left:auto">opened 3h ago by Sanne Lin · Utrecht</span></div>
+      <h1 style="font-size:20px;font-weight:600;letter-spacing:-.02em;margin:6px 0 0;line-height:1.25">VPN drops every 20 minutes on the Utrecht office Wi-Fi</h1>
+    </div></div>
+    <div class="descsec">
+      <div class="ch">What Sanne wrote<span class="t3" style="font-weight:400;font-size:12px">Today 09:12 · via the portal</span></div>
+      <div style="padding:2px 16px 16px;font-size:13px;line-height:1.55">
+        Since Monday the VPN drops every twenty minutes on the office Wi-Fi, on both floors. Wired is fine. It reconnects on its own but Teams calls die each time.<br><br>Happens on my MacBook and on Jonas's Windows laptop, so it is not one machine.
+        <div style="display:flex;gap:8px;margin-top:12px"><span class="chip" style="box-shadow:none;background:var(--surface-2)"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>vpn-log.txt <span class="mono t3">14 KB</span></span><span class="chip" style="box-shadow:none;background:var(--surface-2)"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>IMG_4401.jpg <span class="mono t3">2.1 MB</span></span></div>
+      </div>
+    </div></div>
+    <div class="card blk">
+      <div class="ch">Conversation<span class="t3" style="font-weight:400;font-size:12px">6 replies · 2 notes</span></div>
+      <div class="msg" style="border-top:1px solid var(--line)"><span class="avatar" style="background:#10b981;width:28px;height:28px;font-size:12px" title="Mila Kuipers">MK</span><div><div class="who"><b>Mila Kuipers</b><span class="t3">to Sanne</span><span class="when">09:30</span></div><div class="body">Thanks Sanne. Which access point are you on when it drops? The name is in the Wi-Fi menu, something like UT-3-07.</div></div></div>
+      <div class="msg"><span class="avatar" style="background:#0ea5e9;width:28px;height:28px;font-size:12px" title="Sanne Lin">SL</span><div><div class="who"><b>Sanne Lin</b><span class="t3">requester</span><span class="when">09:41</span></div><div class="body">UT-3-07 on floor 3, UT-2-02 downstairs. Both do it.</div></div></div>
+      <div class="msg note"><span class="avatar" style="background:#10b981;width:28px;height:28px;font-size:12px" title="Mila Kuipers">MK</span><div><div class="who"><b>Mila Kuipers</b><span class="tag" style="background:var(--brand-tint);color:var(--brand-deep)"><svg class="i " viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>internal</span><span class="when">09:44</span></div><div class="body">Both are the new Aruba APs from last week's swap. Firmware 8.10 has the known roaming bug. Pinging Jonas for the rollback.</div></div></div>
+      <div class="ev" style="border-top:1px solid var(--line)"><span class="dot"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.5 2.2-4.2 5-4.2s5 1.7 5 4.2"/></svg></span><span><b>Jonas Berg</b> was added as a watcher</span><span class="mono">10:02</span></div>
+      <div class="msg" style="border-top:1px solid var(--line)"><span class="avatar" style="background:#f97316;width:28px;height:28px;font-size:12px" title="Jonas Berg">JB</span><div><div class="who"><b>Jonas Berg</b><span class="t3">to Sanne</span><span class="when">11:20</span></div><div class="body">We are rolling the two access points back to the previous firmware at 12:00. You will lose Wi-Fi for about a minute. Could you tell us afterwards whether it holds through a full call?</div></div></div>
+    </div>
+    <div class="card blk composer" style="padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="seg"><span class="chip on">Reply</span><span class="chip">Note</span></span><span class="t3" style="font-size:12px">to Sanne Lin · updates go to the portal and her e-mail</span></div>
+      <div class="well" style="height:72px;padding:10px 12px;font-size:13px;color:var(--text-3)">Write a reply… <span class="mono" style="font-size:11px">#</span> to reference a ticket or asset</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px"><span class="btn ghost sm"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg>Attach</span><span class="btn ghost sm"><svg class="i " viewBox="0 0 16 16"><path d="M8 2.5 9.3 6l3.7.5-2.7 2.5.7 3.7L8 11l-3 1.7.7-3.7L3 6.5 6.7 6z"/></svg>Insert answer</span><span style="margin-left:auto;display:flex;gap:6px;align-items:center"><span class="pv" style="background:var(--surface-2)"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--text-3)" stroke-width="2.2" stroke-dasharray="9.42 31.42" transform="rotate(-90 7 7)"/></svg>Waiting on requester</span><svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span><span class="btn primary sm"><svg class="i " viewBox="0 0 16 16"><path d="m2.5 8 11-5-3 11-2.5-4.5z"/><path d="m8 9.5 5.5-6.5"/></svg>Send</span></span></div>
+    </div></div>
+    <div class="stack">
+      <div class="card two">
+        <div><div class="l">Status</div><div class="v"><svg class="ring" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="1.4" opacity="0.35"/><circle cx="7" cy="7" r="5" fill="none" stroke="var(--p-medium)" stroke-width="2.2" stroke-dasharray="17.28 31.42" transform="rotate(-90 7 7)"/></svg>In progress</div></div>
+        <div><div class="l">Priority</div><div class="v"><span class="bars" style="--c: var(--p-urgent)" title="urgent"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>Urgent</div></div>
+      </div>
+      <div class="card">
+        <div class="ch">Details</div>
+        <div style="padding:2px 8px 10px">
+          <div class="prow"><span class="pl">Assignee</span><span class="pv "><span class="avatar" style="background:#10b981;width:18px;height:18px;font-size:8px" title="Mila Kuipers">MK</span>Mila Kuipers<svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+          <div class="prow"><span class="pl">Team</span><span class="pv "><svg class="i t3" viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13c0-2 1.6-3.5 3.5-3.5S9.5 11 9.5 13"/><path d="M10.5 3.6a2.2 2.2 0 0 1 0 3.9M11 9.6c1.5.4 2.5 1.8 2.5 3.4"/></svg>Infrastructure<svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+          <div class="prow"><span class="pl">Type</span><span class="pv "><svg class="i t3" viewBox="0 0 16 16"><path d="M3.5 14V2.5h8l-2 3 2 3h-8"/></svg>Incident<svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+          <div class="prow"><span class="pl">Project</span><span class="pv dirty"><svg class="i t3" viewBox="0 0 16 16"><path d="M2.5 4.5h4l1.5 1.5h5.5v7h-11z"/></svg>Network refresh 2026<svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+          <div class="prow"><span class="pl">Tags</span><span style="display:flex;gap:4px;padding-left:8px"><span class="tag">network</span><span class="tag" style="opacity:.6">+ add</span></span></div>
+          <div class="prow"><span class="pl">Asset</span><span class="pv "><svg class="i t3" viewBox="0 0 16 16"><rect x="3" y="3.5" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg>UT-3-07 · Aruba AP<svg class="i t3" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></span></div>
+        </div>
+        <div style="display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)"><span class="btn primary sm">Save</span><span class="btn ghost sm">Cancel</span><span class="t3" style="margin-left:auto;font-size:11.5px;align-self:center">1 change</span></div>
+      </div>
+      <div class="card">
+        <div class="ch">Requester<span class="btn ghost sm" style="height:24px;width:24px;padding:0;justify-content:center"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg></span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:0 16px 12px"><span class="avatar" style="background:#0ea5e9;width:32px;height:32px;font-size:13px" title="Sanne Lin">SL</span><div style="line-height:1.25;min-width:0"><div style="font-weight:600;font-size:13px">Sanne Lin</div><div class="t3" style="font-size:11.5px">Marketing · Utrecht · local time 11:32</div></div></div>
+        <div style="display:flex;gap:6px;padding:0 16px 14px"><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg>Email</span><span class="btn outline sm" style="height:26px"><svg class="i " viewBox="0 0 16 16"><path d="M3.5 2.5h2.5l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2.5a1 1 0 0 1-1 1A11 11 0 0 1 2.5 3.5a1 1 0 0 1 1-1z"/></svg>Call</span><span class="t3" style="margin-left:auto;font-size:11.5px;align-self:center">4 open · 12 total</span></div>
+      </div>
+      <div class="card">
+        <div class="ch">Response target<span class="mono" style="font-size:12px;color:var(--p-urgent);font-weight:600">28m left</span></div>
+        <div style="padding:0 16px 14px"><div style="height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden"><i style="display:block;height:100%;width:92%;background:var(--p-urgent);box-shadow:0 0 8px var(--p-urgent)"></i></div><div class="t3" style="font-size:11.5px;margin-top:8px">First reply due 12:00 · resolve by tomorrow 09:12</div></div>
+      </div>
+      <div class="card">
+        <div class="ch">Activity<span class="t3" style="font-weight:400;font-size:12px">today</span></div>
+        <div style="padding:0 4px 8px">
+          <div class="ev"><span class="dot"><svg class="i " viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.5 2.2-4.2 5-4.2s5 1.7 5 4.2"/></svg></span><span><b>Jonas</b> added as watcher</span><span class="mono">10:02</span></div>
+          <div class="ev"><span class="dot"><svg class="i " viewBox="0 0 16 16"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3"/></svg></span><span><b>Mila</b> left a note</span><span class="mono">09:44</span></div>
+          <div class="ev"><span class="dot"><svg class="i " viewBox="0 0 16 16"><path d="M6.5 3.5 2.5 7l4 3.5"/><path d="M2.5 7h6a5 5 0 0 1 5 5v.5"/></svg></span><span><b>Mila</b> replied</span><span class="mono">09:30</span></div>
+          <div class="ev"><span class="dot"><svg class="i " viewBox="0 0 16 16"><path d="M3.5 14V2.5h8l-2 3 2 3h-8"/></svg></span><span>priority set to <b>Urgent</b></span><span class="mono">09:15</span></div>
+          <div class="ev"><span class="dot"><svg class="i " viewBox="0 0 16 16"><path d="M2.5 5.5a1.5 1.5 0 0 0 0 5v2h11v-2a1.5 1.5 0 0 1 0-5v-2h-11z"/><path d="M8 3.5v9" stroke-dasharray="1.5 2"/></svg></span><span><b>Sanne</b> opened via the portal</span><span class="mono">09:12</span></div>
+        </div>
+      </div>
+    </div></div></div></div></body></html>

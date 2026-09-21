@@ -206,3 +206,102 @@ seeded brand colours in both themes.
   phase 3 turns up a question the round-11 boards do not answer.
 - Whether the desk should get the pill nav in its rail once the tidy-up is
   done; not decided, not in this round.
+
+## Correction after phase 0 (17 September, evening)
+
+Phase 0 put the desk's work area on one white panel, drawn from the queue
+board. On pages made of several blocks — the ticket page, settings — that
+gave white cards on a white panel. A first fix (every block its own card on
+the ground, boards `Ticket13*`, `Settings13*`) was rejected on review: ten
+floating rectangles on the ticket page, the round-11 problem again. The rule
+that replaces it is the **surface ladder**:
+
+- Three rungs: **ground** (the grey page), **sheet** (a white surface for one
+  object), **well** (the light-grey inset inside a sheet). A block sits one
+  rung above its parent, never on the same rung: no white on white, no grey
+  on grey. Express it as tokens (`--ground`, `--sheet`, `--well`) and a
+  component rule, not a per-page mode.
+- **The main region is a sheet** by default: a ticket, a settings form, a
+  register, a document are each one object. Inside a sheet, separation is
+  headings, space, faint dividers and wells — the composer, a table header,
+  attachments, form fields. Never a card inside a sheet.
+- **Side regions sit on the ground**, so their blocks are cards: the ticket
+  rail (round-9 rail A, one card per section), the settings read-out
+  preview, the settings navigation with its active entry as a white pill.
+- **Only genuinely composed pages opt out** of the main sheet and put cards
+  on the ground: the dashboard and the project overview. The shell does this
+  through one prop on those two page layouts.
+
+Boards: `Ticket14*.dc.html` and `Settings14*.dc.html` are the chosen shape;
+`Ticket13*`/`Settings13*` are kept beside them in the viewer
+`design/mockups/boards/DeskFill13.html` for comparison. Apply the ladder as
+the last step of phase 0, before the phase-1 pass starts, and re-verify the
+four screens named there plus the dashboard.
+
+### Ticket page, second review (17 September, late)
+
+The one-sheet ticket (B) was judged too much in one card. Decision so far:
+the title, reference and status go **inside the request card** together with
+what the requester wrote; the conversation and the reply stay **their own
+cards**; the rail stays cards. Five colour treatments of that shape are on
+`DeskFill13.html` as C–G (`Ticket15C`–`Ticket15G`): all white; request on
+the brand wash; reply on the brand wash; priority-coloured edge on the
+request and amber edge on the reply; a solid brand band as the request
+header. One is still to be chosen; the ladder rule stands for every other
+page.
+
+**Decided (17 September, late):** the ticket page is **C** — three white
+cards (request with the title inside, conversation, reply), the rail as
+cards; no colour beyond the glyphs. Every toolbar control gets the same fill
+as the outline buttons, including Plan, Activity and prev/next; no ghost
+buttons in a toolbar. **Still open: the ground.** The reviewer finds the
+grey too much. Three levers are drawn as H/I/J on `DeskFill13.html`
+(`Ticket16H`–`J`, `Settings16H`/`J`): a lighter ground (`#f7f7f9`) with
+hairline cards; a cool-tinted ground (`#eef0f5`); white chrome (rail and bar
+white with a hairline) so only the work area is grey. Do not build the shell
+tokens until one is chosen.
+
+**Ground decided (17 September, night):** white chrome with the work area
+inset. The rail and the bar are `--surface` and read as one L-shaped frame:
+no line between them, no line against the work area. The work area is a
+panel with 14px corners and a 12px margin right and bottom, on a lighter
+grey (`--bg: #f7f7f9`; dark `#0e0e11`, surface `#17171b`, chrome `#111114`).
+Cards on it keep a faint hairline (`0 0 0 1px rgba(9,9,11,.05)` inside the
+card shadow; dark `rgba(255,255,255,.06)`). The active rail item is a
+`--surface-2` fill without shadow; the bar's search and icon buttons are
+`--surface-2` wells. Boards: `Ticket17*`, `Settings17*`. This replaces the
+phase-0 shell paragraph: the shell always draws this frame; the surface
+ladder decides what sits inside the work area (sheet pages fill it with one
+sheet; the ticket page and settings are cards on it as drawn; dashboard and
+project overview are cards on it too).
+
+### Overview pages (open, 18 September)
+
+With the frame built, the queue, the projects list and the assets register
+read as a white sheet in a grey rim in a white frame. Three answers are
+drawn on `design/mockups/boards/Overview14.html` (A: head and filters on the
+ground, the table alone is the sheet; B: the inset panel becomes the sheet on
+one-object pages; C: a views column on the ground beside the sheet, the same
+on all three pages, saved views get a permanent home, the segment control
+goes). Recommendation C, fallback B. Not chosen yet; do not restyle these
+three pages until it is.
+
+**Overview pages decided (18 September): C.** Every overview page (tickets,
+projects, assets; people and the mail log follow the same shape later) is a
+views column on the ground beside one sheet. The column: 200px, on the
+ground, no card; a small-caps VIEWS heading, the built-in views with counts
+in mono on the right, the active one a white pill (surface + card shadow);
+then SAVED with the saved views and "Save current view" as a quiet last row
+with a plus. The sheet: the secondary filters in a 52px header row inside
+the sheet (hairline under it), then the table with a `--surface-2` header
+row, then the footer with the range and Previous/Next. The page head stays
+on the ground: title, the active view's name and counts in mono, and the
+page's tools on the right (Columns, Sort; New; Export). The segment control
+is gone; its entries are the built-in views. Tickets: All open, Mine, My
+groups, Unassigned, Everything, then the saved views the queue already has.
+Projects: Active, Led by me, Off track, Archived; saved views are new for
+projects (same mechanism as the queue's, keyed by page). Assets: the types
+as the first group (TYPES, All + each type with counts), then SAVED VIEWS,
+the List/Split toggle stays in the sheet header, the peek is a card on the
+ground to the right. Boards: `Overview14TicketsC*`, `Overview14ProjectsC*`,
+`Overview14AssetsC*`; source `design/mockups/src/portal/gen14.mjs`.

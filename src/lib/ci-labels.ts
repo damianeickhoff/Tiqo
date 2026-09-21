@@ -21,7 +21,8 @@ const MAX_LABELS = 40;
 async function origin() {
   const header = await headers();
   const host = header.get("x-forwarded-host") ?? header.get("host") ?? "localhost";
-  const protocol = header.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const protocol =
+    header.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   return `${protocol}://${host}`;
 }
 

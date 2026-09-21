@@ -106,7 +106,8 @@ export function WarrantyBar({
 }) {
   const end = Date.parse(span.to.value);
   const start = span.from ? Date.parse(span.from.value) : end - YEAR;
-  const done = Number.isNaN(end) || Number.isNaN(start) ? 0 : (now.getTime() - start) / (end - start);
+  const done =
+    Number.isNaN(end) || Number.isNaN(start) ? 0 : (now.getTime() - start) / (end - start);
   const used = Math.max(0, Math.min(1, done));
   const lapsed = done >= 1;
 

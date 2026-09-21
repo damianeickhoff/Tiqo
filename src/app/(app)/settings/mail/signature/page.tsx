@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { getMailSettings, getMessages, getSettings } from "@/lib/settings";
 import { previewValues } from "@/lib/mail";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { MailSignatureForm } from "@/components/settings/mail-signature";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,12 +28,14 @@ export default async function MailSignaturePage() {
   ]);
 
   return (
-    <SettingsSection title={t.mail.signatureTitle} description={t.mail.signatureBlurb}>
-      <MailSignatureForm
-        signature={mail.signature ?? ""}
-        sample={preview.values}
-        brandColor={settings.brandColor}
-      />
-    </SettingsSection>
+    <SettingsSheet>
+      <SettingsSection title={t.mail.signatureTitle} description={t.mail.signatureBlurb}>
+        <MailSignatureForm
+          signature={mail.signature ?? ""}
+          sample={preview.values}
+          brandColor={settings.brandColor}
+        />
+      </SettingsSection>
+    </SettingsSheet>
   );
 }

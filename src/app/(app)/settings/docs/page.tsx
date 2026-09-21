@@ -7,6 +7,7 @@ import { getMessages } from "@/lib/settings";
 import { docReviewDefaults } from "@/lib/doc-sweep";
 import { isStale } from "@/lib/docs";
 import { SettingsSection } from "@/components/settings/section";
+import { SettingsSheet } from "@/components/settings/sheet";
 import { SpaceManager } from "@/components/settings/space-manager";
 import { DocDefaultsForm } from "@/components/settings/doc-defaults-form";
 
@@ -56,7 +57,7 @@ export default async function DocSettingsPage() {
   ]);
 
   return (
-    <>
+    <SettingsSheet>
       <SettingsSection title={t.docs.spacesTitle} description={t.docs.spacesBlurb}>
         <SpaceManager
           teams={teams}
@@ -80,6 +81,6 @@ export default async function DocSettingsPage() {
       <SettingsSection title={t.docs.reviewDefaults} description={t.docs.reviewDefaultsBlurb}>
         <DocDefaultsForm defaults={defaults} />
       </SettingsSection>
-    </>
+    </SettingsSheet>
   );
 }
