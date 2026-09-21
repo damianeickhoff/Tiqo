@@ -8,7 +8,7 @@ import { createTagOnTicket, updateTicket } from "@/lib/actions/tickets";
 import { setTicketMilestone } from "@/lib/actions/projects";
 import { PRIORITY_META, PRIORITY_ORDER, TYPE_ORDER, hasResponseTarget } from "@/lib/tickets";
 import { PriorityBars, StatusRing } from "@/components/tickets/glyphs";
-import { PanelCard } from "@/components/tickets/panel-card";
+import { PanelCard, PanelRow as Row, PanelValue as Static } from "@/components/tickets/panel-card";
 import { SaveBar, useDraft } from "@/components/settings/draft";
 import { usePriorityTargets, useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
@@ -48,37 +48,7 @@ type Props = {
   readOnly: boolean;
 };
 
-/* ------------------------------------------------------------------ rows -- */
-
-/**
- * One property: a quiet label on the left, the value on the right. The value is
- * a control when the ticket can be edited and plain text when it cannot, but
- * the row reads the same either way.
- */
-function Row({
-  label,
-  dirty = false,
-  children,
-}: {
-  label: string;
-  dirty?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid min-h-9 grid-cols-[78px_minmax(0,1fr)] items-center gap-2">
-      <span className="text-text-3 pl-2 text-sm">{label}</span>
-      <span
-        className={cn(
-          "rounded-control relative flex min-h-9 min-w-0 items-center",
-          dirty &&
-            "bg-[var(--brand-tint)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--brand)_45%,transparent)]",
-        )}
-      >
-        {children}
-      </span>
-    </div>
-  );
-}
+/* ----------------------------------------------------------------- cells -- */
 
 /**
  * The rail's first card: the status and the priority, side by side.
@@ -166,20 +136,6 @@ const PILL_SELECT =
 
 /** The two-up cell's control: the whole cell, invisible, over the readout. */
 const CELL_SELECT = "absolute inset-0 h-full w-full cursor-pointer opacity-0 focus:outline-none";
-
-/** A value that cannot: the same shape, no chevron. */
-function Static({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
-  return (
-    <span
-      className={cn(
-        "flex h-8 min-w-0 items-center gap-1.5 truncate px-2 text-base font-medium",
-        muted && "text-text-3 font-normal",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 function ReadOnlyProperties({
   statusName,

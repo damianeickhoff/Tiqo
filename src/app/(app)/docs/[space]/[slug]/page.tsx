@@ -242,7 +242,7 @@ export default async function DocPage({
   );
 
   const rail = (
-    <aside className="flex min-w-0 flex-col gap-3 px-5 py-6 lg:px-8 xl:px-4">
+    <aside className="flex min-w-0 flex-col gap-3 px-5 py-6 lg:px-6 xl:px-3">
       {/* The page's own headings used to open this rail. They are on the page
           now, hovering in its corner: an index is the one thing here that is
           used *while* reading, and it had been sharing a column with who owns
@@ -347,7 +347,7 @@ export default async function DocPage({
         </p>
       ) : null}
 
-      <div className={reading ? "" : "xl:grid xl:grid-cols-[minmax(0,1fr)_320px]"}>
+      <div className={reading ? "" : "xl:grid xl:grid-cols-[minmax(0,1fr)_288px]"}>
         {/* A page being read or written is one object, so it is one sheet on
             the work area's ground. The rail beside it stays cards. */}
         <div className="sheet m-3 min-w-0">

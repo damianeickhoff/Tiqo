@@ -41,3 +41,67 @@ export function PanelCard({
     </section>
   );
 }
+
+/**
+ * One property: a quiet label on the left, the value on the right.
+ *
+ * The value is a control where the thing can be edited and plain text where it
+ * cannot, but the row reads the same either way. Here rather than beside the
+ * one card that first needed it, because "the rail's rows" is one rhythm and
+ * two copies of it drift: the documentation card was a ruled table with an
+ * uppercase label column while the ticket beside it was this.
+ */
+export function PanelRow({
+  label,
+  dirty = false,
+  children,
+}: {
+  label: string;
+  /// Changed in the draft and not yet saved, tinted so the eye can find what
+  /// Save is about to write.
+  dirty?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid min-h-9 grid-cols-[78px_minmax(0,1fr)] items-center gap-2">
+      <span className="text-text-3 pl-2 text-sm">{label}</span>
+      <span
+        className={cn(
+          "rounded-control relative flex min-h-9 min-w-0 items-center",
+          dirty &&
+            "bg-[var(--brand-tint)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--brand)_45%,transparent)]",
+        )}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
+/** A value that cannot be changed: the same shape as the controls, no chevron. */
+export function PanelValue({
+  children,
+  muted,
+  wrap = false,
+  className,
+}: {
+  children: ReactNode;
+  muted?: boolean;
+  /// A value that is a sentence rather than a name. Cut in half, the rule the
+  /// row exists to state is the half that goes — so it runs on instead.
+  wrap?: boolean;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "flex min-w-0 items-center gap-1.5 px-2 text-base font-medium",
+        wrap ? "min-h-8 py-1 leading-snug" : "h-8 truncate",
+        muted && "text-text-3 font-normal",
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
