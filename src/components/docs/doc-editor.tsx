@@ -210,29 +210,30 @@ export function DocArticle({
   if (!editing) {
     return (
       <>
-        {/* The toolbar sits on the page's own measure rather than on the
-            sheet's, so its last control and the index on the title's line
-            below it share a right edge at any width. */}
-        <div className="px-5 py-2 lg:px-6">
-          <div className={cn("flex min-h-[44px] flex-wrap items-center gap-2", measure)}>
-            {breadcrumb}
-            <span className="ml-auto flex items-center gap-2">
-              {flash ? (
-                <span className="animate-fade text-positive inline-flex items-center gap-1 text-sm font-medium">
-                  <Check size={13} strokeWidth={2.5} />
-                  {t.common.saved}
-                </span>
-              ) : null}
-              {actions}
-              {canEdit ? (
-                <Button type="button" size="sm" onClick={() => setEditing(true)}>
-                  <Pencil size={13} />
-                  {t.docs.edit}
-                </Button>
-              ) : null}
-              {menu}
-            </span>
-          </div>
+        {/* The toolbar spans the sheet, not the page's measure: it acts on
+            the document as a whole and belongs at the corner of the sheet
+            holding it. Tying it to the words' own width to line it up with
+            the index below dragged the whole row inwards on a wide screen,
+            which is a worse thing to look at than two right edges that do
+            not agree. */}
+        <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-6">
+          {breadcrumb}
+          <span className="ml-auto flex items-center gap-2">
+            {flash ? (
+              <span className="animate-fade text-positive inline-flex items-center gap-1 text-sm font-medium">
+                <Check size={13} strokeWidth={2.5} />
+                {t.common.saved}
+              </span>
+            ) : null}
+            {actions}
+            {canEdit ? (
+              <Button type="button" size="sm" onClick={() => setEditing(true)}>
+                <Pencil size={13} />
+                {t.docs.edit}
+              </Button>
+            ) : null}
+            {menu}
+          </span>
         </div>
 
         <div className="px-5 pt-2 pb-6 lg:px-6">
