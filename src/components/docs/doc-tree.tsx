@@ -59,6 +59,11 @@ export function DocTree({
   const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [closed, setClosed] = useState<Set<string>>(new Set());
+  // Below the breakpoint the rail is not beside the page, it is stacked on top
+  // of it — so on a phone the whole shelf stood between somebody and the
+  // runbook they opened. It folds there, and only there: at rail width it is
+  // the navigation and hiding it would be hiding the point of the column.
+  const [shown, setShown] = useState(false);
 
   const needle = query.trim().toLowerCase();
 
@@ -77,60 +82,73 @@ export function DocTree({
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-2">
-      <div className="relative">
-        <Search
-          size={13}
-          aria-hidden
-          className="text-text-3 pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
-        />
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t.docs.findInSpace}
-          aria-label={t.docs.findInSpace}
-          className="bg-surface placeholder:text-text-3 focus:border-brand rounded-control h-8 w-full border border-transparent pr-2.5 pl-7.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
-        />
-      </div>
+      <button
+        type="button"
+        onClick={() => setShown((was) => !was)}
+        aria-expanded={shown}
+        className="text-text-2 hover:text-text -mx-1 flex items-center gap-1.5 rounded px-1 py-1 text-base font-medium transition-colors lg:hidden"
+      >
+        {shown ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+        {t.docs.browseShelf}
+        <span className="text-text-3 text-sm">{docs.length}</span>
+      </button>
 
-      <nav className="rail-scroll min-h-0 flex-1 overflow-y-auto pb-2">
-        {needle ? (
-          matches.length === 0 ? (
-            <p className="text-text-3 px-2 py-3 text-sm">{t.docs.noMatches}</p>
-          ) : (
-            <ul>
-              {matches.map((doc) => (
-                <Row
-                  key={doc.id}
-                  doc={doc}
-                  depth={0}
-                  spaceKey={spaceKey}
-                  active={pathname === docHref(spaceKey, doc.slug)}
-                />
-              ))}
-            </ul>
-          )
-        ) : roots.length === 0 ? (
-          <p className="text-text-3 px-2 py-3 text-sm">{t.docs.emptyBody}</p>
-        ) : (
-          <Branch
-            nodes={roots}
-            spaceId={spaceId}
-            spaceKey={spaceKey}
-            canEdit={canEdit}
-            pathname={pathname}
-            closed={closed}
-            toggle={(id) =>
-              setClosed((current) => {
-                const next = new Set(current);
-                if (!next.delete(id)) next.add(id);
-                return next;
-              })
-            }
+      <div className={cn("min-h-0 flex-1 flex-col gap-2", shown ? "flex" : "hidden lg:flex")}>
+        <div className="relative">
+          <Search
+            size={13}
+            aria-hidden
+            className="text-text-3 pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
           />
-        )}
-      </nav>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t.docs.findInSpace}
+            aria-label={t.docs.findInSpace}
+            className="bg-surface placeholder:text-text-3 focus:border-brand rounded-control h-8 w-full border border-transparent pr-2.5 pl-7.5 text-base shadow-[var(--highlight)] transition-[border-color,box-shadow] focus:ring-[3px] focus:ring-[var(--brand-tint)] focus:outline-none"
+          />
+        </div>
 
-      {canEdit && !needle ? <AddPage spaceId={spaceId} parentId={null} full /> : null}
+        <nav className="rail-scroll min-h-0 flex-1 overflow-y-auto pb-2">
+          {needle ? (
+            matches.length === 0 ? (
+              <p className="text-text-3 px-2 py-3 text-sm">{t.docs.noMatches}</p>
+            ) : (
+              <ul>
+                {matches.map((doc) => (
+                  <Row
+                    key={doc.id}
+                    doc={doc}
+                    depth={0}
+                    spaceKey={spaceKey}
+                    active={pathname === docHref(spaceKey, doc.slug)}
+                  />
+                ))}
+              </ul>
+            )
+          ) : roots.length === 0 ? (
+            <p className="text-text-3 px-2 py-3 text-sm">{t.docs.emptyBody}</p>
+          ) : (
+            <Branch
+              nodes={roots}
+              spaceId={spaceId}
+              spaceKey={spaceKey}
+              canEdit={canEdit}
+              pathname={pathname}
+              closed={closed}
+              toggle={(id) =>
+                setClosed((current) => {
+                  const next = new Set(current);
+                  if (!next.delete(id)) next.add(id);
+                  return next;
+                })
+              }
+            />
+          )}
+        </nav>
+
+        {canEdit && !needle ? <AddPage spaceId={spaceId} parentId={null} full /> : null}
+      </div>
     </div>
   );
 }

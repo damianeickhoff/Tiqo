@@ -25,7 +25,7 @@ export function PublishedCard({
   articleTitle,
   categoryId,
   categoryName,
-  publishedWhen,
+  publishedOn,
   isLive,
   behind,
   canManage,
@@ -37,7 +37,9 @@ export function PublishedCard({
   /// catching the answer up cannot quietly move it out of its section.
   categoryId: string | null;
   categoryName: string | null;
-  publishedWhen: string;
+  /// The date alone. The sentence around it is built here, because it depends
+  /// on whether the answer is in a section.
+  publishedOn: string;
   isLive: boolean;
   /// How many saves this page has had since the answer was last written from
   /// it. Counted on the server, where the revisions are.
@@ -92,7 +94,9 @@ export function PublishedCard({
         </div>
 
         <p className="text-text-3 text-sm">
-          {categoryName ? t.docs.underSection(categoryName, publishedWhen) : publishedWhen}
+          {categoryName
+            ? t.docs.underSection(categoryName, publishedOn)
+            : t.docs.publishedWhen(publishedOn)}
           {live ? "" : ` · ${t.docs.withdrawn}`}
         </p>
 
@@ -121,7 +125,16 @@ export function PublishedCard({
               onClick={() =>
                 startTransition(async () => {
                   const result = await withdrawDoc(docId);
-                  if (result.ok) setLive(false);
+                  // Said out loud, the same as the republish above it. A
+                  // control that takes something off the portal and then
+                  // leaves it there without a word is the one failure on this
+                  // card somebody would act on being wrong about.
+                  if (!result.ok) {
+                    setError(result.error ?? t.errors.generic);
+                    return;
+                  }
+                  setError(null);
+                  setLive(false);
                 })
               }
               className="text-text-3 hover:text-text inline-flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-50"

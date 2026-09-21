@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { canManageDocs } from "@/lib/permissions";
+import { canEditDocs, canManageDocs } from "@/lib/permissions";
 import { getMessages } from "@/lib/settings";
 import { daysUntilReview, docHref, isStale } from "@/lib/docs";
 import { PageHeader } from "@/components/shell/page-header";
@@ -31,6 +31,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ReviewQueuePage() {
   const user = await requireUser();
   if (!canManageDocs(user)) notFound();
+
+  // Deciding what shelves exist and confirming that a page is still right are
+  // two different permissions, and neither implies the other. A desk that has
+  // given somebody the first without the second was being offered a button on
+  // every row that the action then refused.
+  const canConfirm = canEditDocs(user);
 
   const t = await getMessages();
 
@@ -126,7 +132,7 @@ export default async function ReviewQueuePage() {
                       {page.space.name}
                     </span>
                     <ReviewChip days={daysUntilReview(page)} size="sm" />
-                    <StillCorrectButton docId={page.id} />
+                    {canConfirm ? <StillCorrectButton docId={page.id} /> : null}
                   </li>
                 ))}
               </ul>

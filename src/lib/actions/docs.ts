@@ -219,6 +219,7 @@ async function findDoc(id: string) {
       slug: true,
       pastSlugs: true,
       title: true,
+      summary: true,
       body: true,
       spaceId: true,
       parentId: true,
@@ -350,8 +351,14 @@ export async function saveDoc(id: string, formData: FormData) {
   // last-write-wins there means somebody's afternoon disappears without a word.
   const loaded = String(formData.get("loadedAt") ?? "");
   if (loaded && new Date(loaded).getTime() !== current.updatedAt.getTime()) {
+    // Named as a conflict rather than left as another form error, so the
+    // editor can offer the two ways out of it — read theirs, or save over it
+    // knowing the revision keeps what was replaced. A refusal whose only
+    // remedy is to copy the draft, reload and paste it back is a refusal that
+    // costs somebody their afternoon just as surely as the overwrite would.
     return {
       ok: false as const,
+      conflict: true as const,
       errors: { form: t.errors.docMovedOn(current.updatedBy?.name ?? t.notifications.someone) },
     };
   }
@@ -376,7 +383,13 @@ export async function saveDoc(id: string, formData: FormData) {
   // Nothing changed, so there is nothing to record. Without this, opening the
   // editor and pressing Save writes a revision saying somebody changed
   // something, which is the fastest way to make a history unreadable.
-  const unchanged = title === current.title && body === current.body;
+  //
+  // The summary counts. It is one sentence, but it is the sentence that stands
+  // in for the page in every list, every search result and every portal answer
+  // made from it — leaving it out of this comparison meant rewriting it left
+  // no revision, told the owner nothing, and never reached the published
+  // answer, because the answer's "behind" count is a count of revisions.
+  const unchanged = title === current.title && summary === current.summary && body === current.body;
 
   // The address follows the title. Freezing the slug at creation kept old
   // links working, but it also meant a page renamed a week later answered for
@@ -398,7 +411,10 @@ export async function saveDoc(id: string, formData: FormData) {
         title,
         summary,
         body,
-        updatedById: user.id,
+        // Only when the words actually moved. A save that carries nothing but
+        // a newly attached file has not rewritten anything, and stamping it
+        // would put somebody's name on a change they did not make.
+        ...(unchanged ? {} : { updatedById: user.id, updatedAt: new Date() }),
         ...(readdressed
           ? {
               slug: nextSlug,
@@ -428,6 +444,7 @@ export async function saveDoc(id: string, formData: FormData) {
             data: {
               docId: id,
               title: current.title,
+              summary: current.summary,
               body: current.body,
               note,
               authorId: user.id,
@@ -489,7 +506,7 @@ export async function updateDocCare(id: string, input: unknown) {
   // is on a shelf it no longer stands on.
   const moving = parsed.data.spaceId && parsed.data.spaceId !== current.spaceId;
   if (moving) {
-    const moved = await moveToSpace(current, parsed.data.spaceId!, user.id, t);
+    const moved = await moveToSpace(current, parsed.data.spaceId!, t);
     if (!moved.ok) return moved;
     refreshDoc(current.space.key, current.slug);
     refreshDoc(moved.spaceKey, moved.slug);
@@ -521,6 +538,10 @@ export async function updateDocCare(id: string, input: unknown) {
       })
     : null;
 
+  // `updatedById` and `updatedAt` are deliberately left alone. Naming an owner
+  // or moving a page in the tree is not writing it, and a page that says
+  // "Updated today by Ada" because Ada changed its review interval is a page
+  // whose history nobody can read.
   await prisma.doc.update({
     where: { id },
     data: {
@@ -530,7 +551,6 @@ export async function updateDocCare(id: string, input: unknown) {
       // one; the parent that came in with the form belongs to the old tree.
       ...(moving ? {} : { parentId: parentId ?? null }),
       ...(moved && !moving ? { position: (last?.position ?? -1) + 1 } : {}),
-      updatedById: user.id,
     },
   });
 
@@ -561,7 +581,6 @@ export async function updateDocCare(id: string, input: unknown) {
 async function moveToSpace(
   current: { id: string; spaceId: string; slug: string },
   spaceId: string,
-  actorId: string,
   t: Messages,
 ) {
   const space = await prisma.docSpace.findUnique({
@@ -599,7 +618,6 @@ async function moveToSpace(
       data: {
         spaceId,
         slug: clash ? await uniqueDocSlug(spaceId, page.title) : page.slug,
-        updatedById: actorId,
         ...(page.id === current.id ? { parentId: null, position: (last?.position ?? -1) + 1 } : {}),
       },
     });
@@ -829,7 +847,7 @@ export async function archiveDoc(id: string, archived: boolean) {
 
   await prisma.doc.updateMany({
     where: { id: { in: [...subtreeIds(rows, id)] } },
-    data: { archivedAt: archived ? new Date() : null, updatedById: user.id },
+    data: { archivedAt: archived ? new Date() : null },
   });
 
   refreshDoc(current.space.key, current.slug);
@@ -878,7 +896,7 @@ export async function restoreRevision(revisionId: string) {
 
   const revision = await prisma.docRevision.findUnique({
     where: { id: revisionId },
-    select: { id: true, docId: true, title: true, body: true, createdAt: true },
+    select: { id: true, docId: true, title: true, summary: true, body: true, createdAt: true },
   });
   if (!revision) return { ok: false as const, error: t.errors.revisionGone };
 
@@ -888,11 +906,23 @@ export async function restoreRevision(revisionId: string) {
   const archived = refuseIfArchived(current, t);
   if (archived) return { ok: false as const, error: archived };
 
+  // The address follows the title here exactly as it does on a save. Putting
+  // an older title back and leaving the page at the address the newer one
+  // gave it left the one thing the slug rewrite exists to prevent: a page
+  // called one thing living at another, with its own old address redirecting
+  // to the wrong name.
+  const nextSlug =
+    revision.title === current.title
+      ? current.slug
+      : await uniqueDocSlug(current.spaceId, revision.title, current.id);
+  const readdressed = nextSlug !== current.slug;
+
   await prisma.$transaction([
     prisma.docRevision.create({
       data: {
         docId: current.id,
         title: current.title,
+        summary: current.summary,
         body: current.body,
         note: t.docs.restoredNote,
         authorId: user.id,
@@ -900,14 +930,38 @@ export async function restoreRevision(revisionId: string) {
     }),
     prisma.doc.update({
       where: { id: current.id },
-      data: { title: revision.title, body: revision.body, updatedById: user.id },
+      data: {
+        title: revision.title,
+        body: revision.body,
+        // Revisions written before the summary was kept hold null, and that
+        // null is "not recorded" rather than "there was none" — wiping a
+        // summary somebody has since written would be a loss the restore was
+        // never asked for.
+        ...(revision.summary === null ? {} : { summary: revision.summary }),
+        updatedById: user.id,
+        updatedAt: new Date(),
+        ...(readdressed
+          ? {
+              slug: nextSlug,
+              pastSlugs: [...new Set([...current.pastSlugs, current.slug])].filter(
+                (slug) => slug !== nextSlug,
+              ),
+            }
+          : {}),
+      },
     }),
   ]);
 
   await recordReferences({ body: revision.body, actorId: user.id, docId: current.id });
 
   refreshDoc(current.space.key, current.slug);
-  return { ok: true as const };
+  if (readdressed) refreshDoc(current.space.key, nextSlug);
+  // Where the page now answers, when the restored title moved it: the browser
+  // is standing on the address the newer title gave it.
+  return {
+    ok: true as const,
+    href: readdressed ? docHref(current.space.key, nextSlug) : undefined,
+  };
 }
 
 /* ---------------------------------------------------------------- portal -- */

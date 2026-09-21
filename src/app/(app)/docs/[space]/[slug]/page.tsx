@@ -25,7 +25,6 @@ import { AttachmentList } from "@/components/tickets/attachment-list";
 import { PanelCard } from "@/components/tickets/panel-card";
 import { DocArticle } from "@/components/docs/doc-editor";
 import { DocCare } from "@/components/docs/doc-care";
-import { DocOutline } from "@/components/docs/doc-outline";
 import { DocHistory } from "@/components/docs/doc-history";
 import { DocMenu } from "@/components/docs/doc-actions";
 import { PublishedCard } from "@/components/docs/doc-published";
@@ -244,9 +243,10 @@ export default async function DocPage({
 
   const rail = (
     <aside className="flex min-w-0 flex-col gap-3 px-5 py-6 lg:px-8 xl:px-4">
-      {/* First, and above what the page is *about*: it is the only card on the
-          rail somebody uses while reading rather than before or after. */}
-      <DocOutline headings={outline} />
+      {/* The page's own headings used to open this rail. They are on the page
+          now, hovering in its corner: an index is the one thing here that is
+          used *while* reading, and it had been sharing a column with who owns
+          the page and what it said last March. */}
 
       {/* Hidden rather than disabled on an archived page: there is nothing
           to own, review or move about a page that is out of the tree, and
@@ -281,7 +281,7 @@ export default async function DocPage({
           articleTitle={doc.article.title}
           categoryId={doc.article.categoryId}
           categoryName={doc.article.category?.name ?? null}
-          publishedWhen={t.docs.publishedWhen(when.format(doc.article.updatedAt))}
+          publishedOn={when.format(doc.article.updatedAt)}
           isLive={doc.article.isPublished}
           behind={behind}
           canManage={canManage}
@@ -353,6 +353,7 @@ export default async function DocPage({
         <div className="sheet m-3 min-w-0">
           <DocArticle
             docId={doc.id}
+            docPath={docHref(doc.space.key, doc.slug)}
             title={doc.title}
             summary={doc.summary}
             body={doc.body}
@@ -362,6 +363,7 @@ export default async function DocPage({
             reviewByDefault={defaults.editCountsAsReview}
             breadcrumb={breadcrumb}
             reading={reading}
+            outline={outline}
             actions={
               <>
                 <PinButton docId={doc.id} pinned={doc.stars.length > 0} />
@@ -374,7 +376,14 @@ export default async function DocPage({
                 title={doc.title}
                 spaceHref={spaceHref(doc.space.key)}
                 isArchived={Boolean(doc.archivedAt)}
-                isPublished={Boolean(doc.articleId)}
+                publishedAs={
+                  doc.article
+                    ? {
+                        categoryId: doc.article.categoryId,
+                        isLive: doc.article.isPublished,
+                      }
+                    : null
+                }
                 sections={sections}
                 proposedCategoryId={doc.space.portalCategoryId}
                 canManage={canManage}

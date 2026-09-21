@@ -74,6 +74,13 @@ call, which is what an instance that has not opted in to being polled should do.
 in outgoing mail are built from `NEXT_PUBLIC_APP_URL`, so an instance reachable on a
 real hostname has to say so there or every mail points at localhost.
 
+**The poll is not only about mail.** It is the only thing in Tiqo that runs on a clock,
+so it also sweeps the documentation for pages past their review date and tells the
+people who own them. A desk that never configures mail still wants the timer above, or
+the review settings in **Settings → Documentation** describe reminders that are never
+sent. The stale markers on the pages and the review queue are worked out as they are
+read and do not depend on it.
+
 Two things worth knowing about what arrives:
 
 - **A reply finds its ticket by the message id it quotes**, and only failing that by

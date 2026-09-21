@@ -74,8 +74,12 @@ export function SpaceManager({
   const [editing, setEditing] = useState<SpaceRow | "new" | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // The name gets a floor rather than whatever is left over: with
+  // `minmax(0,1fr)` the seven fixed columns took the whole of the width the
+  // settings column has on a laptop and left the shelf reading "Operat…",
+  // which is the one cell somebody is looking for.
   const columns =
-    "grid-cols-[32px_minmax(0,1fr)_120px_60px_60px_96px_minmax(0,140px)_64px] items-center gap-3";
+    "grid-cols-[32px_minmax(11rem,1fr)_112px_56px_56px_92px_minmax(0,132px)_76px] items-center gap-3";
 
   return (
     <div className="space-y-3">
@@ -86,9 +90,15 @@ export function SpaceManager({
       ) : (
         // Eight columns do not fit the settings column on a laptop, and the
         // answer to that is a table that scrolls rather than a table with its
-        // names cut in half.
+        // names cut in half. What the scroll must not take with it is the
+        // controls: move, move and edit are the only things on this page that
+        // *do* anything, and they were sitting in the part that was off the
+        // right-hand edge on any screen narrower than about 1540. They are
+        // pinned to that edge now, and the minimum width only applies where
+        // the grid does — below it the row is a name and its controls, and
+        // forcing 46rem there made a phone scroll sideways for nothing.
         <div className="card overflow-x-auto">
-          <div className="min-w-[46rem]">
+          <div className="lg:min-w-[50rem]">
             <div
               className={cn(
                 "label border-line bg-surface-2 hidden border-b px-3 py-2 lg:grid",
@@ -105,7 +115,7 @@ export function SpaceManager({
                   settings page without opening a dialog. */}
               <span>{t.docs.staleAfter}</span>
               <span>{t.docs.portalCategory}</span>
-              <span />
+              <span className="border-line bg-surface-2 sticky right-0 -mr-3 h-full border-l pr-3 pl-2" />
             </div>
 
             <ul className="divide-line divide-y">
@@ -166,7 +176,9 @@ export function SpaceManager({
                     )}
                   </span>
 
-                  <span className="flex shrink-0 items-center justify-end gap-0.5">
+                  {/* Pinned to the right edge, so scrolling the table to read
+                      a column never scrolls the controls out of reach. */}
+                  <span className="border-line bg-surface sticky right-0 -mr-3 flex shrink-0 items-center justify-end gap-0.5 border-l pr-3 pl-2">
                     <Icon
                       label={t.common.moveUp(space.name)}
                       disabled={index === 0 || pending}

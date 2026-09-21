@@ -1463,6 +1463,7 @@ export const en = {
     /* Shelves. */
     spaces: "Spaces",
     space: "Space",
+    browseShelf: "Pages on this shelf",
     allSpaces: "All spaces",
     newSpace: "New space",
     addSpace: "Add a space",
@@ -1579,6 +1580,8 @@ export const en = {
     edit: "Edit",
     editing: "Editing",
     editingUnsaved: "Editing · unsaved",
+    openTheirs: "Read their version",
+    saveAnyway: "Save mine anyway",
     hashHint: "Type # to refer to a ticket, an asset or a page",
     countsAsReview: "Counts as a review",
     note: "What changed",
@@ -1605,6 +1608,14 @@ export const en = {
     staleAfterDays: (days: number) => `${days} days without confirmation`,
     staleExplainer:
       "A page is stale when its review interval has passed since it was last confirmed. The interval starts from the space it is on and can be changed on any page.",
+    /// Said here because the settings above promise something the app cannot
+    /// keep on its own: Tiqo has no background worker, and the only thing that
+    /// runs on a clock is the poll route. A desk that does not use mail can
+    /// otherwise configure the whole of this and never receive a single notice.
+    remindersNeedPoll:
+      "Reminders go out when the poll route runs. It has to be on a timer — a cron entry, a systemd timer — or nothing here is ever sent; the README has the line to copy.",
+    remindersNoPoll:
+      "Nothing is polling this instance, so no reminder can be sent. Set MAIL_POLL_TOKEN and put the poll route on a timer; the README has the line to copy. The stale markers on the pages themselves work either way.",
     neverStale: "Never goes stale",
     reviewDays: (days: number) => `${days} days`,
     dueIn: (days: number) => (days === 1 ? "Review due tomorrow" : `Review due in ${days} days`),
@@ -1658,7 +1669,11 @@ export const en = {
     republishBlurb: "Overwrites the answer with what this page says now.",
     publishedAs: "On the portal",
     publishedWhen: (when: string) => `Published ${when}`,
-    underSection: (section: string, when: string) => `Under ${section} · ${when.toLowerCase()}`,
+    /// Takes the date itself rather than the sentence built from it: lowering
+    /// the case of a finished string turned "Published 21 Sept" into
+    /// "published 21 sept", and a month is a name in every locale this app
+    /// speaks.
+    underSection: (section: string, when: string) => `Under ${section} · published ${when}`,
     answerBehind: (count: number) =>
       count === 1
         ? "This page changed since — the answer is 1 revision behind."
@@ -2799,7 +2814,7 @@ export const en = {
     docGone: "That page is no longer there.",
     docArchived: "That page is archived. Take it out of the archive to change it.",
     docMovedOn: (who: string) =>
-      `${who} saved this page while you were writing. Open it again and put your changes in — saving now would replace theirs.`,
+      `${who} saved this page while you were writing. Read their version before you decide — saving yours replaces it on the page, though theirs is kept in the history.`,
     spaceGone: "That space is no longer there.",
     revisionGone: "That version is no longer there.",
     nameSpace: "Give the space a name.",

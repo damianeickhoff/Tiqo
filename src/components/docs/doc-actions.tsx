@@ -29,28 +29,40 @@ export function StillCorrectButton({ docId, className }: { docId: string; classN
   const t = useMessages();
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      className={className}
-      disabled={pending || done}
-      onClick={() =>
-        startTransition(async () => {
-          const result = await markReviewed(docId);
-          if (result.ok) setDone(true);
-        })
-      }
-    >
-      {pending ? (
-        <Loader2 size={13} className="animate-spin" />
-      ) : (
-        <CircleCheck size={13} className={done ? "text-positive" : undefined} />
-      )}
-      {pending ? t.docs.confirming : t.docs.stillCorrect}
-    </Button>
+    <span className="inline-flex flex-col items-end gap-0.5">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={className}
+        disabled={pending || done}
+        onClick={() =>
+          startTransition(async () => {
+            const result = await markReviewed(docId);
+            // A refusal used to do nothing at all, which reads exactly like a
+            // confirmation that did not take — and the page stays due either
+            // way, so nobody would find out from the list.
+            if (!result.ok) {
+              setError(result.error ?? t.errors.generic);
+              return;
+            }
+            setError(null);
+            setDone(true);
+          })
+        }
+      >
+        {pending ? (
+          <Loader2 size={13} className="animate-spin" />
+        ) : (
+          <CircleCheck size={13} className={done ? "text-positive" : undefined} />
+        )}
+        {pending ? t.docs.confirming : t.docs.stillCorrect}
+      </Button>
+      {error ? <span className="text-negative text-xs font-medium">{error}</span> : null}
+    </span>
   );
 }
 
@@ -124,7 +136,7 @@ export function DocMenu({
   title,
   spaceHref,
   isArchived,
-  isPublished,
+  publishedAs,
   sections,
   proposedCategoryId,
   canManage,
@@ -133,12 +145,16 @@ export function DocMenu({
   title: string;
   spaceHref: string;
   isArchived: boolean;
-  /// Whether this page already has an answer on the portal, which decides
-  /// whether publishing reads as "publish" or as "publish again".
-  isPublished: boolean;
+  /// The answer this page already has on the portal, with the section it is
+  /// filed under and whether requesters can see it — or null when it has
+  /// never been published. Both halves matter: publishing sends the whole
+  /// answer, so a dialog that opens on anything but where the answer already
+  /// stands moves it without being asked to.
+  publishedAs: { categoryId: string | null; isLive: boolean } | null;
   sections: PortalSection[];
-  /// Where the shelf says an answer from here belongs. A proposal only — one
-  /// shelf can feed two sections, and the wrong default is worse than none.
+  /// Where the shelf says an answer from here belongs. A proposal, and only
+  /// for the first publish — one shelf can feed two sections, and the wrong
+  /// default is worse than none.
   proposedCategoryId: string | null;
   canManage: boolean;
 }) {
@@ -149,8 +165,16 @@ export function DocMenu({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const [categoryId, setCategoryId] = useState(proposedCategoryId ?? "");
-  const [live, setLive] = useState(true);
+  // Where the answer already is, when there is one. Only a page that has never
+  // been published falls back to the shelf's proposal: "publish again" means
+  // catching the answer up with the words, not refiling it, and a dialog that
+  // opened on the shelf's suggestion moved a published answer out of its
+  // section every time somebody accepted it as it came up.
+  const [categoryId, setCategoryId] = useState(
+    publishedAs ? (publishedAs.categoryId ?? "") : (proposedCategoryId ?? ""),
+  );
+  const [live, setLive] = useState(publishedAs ? publishedAs.isLive : true);
+  const isPublished = publishedAs !== null;
 
   if (!canManage) return null;
 

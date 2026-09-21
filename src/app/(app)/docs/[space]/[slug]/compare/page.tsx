@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { canEditDocs } from "@/lib/permissions";
@@ -66,6 +66,12 @@ export default async function DocComparePage({
     },
   });
   if (!doc) notFound();
+
+  // Nothing has replaced anything yet, so there are no two versions to line
+  // up. Opening on "Version 1" against itself, with two empty panes and a
+  // line saying they agree, is a screen that answers a question nobody asked
+  // — so the address simply goes back to the page.
+  if (doc.revisions.length === 0) redirect(docHref(doc.space.key, doc.slug));
 
   const when = new Intl.DateTimeFormat(dateLocaleOf(settings), {
     day: "numeric",

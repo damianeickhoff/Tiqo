@@ -79,7 +79,10 @@ export default async function DocSettingsPage() {
       </SettingsSection>
 
       <SettingsSection title={t.docs.reviewDefaults} description={t.docs.reviewDefaultsBlurb}>
-        <DocDefaultsForm defaults={defaults} />
+        {/* Whether anything can reach the poll route at all. The whole of
+            the reminder scheme depends on it, and an instance with no token
+            set is one where nothing below will ever be sent. */}
+        <DocDefaultsForm defaults={defaults} polled={Boolean(process.env.MAIL_POLL_TOKEN)} />
       </SettingsSection>
     </SettingsSheet>
   );
