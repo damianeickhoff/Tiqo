@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { List } from "lucide-react";
+import { ChevronDown, List } from "lucide-react";
 import { useMessages } from "@/components/shell/instance-context";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +17,10 @@ export type Heading = { id: string; text: string; level: number };
  * page's corner, which fixed the scrolling and left a control floating an inch
  * below the row of controls it belongs to.
  *
- * So it is a button in that row now, lined up with Pin, Reading mode and Edit
- * because it is the same kind of thing: something you do to the page you are
- * looking at. Pointing at it, tabbing to it or tapping it drops the list
- * below, where every other menu in that row opens.
+ * So it is a plain button on the title's own line, at the right of the page
+ * and under the toolbar's last control — beside the thing it is an index of,
+ * rather than up among the controls that act on the page as a whole.
+ * Pointing at it, tabbing to it or tapping it drops the list below.
  *
  * Not rendered at all while the page is being written — the editor is a draft
  * of the words, and an index of headings that are being rewritten is worse
@@ -94,27 +94,33 @@ export function DocOutline({ headings }: { headings: Heading[] }) {
   return (
     <div
       ref={box}
-      className="relative"
+      // Nudged up by the two pixels that centre a 32px control on the first
+      // line of a 22px title, so it sits *on* the line rather than beside it.
+      className="relative -mt-0.5 shrink-0"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* The same height and radius as the buttons beside it, because it is
-          one of them. What it is *of* — the section under the eye — is the
-          first thing the open list says, and the title carries it for anybody
-          who hovers without clicking. */}
+      {/* The toolbar's own skin, so it reads as a control rather than as a
+          mark somebody left on the page. What it is *of* — the section under
+          the eye — is the first thing the open list says, and the title
+          carries it for anybody who hovers without clicking. */}
       <button
         type="button"
         onClick={() => setOpen((was) => !was)}
         onFocus={() => setOpen(true)}
         aria-expanded={open}
-        aria-label={t.docs.onThisPage}
         title={here ? `${t.docs.onThisPage} · ${here.text}` : t.docs.onThisPage}
         className={cn(
-          "rounded-control flex size-8 items-center justify-center transition-colors",
-          open ? "bg-surface-3 text-text" : "text-text-3 hover:bg-surface-2 hover:text-text",
+          "rounded-control flex h-8 items-center gap-1.5 border px-2.5 text-sm font-medium",
+          "whitespace-nowrap transition-colors",
+          open
+            ? "text-text border-transparent bg-[var(--surface-3)]"
+            : "bg-surface text-text-2 hover:text-text border-transparent shadow-[var(--highlight)]",
         )}
       >
-        <List size={15} aria-hidden />
+        <List size={13} aria-hidden />
+        {t.docs.onThisPage}
+        <ChevronDown size={12} className="text-text-3" aria-hidden />
       </button>
 
       {open ? (
@@ -125,11 +131,9 @@ export function DocOutline({ headings }: { headings: Heading[] }) {
           // every other menu in this row opens.
           className="animate-rise bg-surface rounded-card absolute top-full right-0 z-40 mt-1 w-64 overflow-hidden shadow-[var(--shadow-float)]"
         >
-          <p className="label border-line flex items-center gap-2 border-b px-3 py-2">
-            <List size={12} className="text-text-3 shrink-0" aria-hidden />
-            <span className="min-w-0 flex-1 truncate">{t.docs.onThisPage}</span>
-          </p>
-
+          {/* No heading on the list: the button it hangs from is one, an inch
+              above it, and `aria-label` says the same thing to anybody who
+              cannot see that. */}
           <ul className="rail-scroll max-h-[60vh] overflow-y-auto p-1">
             {headings.map((heading) => (
               <li key={heading.id}>

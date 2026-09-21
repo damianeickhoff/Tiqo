@@ -54,12 +54,12 @@ export function DocArticle({
   /// Whether both rails are away. The words then get more of the width they
   /// have been given, which is the whole reason somebody turned it on.
   reading = false,
-  /// The page's own headings, drawn as a button on the toolbar while reading.
-  /// Here rather than on the rail because it is the one thing beside the page
-  /// that is used *while* reading it — and here rather than in the page
-  /// beneath, because this component is the one that knows whether the words
-  /// on screen are the page or a draft of it. Writing takes it away: an index
-  /// of headings that are being rewritten is worse than no index.
+  /// The page's own headings, drawn as a button on the title's line while
+  /// reading. Here rather than on the rail because it is the one thing beside
+  /// the page that is used *while* reading it — and here rather than in the
+  /// page beneath, because this component is the one that knows whether the
+  /// words on screen are the page or a draft of it. Writing takes it away: an
+  /// index of headings that are being rewritten is worse than no index.
   outline = [],
   /// Drawn beside the title when the page is not being edited: the review
   /// state, who owns it, when it was last touched. Hidden while writing,
@@ -138,6 +138,12 @@ export function DocArticle({
   const [pending, startTransition] = useTransition();
   const form = useRef<HTMLFormElement>(null);
 
+  // Wide enough to hold a table and a code sample without folding them, and no
+  // wider: a line of prose that runs the whole of a 1920 screen is a line
+  // nobody finds the start of again. Reading mode, which has just taken both
+  // rails away, gets the extra.
+  const measure = reading ? "max-w-[72rem]" : "max-w-[60rem]";
+
   const dirty =
     draft.title !== committed.title ||
     draft.summary !== committed.summary ||
@@ -204,37 +210,43 @@ export function DocArticle({
   if (!editing) {
     return (
       <>
-        <div className="flex min-h-[44px] flex-wrap items-center gap-2 px-5 py-2 lg:px-6">
-          {breadcrumb}
-          <span className="ml-auto flex items-center gap-2">
-            {flash ? (
-              <span className="animate-fade text-positive inline-flex items-center gap-1 text-sm font-medium">
-                <Check size={13} strokeWidth={2.5} />
-                {t.common.saved}
-              </span>
-            ) : null}
-            <DocOutline headings={outline} />
-            {actions}
-            {canEdit ? (
-              <Button type="button" size="sm" onClick={() => setEditing(true)}>
-                <Pencil size={13} />
-                {t.docs.edit}
-              </Button>
-            ) : null}
-            {menu}
-          </span>
+        {/* The toolbar sits on the page's own measure rather than on the
+            sheet's, so its last control and the index on the title's line
+            below it share a right edge at any width. */}
+        <div className="px-5 py-2 lg:px-6">
+          <div className={cn("flex min-h-[44px] flex-wrap items-center gap-2", measure)}>
+            {breadcrumb}
+            <span className="ml-auto flex items-center gap-2">
+              {flash ? (
+                <span className="animate-fade text-positive inline-flex items-center gap-1 text-sm font-medium">
+                  <Check size={13} strokeWidth={2.5} />
+                  {t.common.saved}
+                </span>
+              ) : null}
+              {actions}
+              {canEdit ? (
+                <Button type="button" size="sm" onClick={() => setEditing(true)}>
+                  <Pencil size={13} />
+                  {t.docs.edit}
+                </Button>
+              ) : null}
+              {menu}
+            </span>
+          </div>
         </div>
 
         <div className="px-5 pt-2 pb-6 lg:px-6">
-          {/* Wide enough to hold a table and a code sample without folding
-              them, and no wider: a line of prose that runs the whole of a
-              1920 screen is a line nobody finds the start of again. Reading
-              mode, which has just taken both rails away, gets the extra. */}
-          <article className={reading ? "max-w-[72rem]" : "max-w-[60rem]"}>
+          <article className={measure}>
             <header>
-              <h1 className="text-xl leading-tight font-semibold tracking-[-0.02em] text-balance">
-                {committed.title}
-              </h1>
+              {/* The index belongs to the words, not to the row of things you
+                  can do to them, so it stands at the end of the title's own
+                  line. */}
+              <div className="flex items-start gap-3">
+                <h1 className="min-w-0 flex-1 text-xl leading-tight font-semibold tracking-[-0.02em] text-balance">
+                  {committed.title}
+                </h1>
+                <DocOutline headings={outline} />
+              </div>
               {committed.summary ? (
                 <p className="text-text-2 text-md mt-2 leading-relaxed">{committed.summary}</p>
               ) : null}
